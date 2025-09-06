@@ -19,10 +19,30 @@
       }
     ],
     "security": {
-      "csp": "default-src 'self' ipc: http://ipc.localhost; img-src 'self' asset: http://asset.localhost",
       "assetProtocol": {
         "enable": true,
-        "scope": ["*"]
+        "scope": [
+          "*"
+        ]
+      },
+      "csp": {
+        "default-src": [
+          "'self'",
+          "ipc:",
+          "http://ipc.localhost",
+          "asset:",
+          "tauri:"
+        ],
+        "img-src": [
+          "'self'",
+          "asset:",
+          "http://asset.localhost",
+          "tauri:"
+        ],
+        "style-src": [
+          "'self'",
+          "'unsafe-inline'"
+        ]
       }
     }
   },

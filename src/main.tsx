@@ -5,17 +5,14 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { ColorModeProvider } from './components/ui/color-mode'
 
-// import { ToolTipProvider } from './components/tooltip/ToolTip'
-import AppStateProvider from './hooks/AppStateProvider'
 import { system } from './theme/theme'
+import MetadataContainer from './metadata/MetadataContainer'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ChakraProvider value={system}>
       <ColorModeProvider>
-        <AppStateProvider>
-            <App />
-        </AppStateProvider>
+        <MetadataContainer />
       </ColorModeProvider>
     </ChakraProvider>
   </StrictMode>

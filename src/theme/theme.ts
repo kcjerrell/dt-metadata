@@ -1,6 +1,18 @@
 import { createSystem, defaultConfig, defineConfig } from '@chakra-ui/react'
 
 const themeConfig = defineConfig({
+  globalCss: {
+    html: {
+      overscrollBehavior: 'none'
+    },
+    ".hide-scrollbar": {
+      scrollbarWidth: "none",
+    },
+    ".hide-scrollbar::-webkit-scrollbar": {
+      /*Chrome, Safari, Edge*/
+      display: 'none'
+    }
+  },
   theme: {
     semanticTokens: {
       colors: {
