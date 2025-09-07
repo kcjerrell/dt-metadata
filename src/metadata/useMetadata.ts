@@ -19,7 +19,6 @@ export type ImageItem = {
   thumbUrl?: string
   pin?: number | null
   loadedAt: number
-  infoTab: 'image' | 'config' | 'gen'
 }
 
 export type MetadataContextState = {
@@ -58,7 +57,6 @@ export function useCreateMetadataContext() {
         id: imageId++,
         ...image,
         loadedAt: Date.now(),
-        infoTab: dt ? 'config' : 'image',
         dtData: dt,
         pin: null
       }
@@ -146,7 +144,7 @@ function compareItems(a: ImageItem, b: ImageItem): number {
   return b.loadedAt - a.loadedAt // both unpinned: newest first
 }
 
-async function loadImage(item?: string | DataTransfer | Blob | Uint8Array<ArrayBufferLike>): Promise<ImageMetadata | undefined> {
+export async function loadImage(item?: string | DataTransfer | Blob | Uint8Array<ArrayBufferLike>): Promise<ImageMetadata | undefined> {
   if (!item) return Promise.resolve(undefined)
 
   if (typeof item === 'string') {

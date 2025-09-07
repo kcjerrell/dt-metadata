@@ -5,71 +5,138 @@ const themeConfig = defineConfig({
     html: {
       overscrollBehavior: 'none'
     },
+    body: {
+      fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif;'
+    },
     ".hide-scrollbar": {
       scrollbarWidth: "none",
     },
     ".hide-scrollbar::-webkit-scrollbar": {
       /*Chrome, Safari, Edge*/
       display: 'none'
-    }
+    },
   },
   theme: {
     semanticTokens: {
       colors: {
-        bg: {
-          DEFAULT: {
-            value: {
-              _light: '{colors.gray.100}',
-              _dark: '{colors.gray.900}'
+        "check": {
+          "1": {
+            "value": {
+              "_light": "#f5f5f7",
+              "_dark": "#565e67"
             }
           },
-          0: {
-            value: {
-              _light: '{colors.gray.200}',
-              _dark: '{colors.gray.800}'
+          "2": {
+            "value": {
+              "_light": "#dbdddf",
+              "_dark": "#434753"
             }
           },
-          1: {
-            value: {
-              _light: '{colors.gray.300}',
-              _dark: '{colors.gray.700}'
+          "3": {
+            "value": {
+              "_light": "#e0e1e2",
+              "_dark": "#4c525b"
             }
           },
-          2: {
-            value: {
-              _light: '{colors.gray.400}',
-              _dark: '{colors.gray.600}'
+          "4": {
+            "value": {
+              "_light": "#c9cbcd",
+              "_dark": "#3b3f4a"
             }
           }
         },
-        fg: {
-          DEFAULT: {
-            value: {
-              _dark: '{colors.gray.100}',
-              _light: '{colors.gray.900}'
+        "bg": {
+          "1": {
+            "value": {
+              "_light": "#f5f6f7",
+              "_dark": "#141417"
             }
           },
-          0: {
-            value: {
-              _dark: '{colors.gray.200}',
-              _light: '{colors.gray.800}'
+          "2": {
+            "value": {
+              "_light": "#ececec",
+              "_dark": "#252525"
             }
           },
-          1: {
-            value: {
-              _dark: '{colors.gray.300}',
-              _light: '{colors.gray.700}'
+          "3": {
+            "value": {
+              "_light": "#e0e1e2",
+              "_dark": "#272932"
             }
           },
-          2: {
-            value: {
-              _dark: '{colors.gray.400}',
-              _light: '{colors.gray.600}'
+          "0": {
+            "value": {
+              "_light": "#ffffff",
+              "_dark": "#434753"
+            }
+          }
+        },
+        "fg": {
+          "1": {
+            "value": {
+              "_light": "#272932",
+              "_dark": "#dbdddf"
+            }
+          },
+          "2": {
+            "value": {
+              "_light": "#434753",
+              "_dark": "#b9bfc5"
+            }
+          },
+          "3": {
+            "value": {
+              "_light": "#565e67",
+              "_dark": "#8e97a2"
+            }
+          }
+        },
+        "highlight": {
+          "DEFAULT": {
+            "value": {
+              "_light": "#ec6956",
+              "_dark": "#d25542"
+            }
+          }
+        },
+        "info": {
+          "DEFAULT": {
+            "value": {
+              "_light": "#74b0ea",
+              "_dark": "#689fd3"
+            }
+          }
+        },
+        "bonus": {
+          "DEFAULT": {
+            "value": {
+              "_light": "#c6b9fa",
+              "_dark": "#2d2244"
+            }
+          }
+        },
+        "success": {
+          "1": {
+            "value": {
+              "_light": "#51ac35",
+              "_dark": "#2d3d29"
+            }
+          },
+          "DEFAULT": {
+            "value": {
+              "_light": "#d0fcc9",
+              "_dark": "#316524"
             }
           }
         }
       }
-    }
+    },
+    keyframes: {
+      'test': {
+        from: { transform: 'translateX(0)' },
+        to: { transform: 'translateX(100%)' },
+      }
+    },
   }
 })
 

@@ -2,32 +2,41 @@ import { Box, HStack, StackProps, Image, BoxProps } from '@chakra-ui/react'
 import { ImageItem } from './useMetadata'
 import { motion } from 'motion/react'
 
+import { Store, selectImage } from './store'
+import { useSnapshot } from 'valtio'
+import { ReadonlyState } from '..'
+
 interface HistoryProps extends Omit<StackProps, 'onSelect'> {
-  images?: ImageItem[]
-  onSelect?: (image: ImageItem) => void
-  selected?: ImageItem
+  // images?: ImageItem[]
+  // onSelect?: (image: ImageItem) => void
+  // selected?: ImageItem
 }
 
 function History(props: HistoryProps) {
-  const { images, onSelect, selected, ...restProps } = props
+  const { ...restProps } = props
+
+  const snap = useSnapshot(Store)
+  const { images, currentImage } = snap
 
   const pinned = images.filter(i => i.pin != null)
   const unpinned = images.filter(i => i.pin == null)
 
   return (
     <HStack
+      bgColor={'bg.1'}
       gap={1}
       // justifyContent={'start'}
-      transform={'translateY(25%)'}
+      transform={'translateY(40%)'}
       // overflow={'hidden'}
-      {...restProps}>
+      {...restProps}
+    >
       <HStack gap={0}>
         {pinned.map((image, i) => (
           <HistoryItem
             key={image.id}
             image={image}
-            isSelected={selected === image}
-            onSelect={() => onSelect?.(image)}
+            isSelected={currentImage === image}
+            onSelect={() => selectImage(image)}
           />
         ))}
       </HStack>
@@ -37,11 +46,11 @@ function History(props: HistoryProps) {
       <HStack gap={0} transform={'translateY(0%)'}>
         {unpinned.map((image, i) => (
           <HistoryItem
-            size={'3rem'}
             key={image.id}
             image={image}
-            isSelected={selected === image}
-            onSelect={() => onSelect?.(image)}
+            size={'2.5rem'}
+            isSelected={currentImage === image}
+            onSelect={() => selectImage(image)}
           />
         ))}
       </HStack>
@@ -50,7 +59,7 @@ function History(props: HistoryProps) {
 }
 
 interface HistoryItemProps extends BoxProps {
-  image: ImageItem
+  image: ReadonlyState<ImageItem>
   isSelected: boolean
   onSelect?: () => void
   size?: string
@@ -78,15 +87,17 @@ function HistoryItem(props: HistoryItemProps) {
       onClick={onSelect}
       objectFit={'cover'}
       {...restProps}
-      asChild>
+      asChild
+    >
       <motion.img
         initial={{ opacity: 0.5, y: 0, scale: 1, borderRadius: '15% 15% 0% 0%' }}
         animate={{
           opacity: isSelected ? 1 : 0.8,
-          y: isSelected ? -5 : 0,
-          scale: isSelected ? 1.05 : 1,
-          borderRadius: isSelected ? '20% 20% 0 0' : '10% 10% 0% 0%'
+          y: isSelected ? 0 : 0,
+          scale: isSelected ? 1.1 : 1,
+          borderRadius: isSelected ? '20% 20% 0 0' : '10% 10% 0% 0%',
         }}
+        whileHover={{ y: -5 }}
         src={image.url}
       />
     </Box>

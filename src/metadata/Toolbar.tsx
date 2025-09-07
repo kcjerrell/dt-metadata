@@ -1,32 +1,39 @@
-import { ButtonGroup, HStack, IconButton } from '@chakra-ui/react'
+import { ButtonGroup, HStack, IconButton, StackProps } from '@chakra-ui/react'
 import { invoke } from '@tauri-apps/api/core'
-import { FiClipboard, FiFolder, FiXCircle, } from 'react-icons/fi'
+import { FiClipboard, FiFolder, FiXCircle } from 'react-icons/fi'
 import { BsPinAngle } from 'react-icons/bs'
-import { useMetadata } from './useMetadata'
+import { addImage, pinImage, clearImages } from './store'
 
-type ToolbarProps = {}
+interface ToolbarProps extends StackProps {}
 
 function Toolbar(props: ToolbarProps) {
-  console.log('toolbar render')
-  const { loadData, clearData, pinTab, currentImage } = useMetadata()
-
+  const {...restProps} = props
   return (
-    <ButtonGroup flex={'0 0 auto'} size={'lg'} variant={'ghost'} colorPalette={'blue'} asChild>
-      <HStack gap={0}>
+    <ButtonGroup
+      bgColor={'bg.1'}
+      flex={'0 0 auto'}
+      size={'lg'}
+      variant={'ghost'}
+      colorPalette={'blue'}
+      gap={0}
+      {...restProps}
+      asChild
+    >
+      <HStack>
         <IconButton>
           <FiClipboard
             onClick={async () => {
               const bytes = await invoke<Uint8Array>('read_clipboard_png')
               // Convert bytes to Blob
               console.log('got bytes', bytes.length)
-              loadData(bytes)
+              addImage(bytes)
             }}
           />
         </IconButton>
-        <IconButton onClick={() => pinTab(currentImage, currentImage.pin != null)}>
+        <IconButton onClick={() => pinImage(true, true)}>
           <BsPinAngle />
         </IconButton>
-        <IconButton onClick={clearData}>
+        <IconButton onClick={clearImages}>
           <FiXCircle />
         </IconButton>
       </HStack>

@@ -7,12 +7,14 @@ import { ColorModeProvider } from './components/ui/color-mode'
 
 import { system } from './theme/theme'
 import MetadataContainer from './metadata/MetadataContainer'
+import { Test } from './Test'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ChakraProvider value={system}>
       <ColorModeProvider>
         <MetadataContainer />
+        {/* <Test/> */}
       </ColorModeProvider>
     </ChakraProvider>
   </StrictMode>

@@ -1,6 +1,7 @@
-import { BoxProps, Box } from '@chakra-ui/react'
-import { PropsWithChildren, useRef } from 'react'
-import { useScrollTabs } from './useScrollTabs'
+import { ScrollTabsContext2 } from '@/metadata/ScrollTabs'
+import { Box, BoxProps } from '@chakra-ui/react'
+import { PropsWithChildren, useContext, useEffect } from 'react'
+import { useSnapshot } from 'valtio'
 
 export interface TabPageProps extends PropsWithChildren<BoxProps> {
   label: string
@@ -8,21 +9,27 @@ export interface TabPageProps extends PropsWithChildren<BoxProps> {
 function TabPage(props: TabPageProps) {
   const { label, children, ...restProps } = props
 
-  const pageRef = useRef<HTMLDivElement>(null)
+  const cv = useContext(ScrollTabsContext2)
+  const snap = useSnapshot(cv)
+
+  const isSelected = snap.selectedTab === label
+
+  useEffect(() => {
+    cv.addTab(label)
+  }, [cv, label])
 
   return (
     <Box
-      ref={pageRef}
+      display={isSelected ? 'block' : 'none'}
       className={'hide-scrollbar'}
-      scrollSnapAlign={'center'}
       height={'100%'}
+      minHeight={0}
       width={'100%'}
-      flex={'0 0 auto'}
       overflowY={'scroll'}
       overflowX={'hidden'}
       overscrollBehavior={'auto contain'}
       {...restProps}>
-      {children}
+      {isSelected && children}
     </Box>
   )
 }

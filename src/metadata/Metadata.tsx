@@ -20,7 +20,7 @@ function Metadata(props: MetadataComponentProps) {
   const imgRef = useRef<HTMLImageElement>(null)
 
   const snap = useSnapshot(Store)
-  const { currentImage, zoomPreview, images } = snap
+  const { currentImage, zoomPreview } = snap
 
   // const { state, currentImage, setZoomPreview, loadData, selectImage, setImageTab } = useMetadata()
   // const { zoomPreview } = state
@@ -48,13 +48,15 @@ function Metadata(props: MetadataComponentProps) {
           // bgColor="bg.0"
           minWidth={0}
           minHeight={0}
-          {...restProps}>
+          {...restProps}
+        >
           <VStack
             flex="1 1 auto"
             padding={0}
             alignItems={'stretch'}
             justifyContent={'start'}
-            gap={0}>
+            gap={0}
+          >
             <Toolbar />
             <Box
               ref={dropRef}
@@ -66,7 +68,8 @@ function Metadata(props: MetadataComponentProps) {
               minHeight={0}
               padding={currentImage ? 1 : 8}
               width={'100%'}
-              {...handlers}>
+              // {...handlers}
+            >
               {currentImage?.url ? (
                 <Image
                   ref={imgRef}
@@ -75,7 +78,7 @@ function Metadata(props: MetadataComponentProps) {
                   src={currentImage?.url}
                   width={'100%'}
                   height={'100%'}
-                  onClick={() => Store.zoomPreview = true}
+                  onClick={() => (Store.zoomPreview = true)}
                 />
               ) : (
                 <Flex
@@ -88,30 +91,23 @@ function Metadata(props: MetadataComponentProps) {
                   borderColor={'fg/40'}
                   width={'100%'}
                   height={'100%'}
-                  borderRadius={'md'}>
+                  borderRadius={'md'}
+                >
                   Drop image here
                 </Flex>
               )}
             </Box>
-            <History
-              images={images}
-              onSelect={selectImage}
-              selected={currentImage}
-              scale={1}
-              transformOrigin={'bottom left'}
-            />
+            <History scale={1} transformOrigin={'bottom left'} />
           </VStack>
-          <InfoPane
-            // key={`info-${currentImage?.id}`}
-            image={currentImage}
-            setTab={tab => setImageTab(currentImage, tab)}
-          />
+          <InfoPane />
         </HStack>
 
         <Preview
-          image={currentImage}
+          image={currentImage as ImageItem}
           imgRef={imgRef.current}
-          onClick={() => setZoomPreview(false)}
+          onClick={() => {
+            Store.zoomPreview = false
+          }}
           show={zoomPreview}
         />
       </LayoutGroup>
@@ -137,7 +133,8 @@ function Preview(props: PreviewProps) {
       bgColor={'black/80'}
       onClick={() => onClick?.()}
       pointerEvents={show ? 'all' : 'none'}
-      asChild>
+      asChild
+    >
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: show ? 1 : 0 }}>
         <Image
           position={'absolute'}

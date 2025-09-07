@@ -1,13 +1,26 @@
 import { getCurrentWebview } from '@tauri-apps/api/webview'
-import { useMetadata } from './useMetadata'
+// import { useMetadata } from './useMetadata'
 import { useEffect, useMemo, useState } from 'react'
+import { Store, addImage } from './store'
+import { loadImage } from './useMetadata'
+import { on } from 'events'
 
 export function useMetadataDrop(dropzone: HTMLDivElement | null) {
-  const { loadData } = useMetadata()
-
   const [isDragging, setIsDragging] = useState(false)
 
-  const handlers = useMemo(() => ({}), [])
+  const handlers = useMemo(() => ({
+    onDragOver: (e: DragEvent) => {
+      e.preventDefault()
+      e.dataTransfer.dropEffect = 'copy'
+    },
+    onDrop: (e: DragEvent) => {
+      e.preventDefault()
+      debugger
+      const path = e.dataTransfer?.files[0].path
+      if (!path) return
+      addImage(path)
+    }
+  }), [])
 
   useEffect(() => {
     try {
@@ -30,7 +43,7 @@ export function useMetadataDrop(dropzone: HTMLDivElement | null) {
         if (event.payload.type === 'drop') {
           console.log(event)
           const path = event.payload.paths[0]
-          loadData(path)
+          addImage(path)
         }
       })
 
@@ -40,7 +53,7 @@ export function useMetadataDrop(dropzone: HTMLDivElement | null) {
     } catch (e) {
       console.warn(e)
     }
-  }, [isDragging, setIsDragging, dropzone, loadData])
+  }, [isDragging, setIsDragging, dropzone, addImage])
 
   return {
     isDragging,
