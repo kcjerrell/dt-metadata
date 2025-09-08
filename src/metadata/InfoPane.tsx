@@ -1,5 +1,5 @@
 import TabPage from '@/components/scrollTabs/TabPage'
-import { Box, HStack, SimpleGrid, VStack } from '@chakra-ui/react'
+import { Box, BoxProps, HStack, SimpleGrid, VStack } from '@chakra-ui/react'
 import DataItem from './DataItem'
 import ScrollTabs from './ScrollTabs'
 import { Store } from './store'
@@ -9,7 +9,7 @@ import { FiMoon } from 'react-icons/fi'
 import TempImage from '../assets/tempimage.png'
 import { useRef } from 'react'
 
-type InfoPanelProps = {}
+interface InfoPanelProps extends BoxProps {}
 
 function InfoPane(props: InfoPanelProps) {
   const { ...restProps } = props
@@ -40,6 +40,7 @@ function InfoPane(props: InfoPanelProps) {
           onClick: () => toggleColorMode(),
         },
       ]}
+      {...restProps}
     >
       <TabPage label={'image'}>
         <SimpleGrid columns={2}>

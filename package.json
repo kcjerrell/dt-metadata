@@ -16,6 +16,7 @@
     "@tauri-apps/plugin-clipboard-manager": "~2",
     "@tauri-apps/plugin-fs": "~2",
     "@tauri-apps/plugin-opener": "^2",
+    "@tauri-apps/plugin-store": "~2",
     "exifreader": "^4.31.2",
     "jotai": "^2.13.1",
     "motion": "^12.23.12",

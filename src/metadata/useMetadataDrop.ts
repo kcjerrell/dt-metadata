@@ -9,17 +9,16 @@ export function useMetadataDrop(dropzone: HTMLDivElement | null) {
   const [isDragging, setIsDragging] = useState(false)
 
   const handlers = useMemo(() => ({
-    onDragOver: (e: DragEvent) => {
-      e.preventDefault()
-      e.dataTransfer.dropEffect = 'copy'
-    },
-    onDrop: (e: DragEvent) => {
-      e.preventDefault()
-      debugger
-      const path = e.dataTransfer?.files[0].path
-      if (!path) return
-      addImage(path)
-    }
+    // onDragOver: (e: DragEvent) => {
+    //   e.preventDefault()
+    //   e.dataTransfer?.dropEffect = 'copy'
+    // },
+    // onDrop: (e: DragEvent) => {
+    //   e.preventDefault()
+    //   const path = e.dataTransfer?.files[0].path
+    //   if (!path) return
+    //   addImage(path)
+    // }
   }), [])
 
   useEffect(() => {
@@ -33,7 +32,6 @@ export function useMetadataDrop(dropzone: HTMLDivElement | null) {
 
         if (event.payload.type === 'over') {
           if (dropzone === overElem || dropzone?.contains(overElem)) {
-            console.log('over dropzone')
             if (!isDragging) setIsDragging(true)
           } else {
             if (isDragging) setIsDragging(false)
@@ -41,14 +39,16 @@ export function useMetadataDrop(dropzone: HTMLDivElement | null) {
         }
 
         if (event.payload.type === 'drop') {
-          console.log(event)
-          const path = event.payload.paths[0]
-          addImage(path)
+          for (const path of event.payload.paths) {
+            addImage(path)
+          }
+          setIsDragging(false)
         }
       })
 
       return () => {
         Promise.resolve(unlisten).then(r => r())
+        setIsDragging(false)
       }
     } catch (e) {
       console.warn(e)

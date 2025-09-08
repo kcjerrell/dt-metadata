@@ -49,3 +49,24 @@ then I was like, hey, why not just count the colors programatically? GENIUS
 except font smoothing ruins that idea.
 
 but Im gonna have some fun with it anyway because I'm a dork
+
+---
+
+as always, stop fiddling with style and get r done
+
+- image info layout
+  - add fs stats to page
+- reveal in finder
+- handle all inputs
+  - clipboard file
+  - clipboard image
+  - drag file
+  - clipboard url
+  - clipboard file path
+- state persistence
+- options
+  - clear history on exit (default true)
+  - clear pins on exit (default false)
+  - max history items
+- mini mode
+- fix image preview (only zoom when clicking on actual image)

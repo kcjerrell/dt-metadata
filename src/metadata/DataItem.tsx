@@ -13,7 +13,15 @@ type DataItemProps = {
 }
 
 function DataItem(props: DataItemProps) {
-  const { data: dataProp, label, cols: colsProp, decimalPlaces, forceJson, expandByDefault, ignore } = props
+  const {
+    data: dataProp,
+    label,
+    cols: colsProp,
+    decimalPlaces,
+    forceJson,
+    expandByDefault,
+    ignore,
+  } = props
 
   const [showCopied, setShowCopied] = useState(false)
   const [collapsible, setCollapsible] = useState(false)
@@ -63,8 +71,9 @@ function DataItem(props: DataItemProps) {
         _hover={{ borderColor: 'fg/40' }}
         bgColor={'bg.2'}
         fontSize={'sm'}
-        overflow={'hidden'}
-        whiteSpace={'pre-wrap'}
+        overflowY={'hidden'}
+        overflow={isJson ? 'auto' : 'hidden'}
+        // whiteSpace={'pre-wrap'}
         textOverflow={'ellipsis'}
         onClick={() => {
           navigator.clipboard.writeText(data.toString())
@@ -77,9 +86,10 @@ function DataItem(props: DataItemProps) {
             : 'none'
         }
         {...dataProps}
-        asChild>
+        asChild
+      >
         {isJson ? (
-          <Code fontSize={'sm'} whiteSpace={'pre'}>
+          <Code fontSize={'sm'} whiteSpace={'pre'} textWrap={'nowrap'}>
             {JSON.stringify(data, null, 2)}
           </Code>
         ) : (

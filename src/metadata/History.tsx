@@ -22,39 +22,29 @@ function History(props: HistoryProps) {
   const unpinned = images.filter(i => i.pin == null)
 
   return (
-    <HStack
-      bgColor={'bg.1'}
-      gap={1}
-      // justifyContent={'start'}
-      transform={'translateY(40%)'}
-      // overflow={'hidden'}
-      {...restProps}
-    >
-      <HStack gap={0}>
+    <Box className={'hide-scrollbar'} overflowX={'auto'} overflowY={'hidden'} bottom={0}>
+      <HStack gap={0} transform={'translateY(30%)'} overflowY={'visible'} {...restProps}>
         {pinned.map((image, i) => (
           <HistoryItem
             key={image.id}
             image={image}
             isSelected={currentImage === image}
             onSelect={() => selectImage(image)}
+            isPinned
           />
         ))}
-      </HStack>
-      {/* {pinned.length > 0 && unpinned.length > 0 && (
-        <Box  width={'1px'} marginX={1} height={'100%'} />
-      )} */}
-      <HStack gap={0} transform={'translateY(0%)'}>
         {unpinned.map((image, i) => (
           <HistoryItem
             key={image.id}
+            // boxShadow={'4px -2px 4px 0px #0000FFff'}
             image={image}
-            size={'2.5rem'}
+            size={'3rem'}
             isSelected={currentImage === image}
             onSelect={() => selectImage(image)}
           />
         ))}
       </HStack>
-    </HStack>
+    </Box>
   )
 }
 
@@ -63,44 +53,61 @@ interface HistoryItemProps extends BoxProps {
   isSelected: boolean
   onSelect?: () => void
   size?: string
+  isPinned?: boolean
 }
 function HistoryItem(props: HistoryItemProps) {
-  const { image, isSelected, onSelect, size = '3rem', ...restProps } = props
+  const { image, isSelected, onSelect, isPinned, size = '3rem', ...restProps } = props
   return (
-    <Box
-      key={image.id}
-      height={size}
-      width={size}
-      aspectRatio={'1/1'}
-      // paddingTop={0.5}
-      // border={'1px solid gray'}
-      bgColor={isSelected ? 'fg.0' : 'fg.2'}
-      padding={'1px'}
-      // paddingTop={0}
-      // paddingBottom={0}
-      // borderRadius={isSelected ? '10% 10% 0 0' : '0'}
-      // _last={{ borderRightWidth: '2px' }}
-      // _first={{ borderLeftWidth: '2px' }}
-      // bgColor={isSelected ? 'orange' : 'fg.1'}
-      // scale={isSelected ? 1.1 : 1}
-      zIndex={isSelected ? 1 : 0}
+    <motion.div
+      style={{
+        height: size,
+        width: size,
+        aspectRatio: '1/1',
+        padding: '0px',
+        overflow: 'hidden',
+        backgroundColor: 'black',
+        borderTop: isSelected
+          ? '3px solid var(--chakra-colors-highlight)'
+          : isPinned
+          ? '3px solid gray'
+            : 'none',
+        marginTop: isSelected || isPinned ? '-3px' : '0px',
+        transformOrigin: 'top'
+      }}
+      initial={{
+        y: 5,
+        scale: 1,
+        zIndex: 0,
+        borderRadius: '0% 0% 0 0',
+      }}
+      animate={{
+        zIndex: isSelected ? 1 : 0,
+        y: isSelected ? 2 : 5,
+        scale: isSelected ? 1.1 : 1,
+        borderRadius: isSelected ? '10% 10% 0 0' : '0% 0% 0% 0%',
+      }}
+      whileHover={{
+        y: -2, zIndex: 2,
+        borderRadius: '10% 10% 0 0', scale: 1.2
+      }}
+      transition={{ duration: 0.2, ease: 'circOut' }}
       onClick={onSelect}
-      objectFit={'cover'}
-      {...restProps}
-      asChild
     >
       <motion.img
-        initial={{ opacity: 0.5, y: 0, scale: 1, borderRadius: '15% 15% 0% 0%' }}
-        animate={{
-          opacity: isSelected ? 1 : 0.8,
-          y: isSelected ? 0 : 0,
-          scale: isSelected ? 1.1 : 1,
-          borderRadius: isSelected ? '20% 20% 0 0' : '10% 10% 0% 0%',
+        style={{
+          objectFit: 'cover',
         }}
-        whileHover={{ y: -5 }}
         src={image.url}
+        width={'100%'}
+        height={'100%'}
+        animate={{
+          opacity: isSelected ? 1 : 0.7,
+          borderRadius: isSelected ? '10% 10% 0 0' : '0% 0% 0% 0%',
+        }}
+        whileHover={{ borderRadius: '10% 10% 0 0', scale: 1.5, opacity: 0.9 }}
+        transition={{ duration: 0.2, ease: 'circOut', scale: { duration: 5, ease: 'easeIn' } }}
       />
-    </Box>
+    </motion.div>
   )
 }
 

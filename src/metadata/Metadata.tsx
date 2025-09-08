@@ -56,6 +56,7 @@ function Metadata(props: MetadataComponentProps) {
             alignItems={'stretch'}
             justifyContent={'start'}
             gap={0}
+            minWidth={0}
           >
             <Toolbar />
             <Box
@@ -97,9 +98,9 @@ function Metadata(props: MetadataComponentProps) {
                 </Flex>
               )}
             </Box>
-            <History scale={1} transformOrigin={'bottom left'} />
+            <History />
           </VStack>
-          <InfoPane />
+          <InfoPane width={'20rem'} />
         </HStack>
 
         <Preview

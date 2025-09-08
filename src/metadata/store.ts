@@ -52,7 +52,7 @@ export function pinImage(imageOrCurrent: ReadonlyState<ImageItem> | ImageItem | 
   let pinValue = null
   if (value === true)
     pinValue = Number.POSITIVE_INFINITY
-  if (typeof value === 'number') 
+  if (typeof value === 'number')
     pinValue = value
 
   storeImage.pin = pinValue
@@ -64,8 +64,14 @@ function reconcilePins() {
   pins.forEach((im, i) => im.pin = i + 1)
 }
 
-export function clearImages() {
-  Store.images = []
+export function clearImages(keepTabs = false) {
+  if (keepTabs) 
+    Store.images = Store.images.filter(im => im.pin != null)
+  else
+    Store.images = []
+  
+  Store.currentIndex = Store.images.length - 1
+  Store.currentImage = Store.images[Store.currentIndex]
 }
 
 let imageId = 0

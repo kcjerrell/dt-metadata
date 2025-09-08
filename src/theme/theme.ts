@@ -1,4 +1,6 @@
 import { createSystem, defaultConfig, defineConfig } from '@chakra-ui/react'
+import CheckLight from '../assets/check_light.png'
+import CheckDark from '../assets/check_dark.png'
 
 const themeConfig = defineConfig({
   globalCss: {
@@ -6,7 +8,12 @@ const themeConfig = defineConfig({
       overscrollBehavior: 'none'
     },
     body: {
-      fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif;'
+      fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif;',
+      bgImage: {
+        _light: `url(${CheckLight})`,
+        _dark: `url(${CheckDark})`
+      },
+      bgSize: '50px 50px'
     },
     ".hide-scrollbar": {
       scrollbarWidth: "none",
@@ -15,6 +22,9 @@ const themeConfig = defineConfig({
       /*Chrome, Safari, Edge*/
       display: 'none'
     },
+    '#root': {
+      bgColor: '#73747540'
+    }
   },
   theme: {
     semanticTokens: {
@@ -48,7 +58,7 @@ const themeConfig = defineConfig({
         "bg": {
           "1": {
             "value": {
-              "_light": "#f5f6f7",
+              "_light": "#f2f3f4",
               "_dark": "#141417"
             }
           },

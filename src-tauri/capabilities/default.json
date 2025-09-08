@@ -11,6 +11,8 @@
     "clipboard-manager:allow-read-text",
     "clipboard-manager:allow-write-text",
     "clipboard-manager:allow-read-image",
-    "fs:allow-stat"
+    "fs:allow-stat",
+    "core:window:allow-start-dragging",
+    "store:default"
   ]
 }
