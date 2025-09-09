@@ -4,6 +4,7 @@ import {
   Box,
   BoxProps,
   Button,
+  ButtonProps,
   HStack,
   SegmentGroup,
   Spacer,
@@ -13,7 +14,7 @@ import {
 import { createContext, PropsWithChildren, UIEvent, useEffect, useRef } from 'react'
 import { proxy, useSnapshot } from 'valtio'
 
-interface ScrollTabsProps extends PropsWithChildren<StackProps> {
+interface ScrollTabsProps extends PropsWithChildren<Omit<StackProps,'direction'>> {
   defaultTab?: string
   onChanged?: (tab: string) => void
   tabTransform?: StackProps['textTransform']
@@ -21,6 +22,21 @@ interface ScrollTabsProps extends PropsWithChildren<StackProps> {
 }
 
 export const ScrollTabsContext2 = createContext(undefined)
+
+const selectedButtonStyle: ButtonProps = {
+  borderBottom: '3px solid {colors.highlight}',
+  bgColor: 'bg.2',
+  // transform: 'translateY(3px)',
+  color: 'highlight',
+  // marginBottom: '-6px'
+}
+
+const unselectedButtonStyle: ButtonProps = {
+  borderBottom: '3px solid transparent',
+  bgColor: 'unset',
+  // transform: 'translateY(20px)',
+  color: 'fg.3'
+}
 
 function ScrollTabs(props: ScrollTabsProps) {
   const { children, defaultTab, onChanged, tabTransform, rightButtons, ...restProps } = props
@@ -71,25 +87,27 @@ function ScrollTabs(props: ScrollTabsProps) {
                 key={v}
                 variant={'ghost'}
                 size={'sm'}
-                paddingBlock={'3px'}
+                paddingTop={'6px'}
+                paddingBottom={'2px'}
                 paddingX={2}
                 height={'unset'}
                 borderRadius={0}
                 border={'none'}
-                borderBottom={isSelected ? '3px solid {colors.highlight}' : '3px solid transparent'}
-                color={isSelected ? 'highlight' : 'fg.3'}
+                // borderBottom={'3px solid transparent'}
+                // color={'fg.3'}
                 // borderInline={'unset'}
                 // borderColor={isSelected ? 'bg.3' : 'transparent'}
                 zIndex={2}
                 // marginBottom={'-1px'}
                 // borderBottomColor={isSelected ? 'highlight' : 'transparent'}
-                bgColor={isSelected ? 'bg.2' : 'unset'}
+                // bgColor={'unset'}
                 // fontWeight={isSelected ? 'bold' : 'normal'}
                 textTransform={tabTransform}
                 // bgColor={isSelected ? 'accent' : 'transparent'}
                 onClick={() => snap.selectTab(v)}
-                transform={isSelected ? 'translateY(0px)' : 'translateY(2px)'}
+                // transform={'translateY(2px)'}
                 // _hover={{ bgColor: isSelected ? 'bg.2' : 'bg.2' }}
+                {...(isSelected ? selectedButtonStyle : unselectedButtonStyle)}
               >
                 {v}
               </Button>

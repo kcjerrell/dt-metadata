@@ -1,15 +1,12 @@
+import { loadFromClipboard } from '@/utils/clipboard'
 import { ButtonGroup, HStack, IconButton, Spacer, StackProps } from '@chakra-ui/react'
-import { invoke } from '@tauri-apps/api/core'
-import { FiClipboard, FiFolder, FiXCircle } from 'react-icons/fi'
-import { BsPinAngle } from 'react-icons/bs'
-import { addImage, pinImage, clearImages, Store } from './store'
-import { DevStore, useSeries } from '@/devStore'
-import { useSnapshot } from 'valtio'
-import { IconType } from 'react-icons/lib'
-import { RiPushpin2Line } from 'react-icons/ri'
-import { GrPin } from 'react-icons/gr'
 import { motion } from 'motion/react'
-import { PropsWithChildren, useRef } from 'react'
+import { PropsWithChildren } from 'react'
+import { FiClipboard, FiXCircle } from 'react-icons/fi'
+import { GrPin } from 'react-icons/gr'
+import { IconType } from 'react-icons/lib'
+import { useSnapshot } from 'valtio'
+import { clearImages, pinImage, Store } from './store'
 
 interface ToolbarProps extends StackProps {}
 
@@ -19,7 +16,7 @@ function Toolbar(props: ToolbarProps) {
   const { currentImage } = useSnapshot(Store)
 
   return (
-    <HStack padding={1}>
+    <HStack padding={2} data-tauri-drag-region>
       <Spacer data-tauri-drag-region />
       <ButtonGroup
         bgColor={'bg.1'}
@@ -38,10 +35,30 @@ function Toolbar(props: ToolbarProps) {
           <ToolbarButton
             icon={FiClipboard}
             onClick={async () => {
-              const bytes = await invoke<Uint8Array>('read_clipboard_png')
-              // Convert bytes to Blob
-              console.log('got bytes', bytes.length)
-              addImage(bytes)
+              // const bytes = await invoke<Uint8Array>('read_clipboard_png')
+              // // Convert bytes to Blob
+              // console.log('got bytes', bytes.length)
+              // addImage(bytes)
+              // const types = await clipboard.getAvailableTypes()
+              // console.log(types)
+              // if (types.image) {
+              //   const url = await clipboard.readImageBinary('Uint8Array')
+
+              //   addImage(url)
+              // }
+              // const types = await invoke("read_clipboard_types")
+              // console.log(types)
+              // const url =
+              //   // 'https://cdn.discordapp.com/attachments/1059883294486953984/1413470831375286272/he_is_on_a_white_background_-__2829551034.png?ex=68bf588b&is=68be070b&hm=781ae7399b9c3f45a2a80ec30ff1284e61cc678f6a1e84cf56810ea0be4edfbc&'
+              //   'https://cdn.discordapp.com/attachments/1095620416065781790/1413489634838839438/0_scaly_crocodile_unicorn___pegasus_full_body_portrait_2171547597.png?ex=68bf6a0e&is=68be188e&hm=c5b0df21d73ef39bb8036285f1b47a15809852d652a603f46312d7dbc4531438&'
+              // const data = await invoke('fetch_image_file', { url })
+              // console.log(data)
+              // addImage(data)
+              try {
+                await loadFromClipboard()
+              } catch (e) {
+                console.error(e)
+              }
             }}
           />
           <ToolbarButton onClick={() => pinImage(true, currentImage?.pin !== null ? null : true)}>
@@ -103,6 +120,15 @@ const Pinned = ({ pin }: { pin: number | null }) => {
     )
 
   return <UnPinned />
+}
+
+function base64ToUint8Array(base64: string): Uint8Array {
+  const binary = atob(base64)
+  const bytes = new Uint8Array(binary.length)
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i)
+  }
+  return bytes
 }
 
 export default Toolbar

@@ -1,6 +1,5 @@
 import { FileInfo } from '@tauri-apps/plugin-fs'
 import { Tags } from 'exifreader'
-import { type Stats } from 'fs'
 
 export type DrawThingsMetaData = {
   prompt: string
@@ -110,4 +109,21 @@ export type ImageMetadata = {
   exif?: Tags
   path?: string
   url?: string
+  source?: ImageSource
 }
+
+export type ImageItem = {
+  id: number,
+  filepath?: string
+  info?: FileInfo
+  exif?: ExifReader.Tags
+  dtData?: DrawThingsMetaData
+  url?: string
+  thumbUrl?: string
+  pin?: number | null
+  loadedAt: number
+  source: ImageSource
+  type: string
+}
+
+export type ImageSource = { file: string } | { clipboard: string } | { url: string }

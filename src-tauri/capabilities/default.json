@@ -12,7 +12,19 @@
     "clipboard-manager:allow-write-text",
     "clipboard-manager:allow-read-image",
     "fs:allow-stat",
+    "fs:allow-read",
+    "fs:allow-write",
+    "fs:allow-write-file",
+    "fs:allow-mkdir",
+    "fs:allow-read-file",
+    "fs:allow-exists",
+    "fs:allow-appdata-write-recursive",
+    "fs:allow-appdata-read-recursive",
     "core:window:allow-start-dragging",
-    "store:default"
+    "store:default",
+    "clipboard:read-all",
+    "http:allow-fetch",
+    "core:event:default",
+    "valtio:default"
   ]
 }

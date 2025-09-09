@@ -6,20 +6,11 @@ import { useMutative } from 'use-mutative'
 import { current } from 'mutative'
 import { FileInfo, stat } from '@tauri-apps/plugin-fs'
 import { getDrawThingsDataFromExif } from './helpers'
+import { ImageItem } from "@/types"
 
 let imageId = 0
 
-export type ImageItem = {
-  id: number,
-  filepath?: string
-  info?: FileInfo
-  exif?: ExifReader.Tags
-  dtData?: DrawThingsMetaData
-  url?: string
-  thumbUrl?: string
-  pin?: number | null
-  loadedAt: number
-}
+
 
 export type MetadataContextState = {
   images: ImageItem[]
@@ -48,25 +39,25 @@ export function useCreateMetadataContext() {
 
   const loadData = useCallback(
     async (data?: string | DataTransfer | Blob | Uint8Array) => {
-      const image = await loadImage(data)
-      if (!image) return
+      // const image = await loadImage(data)
+      // if (!image) return
 
-      const dt = getDrawThingsDataFromExif(image.exif)
+      // const dt = getDrawThingsDataFromExif(image.exif)
 
-      const item: ImageItem = {
-        id: imageId++,
-        ...image,
-        loadedAt: Date.now(),
-        dtData: dt,
-        pin: null
-      }
+      // const item: ImageItem = {
+      //   id: imageId++,
+      //   ...image,
+      //   loadedAt: Date.now(),
+      //   dtData: dt,
+      //   pin: null
+      // }
 
-      setState((d) => {
-        d.images.push(item)
-        d.images.sort(compareItems)
+      // setState((d) => {
+      //   d.images.push(item)
+      //   d.images.sort(compareItems)
 
-        d.currentIndex = current(d.images).indexOf(item)
-      })
+      //   d.currentIndex = current(d.images).indexOf(item)
+      // })
     },
     [setState]
   )
@@ -90,11 +81,11 @@ export function useCreateMetadataContext() {
   }, [setState])
 
   const setImageTab = useCallback((image: ImageItem, tab: 'image' | 'config' | 'gen') => {
-    if (!image || !tab || image.infoTab === tab) return
-    setState((d) => {
-      const index = current(d.images).indexOf(image)
-      d.images[index].infoTab = tab
-    })
+    // if (!image || !tab || image.infoTab === tab) return
+    // setState((d) => {
+    //   const index = current(d.images).indexOf(image)
+    //   d.images[index].infoTab = tab
+    // })
   }, [setState])
 
   const pinTab = useCallback((image: ImageItem, unpin = false) => {
@@ -147,18 +138,20 @@ function compareItems(a: ImageItem, b: ImageItem): number {
 export async function loadImage(item?: string | DataTransfer | Blob | Uint8Array<ArrayBufferLike>): Promise<ImageMetadata | undefined> {
   if (!item) return Promise.resolve(undefined)
 
+  //
   if (typeof item === 'string') {
     const url = convertFileSrc(item)
+    console.log('loadimage', item, url)
     const metadata = await getMetaDataFromPath(url)
     const info = await stat(item)
-    return { ...metadata, url, info }
+    return { ...metadata, url, info, source: { file: item } }
   }
 
   if (item instanceof Blob) {
     const data = await blobToDataURL(item)
     const metaData = await getMetaDataFromPath(data)
     const url = data
-    return { ...metaData, url }
+    return { ...metaData, url, source: { clipboard: 'png' } }
   }
 
   if (item instanceof DataTransfer) {
@@ -195,7 +188,7 @@ async function getMetaDataFromPath(path: string): Promise<ImageMetadata | undefi
   }
 }
 
-async function getMetaDataFromBuffer(buffer: Uint8Array<ArrayBufferLike>): Promise<ImageMetadata | undefined> {
+export async function getMetaDataFromBuffer(buffer: Uint8Array<ArrayBufferLike>): Promise<ImageMetadata | undefined> {
   try {
     const exif = await ExifReader.load(buffer.buffer)
     return { exif }

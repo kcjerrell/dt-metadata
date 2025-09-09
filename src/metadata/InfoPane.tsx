@@ -1,5 +1,5 @@
 import TabPage from '@/components/scrollTabs/TabPage'
-import { Box, BoxProps, HStack, SimpleGrid, VStack } from '@chakra-ui/react'
+import { Box, BoxProps, Code, HStack, SimpleGrid, VStack } from '@chakra-ui/react'
 import DataItem from './DataItem'
 import ScrollTabs from './ScrollTabs'
 import { Store } from './store'
@@ -78,11 +78,12 @@ function InfoPane(props: InfoPanelProps) {
       </TabPage>
       <TabPage label={'gen'}>
         {dtData?.profile?.timings?.map((t, i) => (
-          <DataItem key={i} label={t.name} data={t.durations} />
+          <DataItem key={i} label={t.name} data={t.durations as number[]} />
         ))}
       </TabPage>
       <TabPage label={'test'}>
         <VStack>
+          {/* <Code>{JSON.stringify(snap, null, 2)}</Code> */}
           <input
             type="range"
             min={0}

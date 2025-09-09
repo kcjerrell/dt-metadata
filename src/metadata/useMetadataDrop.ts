@@ -1,62 +1,65 @@
 import { getCurrentWebview } from '@tauri-apps/api/webview'
 // import { useMetadata } from './useMetadata'
-import { useEffect, useMemo, useState } from 'react'
-import { Store, addImage } from './store'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { addImage, createImageItem } from './store'
+import { proxy, useSnapshot } from 'valtio'
+import { getLocalImage } from '@/utils/clipboard'
 import { loadImage } from './useMetadata'
-import { on } from 'events'
 
-export function useMetadataDrop(dropzone: HTMLDivElement | null) {
-  const [isDragging, setIsDragging] = useState(false)
+export function useMetadataDrop() {
+  const state = useRef(null)
 
-  const handlers = useMemo(() => ({
-    // onDragOver: (e: DragEvent) => {
-    //   e.preventDefault()
-    //   e.dataTransfer?.dropEffect = 'copy'
-    // },
-    // onDrop: (e: DragEvent) => {
-    //   e.preventDefault()
-    //   const path = e.dataTransfer?.files[0].path
-    //   if (!path) return
-    //   addImage(path)
-    // }
-  }), [])
+  if (state.current === null) {
+    state.current = proxy({ isDragging: false })
+  }
+
+  const snap = useSnapshot(state.current)
+
+  const handlers = useMemo(
+    () => ({
+      // onDragOver: (e: DragEvent) => {
+      //   e.preventDefault()
+      //   e.dataTransfer?.dropEffect = 'copy'
+      // },
+      // onDrop: (e: DragEvent) => {
+      //   e.preventDefault()
+      //   const path = e.dataTransfer?.files[0].path
+      //   if (!path) return
+      //   addImage(path)
+      // }
+    }),
+    []
+  )
 
   useEffect(() => {
-    try {
+    console.log('useMetadataDrop effect')
+    const webView = getCurrentWebview()
+    const unlisten = webView.onDragDropEvent(async event => {
+      if (event.payload.type === 'over') return
 
-      const webView = getCurrentWebview()
-      const unlisten = webView.onDragDropEvent(event => {
-        if (event.payload.type !== 'drop' && event.payload.type !== 'over') return
-        const { x, y } = event.payload.position
-        const overElem = document.elementFromPoint(x, y)
+      if (event.payload.type === 'enter') state.current.isDragging = true
 
-        if (event.payload.type === 'over') {
-          if (dropzone === overElem || dropzone?.contains(overElem)) {
-            if (!isDragging) setIsDragging(true)
-          } else {
-            if (isDragging) setIsDragging(false)
-          }
+      if (event.payload.type === 'leave') state.current.isDragging = false
+
+      if (event.payload.type === 'drop') {
+        for (const path of event.payload.paths) {
+          // const image = await getLocalImage(path)
+          // if (image) await createImageItem(image)
+          await addImage(path)
         }
-
-        if (event.payload.type === 'drop') {
-          for (const path of event.payload.paths) {
-            addImage(path)
-          }
-          setIsDragging(false)
-        }
-      })
-
-      return () => {
-        Promise.resolve(unlisten).then(r => r())
-        setIsDragging(false)
+        state.current.isDragging = false
       }
-    } catch (e) {
-      console.warn(e)
+    })
+
+    return () => {
+      console.log('unlisten')
+      Promise.resolve(unlisten).then(r => r())
+      state.current.isDragging = false
     }
-  }, [isDragging, setIsDragging, dropzone, addImage])
+  }, [])
 
   return {
-    isDragging,
-    handlers
+    isDragging: snap.isDragging,
+    handlers,
   }
 }

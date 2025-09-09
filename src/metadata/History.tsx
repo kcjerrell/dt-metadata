@@ -1,10 +1,10 @@
 import { Box, HStack, StackProps, Image, BoxProps } from '@chakra-ui/react'
-import { ImageItem } from './useMetadata'
 import { motion } from 'motion/react'
 
 import { Store, selectImage } from './store'
 import { useSnapshot } from 'valtio'
 import { ReadonlyState } from '..'
+import { ImageItem } from '@/types'
 
 interface HistoryProps extends Omit<StackProps, 'onSelect'> {
   // images?: ImageItem[]

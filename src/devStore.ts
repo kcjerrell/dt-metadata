@@ -37,3 +37,10 @@ export function useSeries(arg0: unknown[], interval = 500) {
 
   return item
 }
+
+let last = 0
+export function since(comment: string) {
+  const now = performance.now()
+  console.log(comment, now - last)
+  last = now
+}

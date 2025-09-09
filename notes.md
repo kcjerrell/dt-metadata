@@ -69,4 +69,110 @@ as always, stop fiddling with style and get r done
   - clear pins on exit (default false)
   - max history items
 - mini mode
+- must reorganize all the image loading functions
+
+ui things
+- toolbar shadow on image
 - fix image preview (only zoom when clicking on actual image)
+- I don't love the theme button where it is
+- need feedback for dragging in an image
+
+---
+
+okay data persistence. need to save
+- options values (see above)
+- images list
+  - each image needs to save the information required to restore its state 
+    - for files, that is simply a file path
+    - for clipboard items that aren't files, we'll need to save them, and save their file path
+    - the data should like this
+    {
+        maxHistory: 10,
+        clearHistoryOnExist: true,
+        clearPinsOnExit: true,
+        currentImageIndex: number, // might as well
+        images: [
+          {
+            path: (the actual file path or the cached path)
+            source: (an object describing where the image was loaded from)
+            pin: the pin order
+            thumbnail: (not sure if I will have separate thumbnails, but this will the path)
+          }
+        ]
+    }
+
+    sources: 
+      - { file: (original file path) }
+      - { clipboard: "png" }
+      - { url: (original image url) }
+
+okay to get app state to save and load, I need to first tackle the image loadeers. 
+at first I had tried to make a single function that would take anything, since I wasn't sure what I would end up needing
+but it all boils down to 
+  - file drops
+  - clipboard stuff
+And I need to ensure that...
+  - context about the image origin is retained
+  - everything needed to recreate the image item on the next app run
+    - make sure file permissions are saved (tauri persisted-scope?)
+    - clipbard images need to be cached
+
+pasting from 
+  - finder
+    - NSFilenamesPboardType
+  - draw things
+    - public.png
+  - lunacy
+    - public.png
+  - chromium (right click image in page, copy image)
+    - public.png 
+    - public.html seems to have the original as a data url
+    - I know that to get dt data out of a discord image, you have to open in browser and download, copying doesn't work. 
+      BUT I see that when you copy from either chromium or discord, there is also public.html which has the discord url.
+  - discord
+    - easiest way is to copy link 
+
+Okay, so the types i'm interested in are:
+- public.png
+- public.utf8-plain-text
+- NSFilenamesPboardType
+- org.chromium.source-url
+- public.file-url
+- public.url
+
+- Draw Things
+  - public.png
+- Finder
+  - public.file-url will not have a valid path
+    - check for "file:///.file/"
+  - NSFilenamesPboardType has full path
+    - there is a lib for parsing this
+- Picarrange, Marta
+  - public.file-url has full paths
+  - NSFilenamesPboardType has full path
+- Discord
+  - sometimes an alternate format is specified in the query string. It can be removed to get the image with the metadata
+- Safari
+  - public.url, public.utf8-plain-text
+
+https://cdn.discordapp.com/attachments/1095620416065781790/1413489634838839438/0_scaly_crocodile_unicorn___pegasus_full_body_portrait_2171547597.png?ex=68bf6a0e&is=68be188e&hm=c5b0df21d73ef39bb8036285f1b47a15809852d652a603f46312d7dbc4531438&
+
+https://media.discordapp.net/attachments/1095620416065781790/1413489634838839438/0_scaly_crocodile_unicorn___pegasus_full_body_portrait_2171547597.png?ex=68bf6a0e&is=68be188e&hm=c5b0df21d73ef39bb8036285f1b47a15809852d652a603f46312d7dbc4531438&=&format=webp&quality=lossless
+
+
+---
+
+now for storing images
+
+we'll use apppDataDir/cache
+
+file names will use nanoid with the proper file extension
+
+how to keep it clean?
+  - when removing/clearing an image item, if backed by cache, delete it
+  - clean on exit
+    - i'd rather just clean on start, but I guess I should do both. exit routine can remove history or pins depending on user setting, and then delete any images that aren't supposed to be saved
+  - clean on start
+    - once app has finished loading, delete any images that aren't specifed in app state
+
+Maybe I should even cache file drops. that way all images can be handle the same once loaded.

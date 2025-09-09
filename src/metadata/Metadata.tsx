@@ -1,18 +1,19 @@
 import { Box, Flex, HStack, Image, StackProps, VStack } from '@chakra-ui/react'
 import { LayoutGroup, motion } from 'motion/react'
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
 import 'react-json-view-lite/dist/index.css'
 import History from './History'
 import InfoPane from './InfoPane'
 import Toolbar from './Toolbar'
-import { ImageItem, useMetadata } from './useMetadata'
 import { useMetadataDrop } from './useMetadataDrop'
 
-import { Store, selectImage } from './store'
 import { useSnapshot } from 'valtio'
+import { Store } from './store'
+import { ImageItem } from '@/types'
+import { since } from '@/devStore'
 
-interface MetadataComponentProps extends StackProps {}
-const lname = 'preserve-aspect'
+interface MetadataComponentProps extends StackProps { }
+
 function Metadata(props: MetadataComponentProps) {
   const { ...restProps } = props
 
@@ -24,14 +25,14 @@ function Metadata(props: MetadataComponentProps) {
 
   // const { state, currentImage, setZoomPreview, loadData, selectImage, setImageTab } = useMetadata()
   // const { zoomPreview } = state
-  const { isDragging, handlers } = useMetadataDrop(dropRef.current)
+  const { isDragging, handlers } = useMetadataDrop()
 
   // useEffect(() => {
   //   loadData(
   //     '/Users/kcjer/ai/jk/rich_3d_rendering_____very_detailed_3d_image__rich_painterly_texture__beautiful_lighting__slightly_exaggerated_features__subtle_2_5d_cartoon_style__skin_has_a_realistic_texture_with_subt_698226638.png'
   //   )
   // }, [loadData])
-
+since('render')
   return (
     <Box width="100vw" height="100vh" position={'relative'} overscrollBehavior={'none none'}>
       <LayoutGroup>

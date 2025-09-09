@@ -17,7 +17,7 @@
       "assetProtocol": {
         "enable": true,
         "scope": [
-          "*"
+          "**"
         ]
       },
       "csp": {
@@ -26,13 +26,17 @@
           "ipc:",
           "http://ipc.localhost",
           "asset:",
-          "tauri:"
+          "tauri:",
+          "https://cdn.discordapp.com"
         ],
         "img-src": [
           "'self'",
           "asset:",
           "http://asset.localhost",
-          "tauri:"
+          "tauri:",
+          "http:",
+          "https:",
+          "https://cdn.discordapp.com"
         ],
         "style-src": [
           "'self'",
