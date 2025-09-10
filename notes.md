@@ -176,3 +176,26 @@ how to keep it clean?
     - once app has finished loading, delete any images that aren't specifed in app state
 
 Maybe I should even cache file drops. that way all images can be handle the same once loaded.
+
+Hmm, so valtio-store is cool. Except there's no finegrained control over nested objects
+
+I don't have any image data in state anymore, just the metadata/exif - which is perhaps more than I want persisted (it can easily be read again on demand)
+
+since I can't filter by nest key (images[number].exif), I'll split the images list between state to be serialized and state that can be lazy loaded.
+
+---
+
+- change store to use string ids for images
+- update imagestore to manage ids
+- just always use png for image cache
+
+imageStore api:
+  - saveImage(data: Uint8Array): {id: string, url: string, thumbUrl: string}
+  - getImage(id: string): {id: string, url: string, thumbUrl: string}
+  - sync(ids: string[]): void
+
+If I'm using pngs only, how will I save metadata for other file types?
+- .json? yeah that will work
+
+no I think images should be stored as is, with metadata intact
+

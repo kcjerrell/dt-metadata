@@ -1,15 +1,12 @@
-import { proxy, snapshot, subscribe } from 'valtio'
-import { loadImage } from './useMetadata'
+import { DrawThingsMetaData, ImageItem, ImageSource } from '@/types'
+import { checkData, ImageAndData } from '@/utils/clipboard'
+import ImageStore from '@/utils/imageStore'
+import * as path from '@tauri-apps/api/path'
+import { store } from '@tauri-store/valtio'
+import ExifReader from 'exifreader'
 import { ReadonlyState } from '..'
 import { getDrawThingsDataFromExif } from './helpers'
-import { ImageItem } from '@/types'
-import { load } from '@tauri-apps/plugin-store'
-
-import * as path from '@tauri-apps/api/path'
-import { checkData, ImageAndData } from '@/utils/clipboard'
-import { saveImage } from '@/utils/imageStore'
-import { convertFileSrc } from '@tauri-apps/api/core'
-import { since } from '@/devStore'
+import { proxy } from 'valtio'
 const appDataDir = await path.appDataDir()
 console.log(
   await path.localDataDir(),
@@ -18,76 +15,210 @@ console.log(
   await path.tempDir()
 )
 
-async function loadStore() {
-  const storage = await load(await path.join(appDataDir, 'store.json'), {
-    defaults: {
-      store: {
-        images: [] as ImageItem[],
-        currentIndex: null as number | null,
-        maxHistory: 10,
-        clearHistoryOnExit: true,
-        clearPinsOnExit: false,
-      },
-    },
-    autoSave: true,
-  })
+// async function loadStore() {
+//   const storage = await load(await path.join(appDataDir, 'store.json'), {
+//     defaults: {
+//       store: {
+//         images: [] as ImageItem[],
+//         currentIndex: null as number | null,
+//         maxHistory: 10,
+//         clearHistoryOnExit: true,
+//         clearPinsOnExit: false,
+//       },
+//     },
+//     autoSave: true,
+//   })
 
-  const store = proxy({
-    images: [] as ImageItem[],
+//   const store = proxy({
+//     images: [] as ImageItem[],
+//     currentIndex: null as number | null,
+//     zoomPreview: false,
+//     maxHistory: 10,
+//     clearHistoryOnExit: true,
+//     clearPinsOnExit: false,
+//     get currentImage() {
+//       return store.images[store.currentIndex]
+//     },
+//   })
+
+//   // let initialLoad = true
+//   let lastser = undefined
+//   // subscribe(store, async () => {
+//   //   console.log('store changed maybe')
+//   //   const ser = serializeStore(store)
+//   //   if (hasDataChanged(ser, lastser)) {
+//   //     console.log('yeah it changed')
+//   //     await storage.set('store', ser)
+//   //   }
+//   //   lastser = ser
+//   //   // initialLoad = false
+//   // })
+
+//   return { storage, store }
+// }
+
+// const { storage, store } = await loadStore()
+export function bind<T extends object>(instance: T): T {
+  const obj = instance as any
+  const names = Object.getOwnPropertyNames(Object.getPrototypeOf(obj))
+
+  for (const name of names) {
+    const method = obj[name]
+    if (name === 'constructor' || typeof method !== 'function') continue
+    obj[name] = (...args: unknown[]) => method.apply(instance, args)
+  }
+
+  return instance
+}
+
+export class ImageItem {
+  a: number
+  b: string
+  _lazyProp?: string
+
+  constructor(a: number, b: string) {
+    this.a = a
+    this.b = b
+  }
+
+  get prop() {
+    return `from getter: a: ${this.a}, b: ${this.b}`
+  }
+
+  getProp() {
+    return `from method: a: ${this.a}, b: ${this.b}`
+  }
+
+  get lazyProp() {
+    if (!this._lazyProp) {
+      setTimeout(() => {
+        this.setLazyProp('from lazy getter')
+      }, 2000)
+    }
+    return this._lazyProp
+  }
+
+  setLazyProp(val: string) {
+    this._lazyProp = val
+  }
+
+  toJSON() {
+    return {
+      a: this.a * 2,
+      b: this.b + " there",
+      // lazyProp: this.lazyProp,
+    }
+  }
+}
+
+type ImageItemState = {
+  id: string
+  source: ImageSource
+  pin: number | null
+  loadedAt: number
+  type: string
+}
+
+type ImageItemData = {
+  id: string
+  url: string
+  thumbUrl: string
+  exif?: ExifReader.Tags
+  dtData?: DrawThingsMetaData
+}
+
+const metadataStore = store(
+  'metadata',
+  {
+    images: [] as ImageItemState[],
+    imageData: {} as Record<string, ImageItemData>,
     currentIndex: null as number | null,
     zoomPreview: false,
     maxHistory: 10,
     clearHistoryOnExit: true,
     clearPinsOnExit: false,
-    get currentImage() {
-      return store.images[store.currentIndex]
+    testThing: null as TestClass | null,
+    get currentImage(): ImageItem | undefined {
+      if (MetadataStore.currentIndex == null) return
+      const image = MetadataStore.images[MetadataStore.currentIndex]
+      if (!image) return
+      const data = MetadataStore.imageData[image.id]
+      return { ...image, ...data }
     },
+  },
+  {
+    filterKeys: ['imageData', 'currentImage', 'currentIndex', 'zoomPreview'],
+    filterKeysStrategy: 'omit',
+    hooks: {
+      beforeFrontendSync(state) {
+        console.log('fe sync')
+        if (typeof state !== 'object' || state === null) return state
+
+        if ('testThing' in state && state.testThing && !(state.testThing instanceof TestClass)) {
+          state.testThing = bind(proxy(new TestClass(state.testThing.a, state.testThing.b)))
+        }
+        return state
+      },
+    },
+  }
+)
+await metadataStore.start()
+export const MetadataStore = metadataStore.state
+for (const image of MetadataStore.images) {
+  console.log('get data for image', image.id)
+  if (MetadataStore.imageData[image.id]) continue
+
+  console.log('starting image entry getter', image.id)
+  getImage(image.id).then(data => {
+    console.log('updating image data entry', image.id)
+    MetadataStore.imageData[image.id] = {
+      ...data,
+      get exif() {
+        console.trace('exif getter accessed', image.id)
+        ExifReader.load(data.url).then(exif => {
+          console.log('exif loaded, updating image data', image.id)
+          const newImageData = { ...data, exif, dtData: getDrawThingsDataFromExif(exif) }
+          MetadataStore.imageData[image.id] = newImageData
+        })
+        return {} as ExifReader.Tags
+      },
+    }
   })
-
-  // let initialLoad = true
-  let lastser = undefined
-  // subscribe(store, async () => {
-  //   console.log('store changed maybe')
-  //   const ser = serializeStore(store)
-  //   if (hasDataChanged(ser, lastser)) {
-  //     console.log('yeah it changed')
-  //     await storage.set('store', ser)
-  //   }
-  //   lastser = ser
-  //   // initialLoad = false
-  // })
-
-  return { storage, store }
 }
 
-const { storage, store } = await loadStore()
-export const Store = store
+type ImageItemParam =
+  | ReadonlyState<ImageItem | ImageItemState>
+  | ImageItem
+  | ImageItemState
+  | number
+  | null
 
-export function selectImage(image?: ReadonlyState<ImageItem> | ImageItem | number | null) {
+export function selectImage(image?: ImageItemParam) {
   if (image == null) {
-    Store.currentIndex = null
+    MetadataStore.currentIndex = null
     // Store.currentImage = null
   } else if (typeof image === 'number') {
-    if (image < 0 || image >= Store.images.length) return
-    Store.currentIndex = image
+    if (image < 0 || image >= MetadataStore.images.length) return
+    MetadataStore.currentIndex = image
     // Store.currentImage = Store.images[Store.currentIndex]
   } else {
-    const index = Store.images.findIndex(im => im.id === image?.id)
+    const index = MetadataStore.images.findIndex(im => im.id === image?.id)
     if (index === -1) return
-    Store.currentIndex = index
+    MetadataStore.currentIndex = index
     // Store.currentImage = Store.images[Store.currentIndex]
   }
 }
 
-export function pinImage(image: ReadonlyState<ImageItem> | ImageItem, value: number | boolean)
+export function pinImage(image: ImageItemParam, value: number | boolean)
 export function pinImage(useCurrent: true, value: number | boolean)
-export function pinImage(
-  imageOrCurrent: ReadonlyState<ImageItem> | ImageItem | true,
-  value: number | boolean | null
-) {
-  const image = imageOrCurrent === true ? Store.currentImage : imageOrCurrent
-  const index = Store.images.findIndex(im => im.id === image?.id)
-  const storeImage = Store.images[index]
+export function pinImage(imageOrCurrent: ImageItemParam | true, value: number | boolean | null) {
+  let index = -1
+  if (typeof imageOrCurrent === 'number') index = imageOrCurrent
+  else if (imageOrCurrent === true) index = MetadataStore.currentIndex
+  else index = MetadataStore.images.findIndex(im => im.id === imageOrCurrent?.id)
+
+  if (index < 0 || index >= MetadataStore.images.length) return
+  const storeImage = MetadataStore.images[index]
   if (!storeImage) return
 
   let pinValue = null
@@ -99,40 +230,25 @@ export function pinImage(
 }
 
 function reconcilePins() {
-  const pins = Store.images.filter(im => im.pin != null).sort((a, b) => a.pin! - b.pin!)
+  const pins = MetadataStore.images.filter(im => im.pin != null).sort((a, b) => a.pin! - b.pin!)
   pins.forEach((im, i) => (im.pin = i + 1))
 }
 
 export function clearImages(keepTabs = false) {
-  if (keepTabs) Store.images = Store.images.filter(im => im.pin != null)
-  else Store.images = []
+  if (keepTabs) MetadataStore.images = MetadataStore.images.filter(im => im.pin != null)
+  else MetadataStore.images = []
 
-  Store.currentIndex = Store.images.length - 1
+  MetadataStore.currentIndex = MetadataStore.images.length - 1
+  cleanImageData()
   // Store.currentImage = Store.images[Store.currentIndex]
 }
 
-let imageId = 0
-export async function addImage(data: string | DataTransfer | Blob | Uint8Array, select = true) {
-  console.log('loading image from ', data)
-  const image = await loadImage(data)
-  if (!image) return
+function cleanImageData() {
+  const ids = MetadataStore.images.map(im => im.id)
 
-  const dt = getDrawThingsDataFromExif(image.exif)
-
-  const source = image.source ?? image.path ? { file: image.path } : { clipboard: 'png' }
-
-  const item: ImageItem = {
-    id: imageId++,
-    ...image,
-    loadedAt: Date.now(),
-    dtData: dt,
-    pin: null,
-    source,
-    type: 'png'
+  for (const id of Object.keys(MetadataStore.imageData)) {
+    if (!ids.includes(id)) delete MetadataStore.imageData[id]
   }
-
-  Store.images.push(item)
-  if (select) selectImage(item)
 }
 
 export async function createImageItem(image: ImageAndData) {
@@ -140,62 +256,34 @@ export async function createImageItem(image: ImageAndData) {
   if (checkData(image) === 'incomplete') return
 
   // save image to image store
-  since('saveImage')
-  const path = await saveImage(image.image, image.type)
-  since('get dt data')
+  const { id, thumbUrl, url } = await ImageStore.save(image.image, image.type)
   const dtData = getDrawThingsDataFromExif(image.exif)
-  since('convert file src')
-  const url = convertFileSrc(path)
-  // const url = 'data:image/png;base64,' + image.image
 
-  since('createImageItem')
-  const item: ImageItem = {
-    id: imageId++,
-    ...image,
-    filepath: path,
-    source: { file: path },
+  const item: ImageItemState = {
+    id,
+    // filepath: path,
+    source: image.source,
     loadedAt: Date.now(),
-    dtData,
     pin: null,
-    url,
+    type: image.type,
+    // getData: () => Store.imageData[id],
   }
 
-  since('push')
-  Store.images.push(item)
-  since('select')
+  const data: ImageItemData = {
+    id,
+    exif: image.exif,
+    dtData,
+    url,
+    thumbUrl,
+  }
+
+  MetadataStore.imageData[id] = data
+  MetadataStore.images.push(item)
   selectImage(item)
-  since('done')
 }
 
-/**
- * serializes the store.
- * note: does not serialize everything, only data that should be preserved on exit
- */
-function serializeStore(store: Awaited<ReturnType<typeof loadStore>>['store']) {
-  const images = store.images.map(im => ({
-    path: im.filepath,
-    pin: im.pin,
-    source: im.source,
-  }))
+export function getImageData(image: Pick<ImageItemState, 'id'>) {
+  if (MetadataStore.imageData[image.id]) return MetadataStore.imageData[image.id]
 
-  const ser = JSON.stringify(
-    {
-      images,
-      currentIndex: store.currentIndex,
-      maxHistory: store.maxHistory,
-      clearHistoryOnExit: store.clearHistoryOnExit,
-      clearPinsOnExit: store.clearPinsOnExit,
-    },
-    null,
-    2
-  )
-
-  return ser
-}
-
-function hasDataChanged(
-  data: ReturnType<typeof serializeStore>,
-  previous: ReturnType<typeof serializeStore>
-) {
-  return JSON.stringify(data) !== JSON.stringify(previous)
+  getImage(image.id)
 }

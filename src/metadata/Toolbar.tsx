@@ -6,14 +6,14 @@ import { FiClipboard, FiXCircle } from 'react-icons/fi'
 import { GrPin } from 'react-icons/gr'
 import { IconType } from 'react-icons/lib'
 import { useSnapshot } from 'valtio'
-import { clearImages, pinImage, Store } from './store'
+import { clearImages, pinImage, MetadataStore } from './store'
 
 interface ToolbarProps extends StackProps {}
 
 function Toolbar(props: ToolbarProps) {
   const { ...restProps } = props
 
-  const { currentImage } = useSnapshot(Store)
+  const { currentImage } = useSnapshot(MetadataStore)
 
   return (
     <HStack padding={2} data-tauri-drag-region>

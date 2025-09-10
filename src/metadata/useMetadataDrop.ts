@@ -1,10 +1,9 @@
 import { getCurrentWebview } from '@tauri-apps/api/webview'
 // import { useMetadata } from './useMetadata'
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { addImage, createImageItem } from './store'
-import { proxy, useSnapshot } from 'valtio'
 import { getLocalImage } from '@/utils/clipboard'
-import { loadImage } from './useMetadata'
+import { useEffect, useMemo, useRef } from 'react'
+import { proxy, useSnapshot } from 'valtio'
+import { createImageItem } from './store'
 
 export function useMetadataDrop() {
   const state = useRef(null)
@@ -43,9 +42,9 @@ export function useMetadataDrop() {
 
       if (event.payload.type === 'drop') {
         for (const path of event.payload.paths) {
-          // const image = await getLocalImage(path)
-          // if (image) await createImageItem(image)
-          await addImage(path)
+          const image = await getLocalImage(path)
+          if (image) await createImageItem(image)
+          // await addImage(path)
         }
         state.current.isDragging = false
       }

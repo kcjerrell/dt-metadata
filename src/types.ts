@@ -113,7 +113,7 @@ export type ImageMetadata = {
 }
 
 export type ImageItem = {
-  id: number,
+  id: string,
   filepath?: string
   info?: FileInfo
   exif?: ExifReader.Tags

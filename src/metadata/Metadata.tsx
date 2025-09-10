@@ -8,7 +8,7 @@ import Toolbar from './Toolbar'
 import { useMetadataDrop } from './useMetadataDrop'
 
 import { useSnapshot } from 'valtio'
-import { Store } from './store'
+import { MetadataStore } from './store'
 import { ImageItem } from '@/types'
 import { since } from '@/devStore'
 
@@ -20,7 +20,7 @@ function Metadata(props: MetadataComponentProps) {
   const dropRef = useRef<HTMLDivElement>(null)
   const imgRef = useRef<HTMLImageElement>(null)
 
-  const snap = useSnapshot(Store)
+  const snap = useSnapshot(MetadataStore)
   const { currentImage, zoomPreview } = snap
 
   // const { state, currentImage, setZoomPreview, loadData, selectImage, setImageTab } = useMetadata()
@@ -80,7 +80,7 @@ since('render')
                   src={currentImage?.url}
                   width={'100%'}
                   height={'100%'}
-                  onClick={() => (Store.zoomPreview = true)}
+                  onClick={() => (MetadataStore.zoomPreview = true)}
                 />
               ) : (
                 <Flex
@@ -108,7 +108,7 @@ since('render')
           image={currentImage as ImageItem}
           imgRef={imgRef.current}
           onClick={() => {
-            Store.zoomPreview = false
+            MetadataStore.zoomPreview = false
           }}
           show={zoomPreview}
         />
