@@ -21,6 +21,7 @@ export function hasDrawThingsData(
   } catch (_) {
     return false
   }
+  return false
 }
 
 export function getDrawThingsDataFromExif(exif?: ExifReader.Tags): DrawThingsMetaData | undefined {

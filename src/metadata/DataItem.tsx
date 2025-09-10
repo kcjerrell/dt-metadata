@@ -52,11 +52,11 @@ function DataItem(props: DataItemProps) {
   return (
     <GridItem padding={1} display={'flex'} flexDirection={'column'} {...cols}>
       <HStack justifyContent={'space-between'}>
-        <Box fontSize={'xs'}>{showCopied ? 'Copied' : label}</Box>
+        <Box fontSize={'xs'} color={'fg.2'} fontWeight={'semibold'}>{showCopied ? 'Copied' : label}</Box>
 
         {/* Show all/Show less button for collapsible items */}
         {collapsible && (
-          <Text fontSize={'xs'} _hover={{ color: 'fg.0' }} asChild>
+          <Text fontSize={'xs'} _hover={{ color: 'fg.1' }} asChild>
             <button onClick={() => setCollapsed(!collapsed)}>
               {collapsed ? 'Show all' : 'Show less'}
             </button>
@@ -69,6 +69,7 @@ function DataItem(props: DataItemProps) {
         border={'2px solid transparent'}
         paddingX={1}
         _hover={{ borderColor: 'fg/40' }}
+        color={'fg.2'}
         bgColor={'bg.2'}
         fontSize={'sm'}
         overflowY={'hidden'}

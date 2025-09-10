@@ -2,7 +2,7 @@ import TabPage from '@/components/scrollTabs/TabPage'
 import { Box, BoxProps, Button, Code, HStack, SimpleGrid, VStack } from '@chakra-ui/react'
 import DataItem from './DataItem'
 import ScrollTabs from './ScrollTabs'
-import { bind, MetadataStore, TestClass } from './store'
+import { bind, MetadataStore } from './store'
 import { proxy, useSnapshot } from 'valtio'
 import { useColorMode } from '@/components/ui/color-mode'
 import { FiMoon } from 'react-icons/fi'
@@ -81,27 +81,8 @@ function InfoPane(props: InfoPanelProps) {
           <DataItem key={i} label={t.name} data={t.durations as number[]} />
         ))}
       </TabPage>
-      <TabPage label={'test'}>
+      {/* <TabPage label={'test'}>
         <VStack>
-          {/* <Code>{JSON.stringify(snap, null, 2)}</Code> */}
-          <Button
-            onClick={() => {
-              MetadataStore.testThing = bind(proxy(new TestClass(7, 'hello')))
-            }}
-          >
-            Test
-          </Button>
-          <Button
-            onClick={() => {
-              MetadataStore.testThing = null
-            }}
-          >
-            Clear
-          </Button>
-          <Button onClick={() => console.log(snap.testThing)}>log</Button>
-          <DataItem label={'Test A'} data={snap.testThing?.a} />
-          <DataItem label={'Test B'} data={snap.testThing?.b} />
-          <DataItem label={'Test B'} data={snap.testThing?.lazyProp} />
           <input
             type="range"
             min={0}
@@ -154,7 +135,7 @@ function InfoPane(props: InfoPanelProps) {
             </HStack>
           ))}
         </VStack>
-      </TabPage>
+      </TabPage> */}
     </ScrollTabs>
   )
 }

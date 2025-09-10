@@ -1,4 +1,4 @@
-import { DrawThingsMetaData, ImageItem, ImageSource } from '@/types'
+import { DrawThingsMetaData, ImageSource } from '@/types'
 import { checkData, ImageAndData } from '@/utils/clipboard'
 import ImageStore from '@/utils/imageStore'
 import * as path from '@tauri-apps/api/path'
@@ -59,54 +59,100 @@ console.log(
 
 // const { storage, store } = await loadStore()
 export function bind<T extends object>(instance: T): T {
-  const obj = instance as any
-  const names = Object.getOwnPropertyNames(Object.getPrototypeOf(obj))
+  // const obj = instance as any
+  const props = Object.getOwnPropertyNames(Object.getPrototypeOf(instance))
 
-  for (const name of names) {
-    const method = obj[name]
-    if (name === 'constructor' || typeof method !== 'function') continue
-    obj[name] = (...args: unknown[]) => method.apply(instance, args)
+  for (const prop of props) {
+    const method = instance[prop]
+    if (prop === 'constructor' || typeof method !== 'function') continue
+    instance[prop] = (...args: unknown[]) => method.apply(instance, args)
   }
 
   return instance
 }
 
 export class ImageItem {
-  a: number
-  b: string
-  _lazyProp?: string
+  id: string
+  filepath?: string
+  pin?: number | null
+  loadedAt: number
+  source: ImageSource
+  type: string
 
-  constructor(a: number, b: string) {
-    this.a = a
-    this.b = b
+  private _exif?: ExifReader.Tags | null
+  private _dtData?: DrawThingsMetaData | null
+  private _exifStatus?: 'pending' | 'done'
+  private _entry?: Awaited<ReturnType<typeof ImageStore.get>>
+  private _entryStatus?: 'pending' | 'done'
+
+  constructor(opts: Partial<ImageItem>) {
+    Object.assign(this, opts)
+
+    if (!this.id) throw new Error('ImageItem must have an id')
+    if (!this.source) throw new Error('ImageItem must have a source')
+    if (!this.type) throw new Error('ImageItem must have a type')
   }
 
-  get prop() {
-    return `from getter: a: ${this.a}, b: ${this.b}`
+  get exif() {
+    // return undefined
+    console.log('exif getter accessed', this.id)
+
+    if (!this._exif && !this._exifStatus) this.loadExif()
+
+    return this._exif
   }
 
-  getProp() {
-    return `from method: a: ${this.a}, b: ${this.b}`
+  get dtData() {
+    // return undefined
+    if (!this._dtData && !this._exifStatus &&this.exif) this.loadExif()
+
+    return this._dtData
   }
 
-  get lazyProp() {
-    if (!this._lazyProp) {
-      setTimeout(() => {
-        this.setLazyProp('from lazy getter')
-      }, 2000)
+  async loadExif() {
+    if (this._exifStatus) return
+    console.log('loading exif', this.id)
+    this._exifStatus = 'pending'
+
+    if (!this._entry) await this.loadEntry()
+
+    try {
+      const exif = await ExifReader.load(this.url)
+      this._exif = exif
+      this._dtData = getDrawThingsDataFromExif(exif) ?? null
+      console.log('exif', exif, this._dtData)
+      console.log('exif loaded, updating image data', this.id)
+    } catch (e) {
+      console.warn(e)
+    } finally {
+      this._exifStatus = 'done'
     }
-    return this._lazyProp
   }
 
-  setLazyProp(val: string) {
-    this._lazyProp = val
+  get thumbUrl() {
+    if (!this._entry?.thumbUrl && !this._entryStatus) this.loadEntry()
+    return this._entry?.thumbUrl
+  }
+
+  get url() {
+    if (!this._entry?.url && !this._entryStatus) this.loadEntry()
+    return this._entry?.url
+  }
+
+  async loadEntry() {
+    if (this._entryStatus) return
+    this._entryStatus = 'pending'
+    this._entry = await ImageStore.get(this.id)
+    this._entryStatus = 'done'
   }
 
   toJSON() {
     return {
-      a: this.a * 2,
-      b: this.b + " there",
-      // lazyProp: this.lazyProp,
+      id: this.id,
+      source: this.source,
+      pin: this.pin,
+      loadedAt: this.loadedAt,
+      type: this.type,
     }
   }
 }
@@ -130,20 +176,20 @@ type ImageItemData = {
 const metadataStore = store(
   'metadata',
   {
-    images: [] as ImageItemState[],
-    imageData: {} as Record<string, ImageItemData>,
+    images: [] as ImageItem[],
+    imageData: {},
     currentIndex: null as number | null,
     zoomPreview: false,
     maxHistory: 10,
     clearHistoryOnExit: true,
     clearPinsOnExit: false,
-    testThing: null as TestClass | null,
     get currentImage(): ImageItem | undefined {
-      if (MetadataStore.currentIndex == null) return
-      const image = MetadataStore.images[MetadataStore.currentIndex]
-      if (!image) return
-      const data = MetadataStore.imageData[image.id]
-      return { ...image, ...data }
+      // if (MetadataStore.currentIndex == null) return
+      // const image = MetadataStore.images[MetadataStore.currentIndex]
+      // if (!image) return
+      // const data = MetadataStore.imageData[image.id]
+      // return { ...image, ...data }
+      return MetadataStore.images[MetadataStore.currentIndex]
     },
   },
   {
@@ -154,9 +200,13 @@ const metadataStore = store(
         console.log('fe sync')
         if (typeof state !== 'object' || state === null) return state
 
-        if ('testThing' in state && state.testThing && !(state.testThing instanceof TestClass)) {
-          state.testThing = bind(proxy(new TestClass(state.testThing.a, state.testThing.b)))
+        if ('images' in state && Array.isArray(state.images)) {
+          state.images = state.images.map(im => {
+            if (im instanceof ImageItem) return im
+            return bind(proxy(new ImageItem(im)))
+          })
         }
+
         return state
       },
     },
@@ -164,27 +214,6 @@ const metadataStore = store(
 )
 await metadataStore.start()
 export const MetadataStore = metadataStore.state
-for (const image of MetadataStore.images) {
-  console.log('get data for image', image.id)
-  if (MetadataStore.imageData[image.id]) continue
-
-  console.log('starting image entry getter', image.id)
-  getImage(image.id).then(data => {
-    console.log('updating image data entry', image.id)
-    MetadataStore.imageData[image.id] = {
-      ...data,
-      get exif() {
-        console.trace('exif getter accessed', image.id)
-        ExifReader.load(data.url).then(exif => {
-          console.log('exif loaded, updating image data', image.id)
-          const newImageData = { ...data, exif, dtData: getDrawThingsDataFromExif(exif) }
-          MetadataStore.imageData[image.id] = newImageData
-        })
-        return {} as ExifReader.Tags
-      },
-    }
-  })
-}
 
 type ImageItemParam =
   | ReadonlyState<ImageItem | ImageItemState>
@@ -269,21 +298,17 @@ export async function createImageItem(image: ImageAndData) {
     // getData: () => Store.imageData[id],
   }
 
-  const data: ImageItemData = {
-    id,
-    exif: image.exif,
-    dtData,
-    url,
-    thumbUrl,
-  }
+  // const data: ImageItemData = {
+  //   id,
+  //   exif: image.exif,
+  //   dtData,
+  //   url,
+  //   thumbUrl,
+  // }
 
-  MetadataStore.imageData[id] = data
-  MetadataStore.images.push(item)
+  const imageItem = bind(proxy(new ImageItem(item)))
+
+  // MetadataStore.imageData[id] = data
+  MetadataStore.images.push(imageItem)
   selectImage(item)
-}
-
-export function getImageData(image: Pick<ImageItemState, 'id'>) {
-  if (MetadataStore.imageData[image.id]) return MetadataStore.imageData[image.id]
-
-  getImage(image.id)
 }

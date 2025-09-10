@@ -1,4 +1,4 @@
-import { ImageMetadata, ImageSource } from '@/types'
+import { ImageSource } from '@/types'
 import { invoke } from '@tauri-apps/api/core'
 import { getMetaDataFromBuffer } from './metadata'
 import { hasDrawThingsData } from '@/metadata/helpers'
@@ -7,13 +7,12 @@ import { readFile, exists } from '@tauri-apps/plugin-fs'
 import * as pathlib from '@tauri-apps/api/path'
 import * as plist from 'plist'
 import { since } from '@/devStore'
-import { uint8ArrayToBase64 } from './helpers'
 
 export async function getClipboardTypes(): Promise<string[]> {
   return await invoke('read_clipboard_types')
 }
 
-export async function getClipboardText(type: string): Promise<Record<string, string>> 
+export async function getClipboardText(type: string): Promise<Record<string, string>>
 export async function getClipboardText(types: string[]): Promise<Record<string, string>>
 export async function getClipboardText(...types: string[]): Promise<Record<string, string>>
 export async function getClipboardText(
@@ -58,9 +57,10 @@ export async function getLocalImage(path: string): Promise<ImageAndData | undefi
 }
 
 export async function loadFromClipboard(): Promise<void> {
-  const image = await getClipboardImages()
+  const images = await getClipboardImages()
+  if (!images) return
 
-  for (const item of image) {
+  for (const item of images) {
     if (!item) continue
     since('createImageItem')
     await createImageItem(item)
@@ -98,7 +98,7 @@ export async function getClipboardImages(): Promise<(ImageAndData | undefined)[]
       result.type = 'png'
     }
   }
-  console.log('result', result)
+
   // if using public.png, we will assume a single result
   since('checkData')
   if (checkData(result) === 'ideal') return [result as ImageAndData]
@@ -106,12 +106,65 @@ export async function getClipboardImages(): Promise<(ImageAndData | undefined)[]
   // look for file paths or urls
   // might contain multiple results
   const text = await getClipboardText(textTypes.filter(t => types.includes(t)))
-  console.log('text', text)
+  const paths: string[] = []
+
   for (const [type, value] of Object.entries(text)) {
-    const { files, urls } = parseText(value, type)
+    paths.push(...parseText(value, type))
+  }
+
+  const uniquePaths = Array.from(new Set(paths))
+  console.log(uniquePaths)
+
+  const { urls, files } = groupPaths(uniquePaths)
+  console.log({ urls, files })
+
+  for (const url of urls) {
+    try {
+      const data = await fetchImage(url)
+      const metaData = await getMetaDataFromBuffer(data)
+      if (metaData) {
+        return [
+          {
+            image: data,
+            source: { url: url.toString() },
+            exif: metaData,
+            hasDrawThingsData: hasDrawThingsData(metaData),
+            type: await pathlib.extname(url.pathname),
+          },
+        ]
+      }
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   return undefined
+}
+
+async function fetchImage(url: URL) {
+  const data = (await invoke('fetch_image_file', { url: url.toString() })) as Uint8Array
+
+  if (data && Array.isArray(data)) {
+    return new Uint8Array(data)
+  }
+}
+
+function groupPaths(paths: string[]) {
+  const urls: URL[] = []
+  const files: string[] = []
+
+  for (const path of paths) {
+    try {
+      const url = new URL(path)
+      if (url.protocol === 'file:') files.push(url.pathname)
+      else urls.push(url)
+    } catch (e) {
+      if (path.startsWith('file://')) files.push(path)
+      if (path.startsWith('/')) files.push(path)
+    }
+  }
+
+  return { urls, files }
 }
 
 export function checkData(data?: Partial<ImageAndData>) {
@@ -124,45 +177,34 @@ export function checkData(data?: Partial<ImageAndData>) {
 
   return 'partial'
 }
-function parseText(value: string, type: string): { files: string[]; urls: string[] } {
-  let files: string[] = []
-  let urls: string[] = []
 
-  if (typeof value !== 'string') return { files, urls }
+function parseText(value: string, type: string): string[] {
+  let paths: string[] = []
+
+  if (typeof value !== 'string') return paths
 
   switch (type) {
     case 'NSFilenamesPboardType':
       // macOS: newline-separated file paths
-      const parsed = plist.parse(value)
-      console.log(parsed)
-      files = value.split('\n').map(f => f.trim()).filter(f => f.length > 0)
+      paths = plist.parse(value) as string[]
       break
     case 'public.file-url':
     case 'public.url':
     case 'org.chromium.source-url':
-      // URLs, possibly file URLs
-      urls = value.split('\n').map(u => u.trim()).filter(u => u.length > 0)
-      // Extract file paths from file URLs
-      files = urls.filter(u => u.startsWith('file://')).map(u => decodeURIComponent(u.replace('file://', '')))
-      break
     case 'public.utf8-plain-text':
-      // Try to detect file paths or URLs in plain text
-      const lines = value.split('\n').map(l => l.trim()).filter(l => l.length > 0)
-      for (const line of lines) {
-        if (line.startsWith('file://')) {
-          files.push(decodeURIComponent(line.replace('file://', '')))
-          urls.push(line)
-        } else if (/^https?:\/\//.test(line)) {
-          urls.push(line)
-        } else if (/^\/|^[A-Za-z]:\\/.test(line)) {
-          files.push(line)
-        }
-      }
-      break
     default:
+      // URLs, possibly file URLs
+      paths = value
+        .split('\n')
+        .map(f => f.trim())
+        .filter(f => f.length > 0)
       break
+    // Try to detect file paths or URLs in plain text
+    // paths = value
+    //   .split('\n')
+    //   .map(f => f.trim())
+    //   .filter(f => f.length > 0)
   }
 
-  return { files, urls }
+  return paths
 }
-

@@ -22,15 +22,23 @@ function History(props: HistoryProps) {
   const unpinned = images.filter(i => i.pin == null)
 
   return (
-    <Box className={'hide-scrollbar'} overflowX={'auto'} overflowY={'hidden'} bottom={0}>
-      <HStack gap={0} transform={'translateY(30%)'} overflowY={'visible'} {...restProps}>
+    <Box
+      className={'hide-scrollbar'}
+      overflowX={'scroll'}
+      overflowY={'clip'}
+      flex={'0 0 auto'}
+      bottom={'0px'}
+      marginBottom={'-20px'}
+      _hover={{ transform: 'translateY(-10%)' }}
+      transition={'transform 0.1s ease-in-out'}
+    >
+      <HStack gap={0} transform={'translateY(10%)'} overflowY={'visible'} {...restProps}>
         {pinned.map((image, i) => (
           <HistoryItem
             key={image.id}
             image={image}
             isSelected={currentImage?.id === image.id}
             onSelect={() => selectImage(image)}
-            thumbUrl={imageData[image.id]?.thumbUrl}
             isPinned
           />
         ))}
@@ -40,7 +48,6 @@ function History(props: HistoryProps) {
             // boxShadow={'4px -2px 4px 0px #0000FFff'}
             image={image}
             isSelected={currentImage?.id === image.id}
-            thumbUrl={imageData[image.id]?.thumbUrl}
             onSelect={() => selectImage(image)}
           />
         ))}
@@ -55,10 +62,9 @@ interface HistoryItemProps extends BoxProps {
   onSelect?: () => void
   size?: string
   isPinned?: boolean
-  thumbUrl?: string
 }
 function HistoryItem(props: HistoryItemProps) {
-  const { image, isSelected, onSelect, isPinned, size = '4rem', thumbUrl, ...restProps } = props
+  const { image, isSelected, onSelect, isPinned, size = '4rem', ...restProps } = props
   return (
     <motion.div
       style={{
@@ -68,6 +74,7 @@ function HistoryItem(props: HistoryItemProps) {
         paddingInline: '0px',
         paddingBlock: '0px',
         overflow: 'hidden',
+        border: '1px solid var(--chakra-colors-gray-700)',
         backgroundColor: 'var(--chakra-colors-gray-700)',
         borderTop: isSelected
           ? '3px solid var(--chakra-colors-highlight)'
@@ -101,20 +108,26 @@ function HistoryItem(props: HistoryItemProps) {
       <motion.img
         style={{
           objectFit: 'cover',
+          width: '100%',
+          height: '100%',
+          transformOrigin: 'middle middle',
         }}
-        src={thumbUrl}
-        width={'100%'}
-        height={'100%'}
+        src={image?.thumbUrl}
         animate={{
           opacity: isSelected ? 1 : 0.7,
           borderRadius: isSelected ? '10% 10% 0 0' : '0% 0% 0% 0%',
         }}
         initial={{
-          scale: 1.1,
-          y: -20
+          scale: 1.0,
+          y: 0,
         }}
-        whileHover={{ borderRadius: '10% 10% 0 0', scale: 1.5, opacity: 0.9 }}
-        transition={{ duration: 0.2, ease: 'circOut', scale: { duration: 5, ease: 'easeIn' } }}
+        whileHover={{
+          borderRadius: '10% 10% 0 0',
+          scale: 1.5,
+          opacity: 0.9,
+          transition: { scale: { duration: 5, ease: 'easeIn' } },
+        }}
+        transition={{ duration: 0.2, ease: 'circOut', scale: { duration: 0.2, ease: 'easeIn' } }}
       />
     </motion.div>
   )

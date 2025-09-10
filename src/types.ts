@@ -116,8 +116,8 @@ export type ImageItem = {
   id: string,
   filepath?: string
   info?: FileInfo
-  exif?: ExifReader.Tags
-  dtData?: DrawThingsMetaData
+  exif?: ExifReader.Tags | null
+  dtData?: DrawThingsMetaData | null
   url?: string
   thumbUrl?: string
   pin?: number | null
