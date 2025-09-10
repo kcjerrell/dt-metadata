@@ -56,6 +56,21 @@ export async function getLocalImage(path: string): Promise<ImageAndData | undefi
   }
 }
 
+export async function getBufferImage(buffer: Uint8Array): Promise<ImageAndData | undefined> {
+  try {
+    return {
+      image: buffer,
+      source: { clipboard: 'png' },
+      exif: await getMetaDataFromBuffer(buffer),
+      hasDrawThingsData: false,
+      type: 'png',
+    }
+  } catch (e) {
+    console.warn(e)
+    return undefined
+  }
+}
+
 export async function loadFromClipboard(): Promise<void> {
   const images = await getClipboardImages()
   if (!images) return

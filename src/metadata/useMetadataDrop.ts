@@ -1,6 +1,6 @@
 import { getCurrentWebview } from '@tauri-apps/api/webview'
 // import { useMetadata } from './useMetadata'
-import { getLocalImage } from '@/utils/clipboard'
+import { getBufferImage, getLocalImage } from '@/utils/clipboard'
 import { useEffect, useMemo, useRef } from 'react'
 import { proxy, useSnapshot } from 'valtio'
 import { createImageItem } from './store'
@@ -31,6 +31,55 @@ export function useMetadataDrop() {
   )
 
   useEffect(() => {
+    const handleEnter = (e: DragEvent) => {
+      e.preventDefault()
+      state.current.isDragging = true
+    }
+
+    const handleDragOver = (e: DragEvent) => {
+      e.preventDefault()
+    }
+
+    const handleLeave = (e: DragEvent) => {
+      e.preventDefault()
+      state.current.isDragging = false
+    }
+
+    const handleDrop = async (e: DragEvent) => {
+      e.preventDefault()
+      state.current.isDragging = false
+
+      console.log(e.dataTransfer.types)
+      console.log(e.dataTransfer.items)
+
+      if (e.dataTransfer.types.includes('Files')) {
+        for (const item of e.dataTransfer.items) {
+          if (item.kind === 'file') {
+            console.log('entry', await item.webkitGetAsEntry())
+            const file = await item.getAsFile()
+            const buffer = new Uint8Array(await file.arrayBuffer())
+            const image = await getBufferImage(buffer)
+            if (image) await createImageItem(image)
+          }
+        }
+      }
+    }
+
+    document.addEventListener('dragenter', handleEnter)
+    document.addEventListener('dragover', handleDragOver)
+    document.addEventListener('dragleave', handleLeave)
+    document.addEventListener('drop', handleDrop)
+
+    return () => {
+      document.removeEventListener('dragenter', handleEnter)
+      document.removeEventListener('dragover', handleDragOver)
+      document.removeEventListener('dragleave', handleLeave)
+      document.removeEventListener('drop', handleDrop)
+    }
+  }, [])
+
+  useEffect(() => {
+    // return
     console.log('useMetadataDrop effect')
     const webView = getCurrentWebview()
     const unlisten = webView.onDragDropEvent(async event => {

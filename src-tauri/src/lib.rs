@@ -25,7 +25,9 @@ fn read_clipboard_types() -> Result<Vec<String>, String> {
 }
 
 #[tauri::command]
-fn read_clipboard_strings(types: Vec<String>) -> Result<std::collections::HashMap<String, String>, String> {
+fn read_clipboard_strings(
+    types: Vec<String>,
+) -> Result<std::collections::HashMap<String, String>, String> {
     let pb = unsafe { NSPasteboard::generalPasteboard() };
     let mut results = std::collections::HashMap::new();
 
@@ -66,9 +68,7 @@ fn read_clipboard_binary(ty: String) -> Result<Vec<u8>, String> {
 
 #[tauri::command]
 async fn fetch_image_file(url: String) -> Result<Vec<u8>, String> {
-    let resp = reqwest::get(&url)
-        .await
-        .map_err(|e| e.to_string())?;
+    let resp = reqwest::get(&url).await.map_err(|e| e.to_string())?;
     let bytes = resp.bytes().await.map_err(|e| e.to_string())?;
     Ok(bytes.to_vec())
 }
@@ -92,7 +92,8 @@ pub fn run() {
         .setup(|app| {
             let win_builder = WebviewWindowBuilder::new(app, "main", WebviewUrl::default())
                 .title("Transparent Titlebar Window")
-                .inner_size(800.0, 600.0);
+                .inner_size(800.0, 600.0)
+                .disable_drag_drop_handler();
 
             // set transparent title bar only when building for macOS
             #[cfg(target_os = "macos")]
