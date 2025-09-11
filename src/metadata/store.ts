@@ -285,7 +285,10 @@ export async function createImageItem(image: ImageAndData) {
   if (checkData(image) === 'incomplete') return
 
   // save image to image store
-  const { id, thumbUrl, url } = await ImageStore.save(image.image, image.type)
+  const entry = await ImageStore.save(image.data, image.type)
+  if (!entry) return
+
+  const { id, url, thumbUrl } = entry
   const dtData = getDrawThingsDataFromExif(image.exif)
 
   const item: ImageItemState = {

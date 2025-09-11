@@ -199,3 +199,15 @@ If I'm using pngs only, how will I save metadata for other file types?
 
 no I think images should be stored as is, with metadata intact
 
+---
+
+so I guess we're gonna go without file paths. 
+
+Still need to figure out how to resolve drop/clip inputs.
+
+I guess the way the DataTransferItems work makes it difficult to get all the items. I guess just have to do them all at once - although if the image doesn't have the metadata it's unlikely the url would. Chromium drags images as the original (unlike copying which removes the metadata)
+
+Okay, so now I have both clipboard and drops distilled into files and a list of text items
+
+However the only instance I know of where text > files is when copying from chromium.
+

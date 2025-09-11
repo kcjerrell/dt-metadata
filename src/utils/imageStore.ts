@@ -45,7 +45,7 @@ const imagesStore = createStore(
   }
 )
 const store = imagesStore.state
-const _validTypes = ['png']
+const _validTypes = ['png', 'tiff', 'jpg']
 
 async function saveImage(
   image: Uint8Array,

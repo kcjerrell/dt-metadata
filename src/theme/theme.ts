@@ -1,6 +1,9 @@
 import { createSystem, defaultConfig, defineConfig } from '@chakra-ui/react'
-import CheckLight from '../assets/check_light.png'
 import CheckDark from '../assets/check_dark.png'
+import CheckLight from '../assets/check_light.png'
+
+// const CheckLight = './check_light.png'
+// const CheckDark = './check_dark.png'
 
 const themeConfig = defineConfig({
   globalCss: {

@@ -31,7 +31,7 @@ export async function getClipboardBinary(type: string): Promise<Uint8Array<Array
 }
 
 export type ImageAndData = {
-  image: Uint8Array
+  data: Uint8Array
   source: ImageSource
   exif: ExifReader.Tags
   hasDrawThingsData: boolean
@@ -45,13 +45,13 @@ export async function getLocalImage(path: string): Promise<ImageAndData | undefi
     if (!(await exists(path))) return
     const data = await readFile(path)
     return {
-      image: data,
+      data: data,
       source: { file: path },
       exif: await getMetaDataFromBuffer(data),
       hasDrawThingsData: false,
       type: await pathlib.extname(path),
     }
-  } catch (_) {
+  } catch {
     return undefined
   }
 }
@@ -59,7 +59,7 @@ export async function getLocalImage(path: string): Promise<ImageAndData | undefi
 export async function getBufferImage(buffer: Uint8Array): Promise<ImageAndData | undefined> {
   try {
     return {
-      image: buffer,
+      data: buffer,
       source: { clipboard: 'png' },
       exif: await getMetaDataFromBuffer(buffer),
       hasDrawThingsData: false,
@@ -106,7 +106,7 @@ export async function getClipboardImages(): Promise<(ImageAndData | undefined)[]
     since('getMetaDataFromBuffer')
     if (data) {
       // const b64 = await uint8ArrayToBase64(data)
-      result.image = data
+      result.data = data
       result.source = { clipboard: 'public.png' }
       result.exif = await getMetaDataFromBuffer(data)
       result.hasDrawThingsData = hasDrawThingsData(result.exif)
@@ -140,7 +140,7 @@ export async function getClipboardImages(): Promise<(ImageAndData | undefined)[]
       if (metaData) {
         return [
           {
-            image: data,
+            data: data,
             source: { url: url.toString() },
             exif: metaData,
             hasDrawThingsData: hasDrawThingsData(metaData),
@@ -184,7 +184,7 @@ function groupPaths(paths: string[]) {
 
 export function checkData(data?: Partial<ImageAndData>) {
   if (!data) return 'incomplete'
-  if (!data.image || data.image.length === 0) return 'incomplete'
+  if (!data.data || data.data.length === 0) return 'incomplete'
   if (!data.exif) return 'incomplete'
   if (!data.source) return 'incomplete'
 
