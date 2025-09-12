@@ -25,6 +25,6 @@
       ]
     }
   },
-  "include": ["src", "src/index.d.ts"],
+  "include": ["src", "src/global.ts"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

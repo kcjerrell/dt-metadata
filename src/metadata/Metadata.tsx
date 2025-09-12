@@ -1,22 +1,26 @@
-import { Box, Flex, HStack, Image, StackProps, VStack } from "@chakra-ui/react"
 import {
-	LayoutGroup,
+	Box,
+	Flex,
+	HStack,
+	Image,
+	type StackProps,
+	VStack,
+} from "@chakra-ui/react"
+import {
 	motion,
 	useAnimate,
 	useMotionValue,
-	useSpring,
-	ValueAnimationTransition,
+	type ValueAnimationTransition,
 } from "motion/react"
 import { useEffect, useRef } from "react"
 import "react-json-view-lite/dist/index.css"
+import { useSnapshot } from "valtio"
+import { since } from "@/devStore"
 import History from "./History"
 import InfoPane from "./InfoPane"
+import { MetadataStore } from "./state/store"
 import Toolbar from "./Toolbar"
 import { useMetadataDrop } from "./useMetadataDrop"
-
-import { useSnapshot } from "valtio"
-import { ImageItem, MetadataStore } from "./store"
-import { since } from "@/devStore"
 
 interface MetadataComponentProps extends StackProps {}
 
@@ -29,15 +33,8 @@ function Metadata(props: MetadataComponentProps) {
 	const snap = useSnapshot(MetadataStore)
 	const { currentImage, zoomPreview } = snap
 
-	// const { state, currentImage, setZoomPreview, loadData, selectImage, setImageTab } = useMetadata()
-	// const { zoomPreview } = state
 	const { isDragging, handlers } = useMetadataDrop()
 
-	// useEffect(() => {
-	//   loadData(
-	//     '/Users/kcjer/ai/jk/rich_3d_rendering_____very_detailed_3d_image__rich_painterly_texture__beautiful_lighting__slightly_exaggerated_features__subtle_2_5d_cartoon_style__skin_has_a_realistic_texture_with_subt_698226638.png'
-	//   )
-	// }, [loadData])
 	since("render")
 	return (
 		<Box
@@ -46,6 +43,7 @@ function Metadata(props: MetadataComponentProps) {
 			height="100vh"
 			position={"relative"}
 			overscrollBehavior={"none none"}
+			{...handlers}
 		>
 			<HStack
 				position={"absolute"}
@@ -81,7 +79,6 @@ function Metadata(props: MetadataComponentProps) {
 						minHeight={0}
 						padding={currentImage ? 1 : 8}
 						width={"100%"}
-						{...handlers}
 					>
 						{currentImage?.url ? (
 							<Image
@@ -92,7 +89,9 @@ function Metadata(props: MetadataComponentProps) {
 								width={"100%"}
 								height={"100%"}
 								borderRadius={"sm"}
-								onClick={() => (MetadataStore.zoomPreview = true)}
+								onClick={() => {
+									MetadataStore.zoomPreview = true
+								}}
 							/>
 						) : (
 							<Flex
@@ -137,7 +136,7 @@ type PreviewProps = {
 
 const posTransition: ValueAnimationTransition<number> = {
 	duration: 0.3,
-  ease: 'easeInOut',
+	ease: "easeInOut",
 }
 
 function Preview(props: PreviewProps) {
@@ -174,7 +173,6 @@ function Preview(props: PreviewProps) {
 			animate(topMv, top)
 			animate(heightMv, height)
 		}
-
 	}, [show, animate, heightMv, leftMv, widthMv, topMv, imgRef])
 
 	return (
@@ -192,20 +190,14 @@ function Preview(props: PreviewProps) {
 			<motion.div
 				initial={{
 					opacity: 1,
-          backgroundColor: "#00000000"
-					// background:
-					// 	"linear-gradient(45deg, #000000 0%, #777777 0% #ffffff 0%)",
+					backgroundColor: "#00000000",
 				}}
 				animate={{
-          backgroundColor: show ?  "#000000ff" : "#00000000"
-					// opacity: show ? 1 : 0,
-					// background: show
-					// 	? "linear-gradient(45deg, #000000 0%, #777777 50% #ffffff 100%)"
-					// 	: "linear-gradient(45deg, #000000 0%, #777777 0% #ffffff 100%)",
+					backgroundColor: show ? "#000000ff" : "#00000000",
 				}}
 				transition={{
 					duration: 0.3,
-          ease: "easeInOut"
+					ease: "easeInOut",
 				}}
 				style={{
 					position: "relative",

@@ -1,41 +1,27 @@
-import { type BoxProps, Button, SimpleGrid, VStack } from "@chakra-ui/react";
-import { useRef, useState } from "react";
-import { FiMoon } from "react-icons/fi";
-import { proxy, useSnapshot } from "valtio";
-import TabPage from "@/components/scrollTabs/TabPage";
-import { useColorMode } from "@/components/ui/color-mode";
-import { TypesStore } from "@/devStore";
-import { getClipboardTypes } from "@/utils/clipboard";
-import DataItem from "./DataItem";
-import ScrollTabs from "./ScrollTabs";
-import { MetadataStore } from "./store";
+import { type BoxProps, Button, SimpleGrid, VStack } from "@chakra-ui/react"
+import { useState } from "react"
+import { FiMoon } from "react-icons/fi"
+import { useSnapshot } from "valtio"
+import TabPage from "@/components/scrollTabs/TabPage"
+import { useColorMode } from "@/components/ui/color-mode"
+import { getClipboardTypes } from "@/utils/clipboard"
+import DataItem from "./DataItem"
+import ScrollTabs from "./ScrollTabs"
+import { MetadataStore } from "./state/store"
 
 interface InfoPanelProps extends BoxProps {}
 
 function InfoPane(props: InfoPanelProps) {
-	const { ...restProps } = props;
+	const { ...restProps } = props
 
-	const snap = useSnapshot(MetadataStore);
-	const { currentImage: image } = snap;
+	const snap = useSnapshot(MetadataStore)
+	const { currentImage: image } = snap
 
-	const { toggleColorMode } = useColorMode();
+	const { toggleColorMode } = useColorMode()
 
-	const { exif, info, dtData } = image ?? {};
+	const { exif, dtData } = image ?? {}
 
-	const testInputApp = useRef<HTMLInputElement>(null);
-	const testInputAction = useRef<HTMLInputElement>(null);
-	const typesSnap = useSnapshot(TypesStore);
-	const [clipTypes, setClipTypes] = useState([] as string[]);
-
-	const temp = useRef(
-		proxy({
-			weight: 300,
-			size: 32,
-		}),
-	);
-	const tempSnap = useSnapshot(temp.current);
-	// console.log(JSON.stringify(typesSnap, null, 2));
-	// const disabled = [false, dtData == undefined, dtData == undefined]
+	const [clipTypes, setClipTypes] = useState([] as string[])
 
 	return (
 		<ScrollTabs
@@ -56,7 +42,6 @@ function InfoPane(props: InfoPanelProps) {
 		>
 			<TabPage label={"image"}>
 				<SimpleGrid columns={2}>
-					<DataItem label={"Size"} data={formatByte(info?.size)} />
 					{Object.entries(
 						(exif ?? {}) as Record<
 							string,
@@ -75,8 +60,8 @@ function InfoPane(props: InfoPanelProps) {
 						label={"Size"}
 						data={`${dtData?.config.width} x ${dtData?.config.height}`}
 						ignore={
-							dtData?.config.width == undefined ||
-							dtData?.config.height == undefined
+							dtData?.config.width === undefined ||
+							dtData?.config.height === undefined
 						}
 					/>
 					<DataItem
@@ -116,8 +101,12 @@ function InfoPane(props: InfoPanelProps) {
 				</SimpleGrid>
 			</TabPage>
 			<TabPage label={"gen"}>
-				{dtData?.profile?.timings?.map((t, i) => (
-					<DataItem key={i} label={t.name} data={t.durations as number[]} />
+				{dtData?.profile?.timings?.map((t) => (
+					<DataItem
+						key={t.name}
+						label={t.name}
+						data={t.durations as number[]}
+					/>
 				))}
 			</TabPage>
 			{/*<TabPage label={"test"}>
@@ -233,17 +222,4 @@ function InfoPane(props: InfoPanelProps) {
 	)
 }
 
-export default InfoPane;
-
-function formatByte(size: number | undefined): string {
-	if (typeof size !== "number" || isNaN(size)) return "";
-	if (size < 1024) return `${size} B`;
-	const units = ["KB", "MB", "GB", "TB", "PB"];
-	let i = -1;
-	let s = size;
-	do {
-		s = s / 1024;
-		i++;
-	} while (s >= 1024 && i < units.length - 1);
-	return `${s.toFixed(1)} ${units[i]}`;
-}
+export default InfoPane

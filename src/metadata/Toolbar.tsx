@@ -11,7 +11,7 @@ import { FiClipboard, FiXCircle } from "react-icons/fi";
 import { GrPin } from "react-icons/gr";
 import type { IconType } from "react-icons/lib";
 import { useSnapshot } from "valtio";
-import { clearImages, MetadataStore, pinImage } from "./store";
+import { clearImages, MetadataStore, pinImage } from "./state/store";
 import { loadFromPasteboard } from "./state/imageLoaders";
 import { toaster } from "@/components/ui/toaster";
 

@@ -1,14 +1,8 @@
 import plist from "plist"
-import {
-	fetchImage,
-	getClipboardBinary,
-	getClipboardText,
-	getClipboardTypes,
-	getLocalImage,
-} from "@/utils/clipboard"
-import { createImageItem, type ImageItem } from "../store"
+import { fetchImage, getClipboardBinary, getClipboardText, getClipboardTypes, getLocalImage } from "@/utils/clipboard"
+import { createImageItem, replaceWithBetter } from "./store"
 import * as pathlib from "@tauri-apps/api/path"
-import { convertFileSrc } from "@tauri-apps/api/core"
+import { ImageItem } from "./ImageItem"
 
 type PromiseOrNot<T> = Promise<T> | T
 type GetterOrNot<T> = T | (() => T)
@@ -25,29 +19,14 @@ type TextGetter = GetterOrNot<PromiseOrNot<Text | null>>
  * @param getBuffer either an image buffer (or a function that returns or promises one)
  * @param getText an object of text items that may contain paths/urls (or a function that returns or promises one)
  */
-export async function loadImage(
-	imageOrGetter: ImageGetter,
-	textOrGetter: TextGetter,
-) {
+export async function loadImage(imageOrGetter: ImageGetter, textOrGetter: TextGetter) {
 	const fileImage = await resolveGetter(imageOrGetter)
 	let imageItem = null as ImageItem
 
 	if (fileImage?.data && fileImage.type) {
-		// let bufferImage: ImageAndData = null;
-		// bufferImage = {} as ImageAndData;
-		// bufferImage.data = fileImage.data;
-		// bufferImage.source = { clipboard: "public.png" };
-		// bufferImage.exif = await getMetaDataFromBuffer(fileImage.data);
-		// bufferImage.hasDrawThingsData = hasDrawThingsData(bufferImage.exif);
-		// bufferImage.type = getImageType(fileImage.type);
-
-		imageItem = await createImageItem(
-			fileImage.data,
-			getImageType(fileImage.type),
-			{
-				clipboard: fileImage.type,
-			},
-		)
+		imageItem = await createImageItem(fileImage.data, getImageType(fileImage.type), {
+			clipboard: fileImage.type,
+		})
 		if (imageItem?.dtData) return
 	}
 
@@ -55,50 +34,59 @@ export async function loadImage(
 	const text = (await resolveGetter(textOrGetter)) ?? {}
 	console.log("text", text)
 
+	let textItem = null as Parameters<typeof createImageItem>
 	const checked = [] as string[]
 
 	for (const textType of clipboardTextTypes) {
+		if (textItem) break
 		if (!text[textType]) continue
 
 		const { files, urls } = parseText(text[textType], textType)
 		console.log(`${textType} has ${files.length} files and ${urls.length} urls`)
 
 		for (const file of files) {
+			if (textItem) break
 			if (checked.includes(file)) continue
 			checked.push(file)
 			console.log(`gonna try downloading ${file}`)
 			const image = await getLocalImage(file)
 			if (image) {
 				console.log("got an image")
-				const newImageItem = await createImageItem(
+				textItem = [
 					image,
 					(await pathlib.extname(file)) ?? "png",
 					{
 						clipboard: textType,
 					},
-				)
-				if (newImageItem) return
+				]
 			}
 		}
 
 		for (const url of urls) {
+			if (textItem) break
 			if (checked.includes(url)) continue
 			checked.push(url)
 			console.log(`gonna try downloading ${url}`)
 			const image = await fetchImage(url)
 			if (image) {
 				console.log("got an image")
-				const newImageItem = await createImageItem(
+				textItem = [
 					image,
 					(await pathlib.extname(new URL(url).pathname)) ?? "png",
 					{
 						clipboard: textType,
 					},
-				)
-				if (newImageItem) return
+				]
 			}
 		}
 	}
+
+	if (!textItem) return
+
+	if (imageItem)
+		await replaceWithBetter(imageItem, ...textItem)
+	else
+		await createImageItem(...textItem)
 }
 
 function parseText(value: string, type: string) {
@@ -156,9 +144,7 @@ const clipboardTextTypes = [
 	"public.url",
 ]
 const clipboardImageTypes = ["public.png", "public.tiff", "public.jpeg"]
-export async function loadFromPasteboard(
-	pasteboard = "general" as "general" | "drag",
-) {
+export async function loadFromPasteboard(pasteboard = "general" as "general" | "drag") {
 	const types = await getClipboardTypes(pasteboard)
 	console.log(types)
 	// return
@@ -182,9 +168,7 @@ export async function loadFromPasteboard(
 	await loadImage(getBuffer, getText)
 }
 
-async function resolveGetter<T extends object>(
-	thing: GetterOrNot<PromiseOrNot<T | null>>,
-) {
+async function resolveGetter<T extends object>(thing: GetterOrNot<PromiseOrNot<T | null>>) {
 	let value: T | null = thing as T
 
 	if (typeof thing === "function") value = thing() as T

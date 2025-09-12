@@ -87,7 +87,7 @@ function DataItem(props: DataItemProps) {
 					navigator.clipboard.writeText(
 						isJson
 							? JSON.stringify(data, null, 2)
-							: replaceWords(data.toString()),  
+							: data.toString(),  
 					)
 					setShowCopied(true)
 					setTimeout(() => setShowCopied(false), 1000)
