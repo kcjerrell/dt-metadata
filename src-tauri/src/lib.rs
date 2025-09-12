@@ -1,24 +1,34 @@
 use objc2::rc::Retained;
-use objc2_app_kit::NSPasteboard;
+use objc2_app_kit::{NSPasteboard, NSPasteboardNameDrag};
 use objc2_foundation::{NSArray, NSData, NSString};
 #[cfg(target_os = "macos")]
 use tauri::TitleBarStyle;
 use tauri::{WebviewUrl, WebviewWindowBuilder};
 use tauri_plugin_http::reqwest;
 
-#[tauri::command]
-fn read_clipboard_types() -> Result<Vec<String>, String> {
-    // Get general pasteboard
-    let pb = unsafe { NSPasteboard::generalPasteboard() };
+fn get_clipboard(pasteboard: Option<String>) -> Result<Retained<NSPasteboard>, String> {
+    unsafe {
+        match pasteboard.as_deref() {
+            Some("drag") => Ok(NSPasteboard::pasteboardWithName(&*NSPasteboardNameDrag)),
+            Some("general") | None => Ok(NSPasteboard::generalPasteboard()),
+            Some(other) => return Err(format!("Unknown pasteboard name: {other}")),
+        }
+    }
+}
 
-    // Get types (NSArray<NSString *>)
+#[tauri::command]
+fn read_clipboard_types(pasteboard: Option<String>) -> Result<Vec<String>, String> {
+    // Select pasteboard based on argument
+    let pb: Retained<NSPasteboard> = get_clipboard(pasteboard)?;
+
+    // Get available types (NSArray<NSString>)
     let available = unsafe { pb.types() }.ok_or("Failed to get available types")?;
 
-    // Convert NSArray<NSString *> to Vec<String>
-    let mut result = Vec::new();
-    for i in 0..available.count() {
-        let ty = available.objectAtIndex(i);
-        result.push(ty.to_string()); // `Retained<NSString>` → String
+    // Convert NSArray<NSString> → Vec<String>
+    let mut result = Vec::with_capacity(available.len());
+    for i in 0..available.len() {
+        let ty: Retained<NSString> = available.objectAtIndex(i);
+        result.push(ty.to_string());
     }
 
     Ok(result)
@@ -27,8 +37,9 @@ fn read_clipboard_types() -> Result<Vec<String>, String> {
 #[tauri::command]
 fn read_clipboard_strings(
     types: Vec<String>,
+    pasteboard: Option<String>,
 ) -> Result<std::collections::HashMap<String, String>, String> {
-    let pb = unsafe { NSPasteboard::generalPasteboard() };
+    let pb = get_clipboard(pasteboard)?;
     let mut results = std::collections::HashMap::new();
 
     for ty in types {
@@ -50,8 +61,8 @@ fn read_clipboard_strings(
 }
 
 #[tauri::command]
-fn read_clipboard_binary(ty: String) -> Result<Vec<u8>, String> {
-    let pb = unsafe { NSPasteboard::generalPasteboard() };
+fn read_clipboard_binary(ty: String, pasteboard: Option<String>) -> Result<Vec<u8>, String> {
+    let pb = get_clipboard(pasteboard)?;
     let ns_type = NSString::from_str(&ty);
     let type_array = NSArray::from_slice(&[&*ns_type]);
 
@@ -94,33 +105,36 @@ pub fn run() {
                 .title("Transparent Titlebar Window")
                 .inner_size(800.0, 600.0)
                 .disable_drag_drop_handler();
+                // .background_color(tauri::window::Color(0, 0, 0, 255));
 
             // set transparent title bar only when building for macOS
             #[cfg(target_os = "macos")]
             let win_builder = win_builder
                 .title_bar_style(TitleBarStyle::Overlay)
-                .hidden_title(true);
+                .hidden_title(true)
+                .visible(false);
+            
 
-            let window = win_builder.build().unwrap();
+            let _window = win_builder.build().unwrap();
 
-            // set background color only when building for macOS
-            #[cfg(target_os = "macos")]
-            {
-                use cocoa::appkit::{NSColor, NSWindow};
-                use cocoa::base::{id, nil};
+            // // set background color only when building for macOS
+            // #[cfg(target_os = "macos")]
+            // {
+            //     use objc2_app_kit::{NSColor, NSWindow};
+            //     use objc2_app_kit::{id, nil};
 
-                let ns_window = window.ns_window().unwrap() as id;
-                unsafe {
-                    let bg_color = NSColor::colorWithRed_green_blue_alpha_(
-                        nil,
-                        50.0 / 255.0,
-                        158.0 / 255.0,
-                        163.5 / 255.0,
-                        1.0,
-                    );
-                    ns_window.setBackgroundColor_(bg_color);
-                }
-            }
+            //     let ns_window = window.ns_window().unwrap() as id;
+            //     unsafe {
+            //         let bg_color = NSColor::colorWithRed_green_blue_alpha_(
+            //             nil,
+            //             50.0 / 255.0,
+            //             158.0 / 255.0,
+            //             163.5 / 255.0,
+            //             1.0,
+            //         );
+            //         ns_window.setBackgroundColor_(bg_color);
+            //     }
+            // }
 
             Ok(())
         })

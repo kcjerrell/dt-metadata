@@ -16,7 +16,7 @@ function History(props: HistoryProps) {
   const { ...restProps } = props
 
   const snap = useSnapshot(MetadataStore)
-  const { images, currentImage, imageData } = snap
+  const { images, currentImage } = snap
 
   const pinned = images.filter(i => i.pin != null)
   const unpinned = images.filter(i => i.pin == null)
@@ -31,6 +31,7 @@ function History(props: HistoryProps) {
       marginBottom={'-20px'}
       _hover={{ transform: 'translateY(-10%)' }}
       transition={'transform 0.1s ease-in-out'}
+      height={'4rem'}
     >
       <HStack gap={0} transform={'translateY(10%)'} overflowY={'visible'} {...restProps}>
         {pinned.map((image, i) => (

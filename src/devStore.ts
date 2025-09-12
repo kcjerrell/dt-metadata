@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { proxy } from 'valtio';
 import { areEquivalent } from './utils/helpers';
+import { store } from '@tauri-store/valtio';
 
 export const DevStore = proxy({
   blink: false
@@ -43,4 +44,22 @@ export function since(comment: string) {
   const now = performance.now()
   console.log(comment, now - last)
   last = now
+}
+
+type TransferType = {
+  app: string,
+  action: string,
+  types: string[]
+  kind: 'drop' | 'copy'
+}
+
+const typesStore = store('typesStore', {
+  transferTypes: [] as TransferType[]
+}, {autoStart: true, saveOnChange: true})
+
+export const TypesStore = typesStore.state
+
+export function addTypes(transferType: TransferType) {
+  TypesStore.transferTypes.push(transferType)
+  TypesStore.transferTypes.sort((a, b) => a.app.localeCompare(b.app) || a.action.localeCompare(b.action))
 }

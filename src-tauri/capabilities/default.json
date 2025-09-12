@@ -1,12 +1,11 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
-  "identifier": "default",
   "description": "Capability for the main window",
-  "windows": [
-    "main"
-  ],
+  "identifier": "default",
   "permissions": [
     "core:default",
+    "core:window:allow-show",
+    "core:window:allow-hide",
     "opener:default",
     "clipboard-manager:allow-read-text",
     "clipboard-manager:allow-write-text",
@@ -26,5 +25,8 @@
     "http:allow-fetch",
     "core:event:default",
     "valtio:default"
+  ],
+  "windows": [
+    "main"
   ]
 }

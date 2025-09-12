@@ -12,7 +12,7 @@ import { GrPin } from "react-icons/gr";
 import type { IconType } from "react-icons/lib";
 import { useSnapshot } from "valtio";
 import { clearImages, MetadataStore, pinImage } from "./store";
-import { loadFromClipboard } from "./state/imageLoaders";
+import { loadFromPasteboard } from "./state/imageLoaders";
 import { toaster } from "@/components/ui/toaster";
 
 interface ToolbarProps extends StackProps {}
@@ -34,6 +34,7 @@ function Toolbar(props: ToolbarProps) {
 				// colorPalette={'blue'}
 				borderRadius={"xl"}
 				boxShadow={"lg"}
+				border={"1px solid {gray/20}"}
 				gap={0}
 				{...restProps}
 				asChild
@@ -62,7 +63,7 @@ function Toolbar(props: ToolbarProps) {
 							// console.log(data)
 							// addImage(data)
 							try {
-								await loadFromClipboard();
+								await loadFromPasteboard();
 							} catch (e) {
 								console.error(e);
 							}

@@ -1,20 +1,22 @@
+import plist from "plist"
 import {
+	fetchImage,
 	getClipboardBinary,
 	getClipboardText,
 	getClipboardTypes,
-	type ImageAndData,
-} from "@/utils/clipboard";
-import { getMetaDataFromBuffer } from "@/utils/metadata";
-import { hasDrawThingsData } from "../helpers";
-import { createImageItem } from "../store";
+	getLocalImage,
+} from "@/utils/clipboard"
+import { createImageItem, type ImageItem } from "../store"
+import * as pathlib from "@tauri-apps/api/path"
+import { convertFileSrc } from "@tauri-apps/api/core"
 
-type PromiseOrNot<T> = Promise<T> | T;
-type GetterOrNot<T> = T | (() => T);
-type ImageBuffer = Uint8Array<ArrayBuffer>;
-type ImageFile = { data: ImageBuffer; type: string };
-type ImageGetter = GetterOrNot<PromiseOrNot<ImageFile | null>>;
-type Text = Record<string, string>;
-type TextGetter = GetterOrNot<PromiseOrNot<Text | null>>;
+type PromiseOrNot<T> = Promise<T> | T
+type GetterOrNot<T> = T | (() => T)
+type ImageBuffer = Uint8Array<ArrayBuffer>
+type ImageFile = { data: ImageBuffer; type: string }
+type ImageGetter = GetterOrNot<PromiseOrNot<ImageFile | null>>
+type Text = Record<string, string>
+type TextGetter = GetterOrNot<PromiseOrNot<Text | null>>
 
 /**
  * Since clipboard and drops have different methods of obtaining thr data,
@@ -27,87 +29,214 @@ export async function loadImage(
 	imageOrGetter: ImageGetter,
 	textOrGetter: TextGetter,
 ) {
-	const fileImage = await resolveGetter(imageOrGetter);
-	let bufferImage: ImageAndData = null;
+	const fileImage = await resolveGetter(imageOrGetter)
+	let imageItem = null as ImageItem
 
 	if (fileImage?.data && fileImage.type) {
-		bufferImage = {} as ImageAndData;
-		bufferImage.data = fileImage.data;
-		bufferImage.source = { clipboard: "public.png" };
-		bufferImage.exif = await getMetaDataFromBuffer(fileImage.data);
-		bufferImage.hasDrawThingsData = hasDrawThingsData(bufferImage.exif);
-		bufferImage.type = getImageType(fileImage.type);
-	}
+		// let bufferImage: ImageAndData = null;
+		// bufferImage = {} as ImageAndData;
+		// bufferImage.data = fileImage.data;
+		// bufferImage.source = { clipboard: "public.png" };
+		// bufferImage.exif = await getMetaDataFromBuffer(fileImage.data);
+		// bufferImage.hasDrawThingsData = hasDrawThingsData(bufferImage.exif);
+		// bufferImage.type = getImageType(fileImage.type);
 
-	if (bufferImage?.hasDrawThingsData) {
-    console.log('bufferImage', bufferImage)
-		createImageItem(bufferImage);
-		return;
+		imageItem = await createImageItem(
+			fileImage.data,
+			getImageType(fileImage.type),
+			{
+				clipboard: fileImage.type,
+			},
+		)
+		if (imageItem?.dtData) return
 	}
 
 	// try loading text
+	const text = (await resolveGetter(textOrGetter)) ?? {}
+	console.log("text", text)
 
-	// if no meta data and buffer image, load that
+	const checked = [] as string[]
 
-	if (bufferImage) {
-    console.log('bufferImage', bufferImage)
-		createImageItem(bufferImage);
-		return;
+	for (const textType of clipboardTextTypes) {
+		if (!text[textType]) continue
+
+		const { files, urls } = parseText(text[textType], textType)
+		console.log(`${textType} has ${files.length} files and ${urls.length} urls`)
+
+		for (const file of files) {
+			if (checked.includes(file)) continue
+			checked.push(file)
+			console.log(`gonna try downloading ${file}`)
+			const image = await getLocalImage(file)
+			if (image) {
+				console.log("got an image")
+				const newImageItem = await createImageItem(
+					image,
+					(await pathlib.extname(file)) ?? "png",
+					{
+						clipboard: textType,
+					},
+				)
+				if (newImageItem) return
+			}
+		}
+
+		for (const url of urls) {
+			if (checked.includes(url)) continue
+			checked.push(url)
+			console.log(`gonna try downloading ${url}`)
+			const image = await fetchImage(url)
+			if (image) {
+				console.log("got an image")
+				const newImageItem = await createImageItem(
+					image,
+					(await pathlib.extname(new URL(url).pathname)) ?? "png",
+					{
+						clipboard: textType,
+					},
+				)
+				if (newImageItem) return
+			}
+		}
 	}
+}
+
+function parseText(value: string, type: string) {
+	let paths: string[] = []
+
+	if (typeof value !== "string") return { files: [], urls: [] }
+
+	switch (type) {
+		case "NSFilenamesPboardType":
+			// when copying from mac finder
+			paths = plist.parse(value) as string[]
+			break
+		case "public.html": {
+			const imgSrc = extractImgSrc(value)
+			paths = imgSrc ? [imgSrc] : []
+			break
+		}
+		case "public.file-url":
+		case "public.url":
+		case "org.chromium.source-url":
+		case "public.utf8-plain-text":
+		default:
+			// URLs, possibly file URLs
+			paths = value
+				.split("\n")
+				.map((f) => f.trim())
+				.filter((f) => f.length > 0)
+			break
+		// Try to detect file paths or URLs in plain text
+		// paths = value
+		//   .split('\n')
+		//   .map(f => f.trim())
+		//   .filter(f => f.length > 0)
+	}
+	const files = [] as string[]
+	const urls = [] as string[]
+
+	for (const p of paths) {
+		if (isValidUrl(p)) urls.push(p)
+		else {
+			const localPath = getLocalPath(p)
+			if (localPath) files.push(localPath)
+		}
+	}
+
+	return { files, urls }
 }
 
 const clipboardTextTypes = [
 	"NSFilenamesPboardType",
+	"public.html",
 	"public.utf8-plain-text",
 	"org.chromium.source-url",
 	"public.file-url",
 	"public.url",
-];
-const clipboardImageTypes = ["public.png", "public.tiff", "public.jpeg"];
-export async function loadFromClipboard() {
-	const types = await getClipboardTypes();
+]
+const clipboardImageTypes = ["public.png", "public.tiff", "public.jpeg"]
+export async function loadFromPasteboard(
+	pasteboard = "general" as "general" | "drag",
+) {
+	const types = await getClipboardTypes(pasteboard)
+	console.log(types)
+	// return
 
 	const getBuffer = async () => {
-    for (const type of clipboardImageTypes) {
-      if (types.includes(type)) {
-        const data = await getClipboardBinary(type);
-        if (data) return { data, type }
-      }
-    }
-	};
+		for (const type of clipboardImageTypes) {
+			if (types.includes(type)) {
+				const data = await getClipboardBinary(type, pasteboard)
+				if (data) return { data, type }
+			}
+		}
+	}
 
 	const getText = async () => {
 		return await getClipboardText(
 			clipboardTextTypes.filter((t) => types.includes(t)),
-		);
-	};
+			pasteboard,
+		)
+	}
 
-	await loadImage(getBuffer, getText);
+	await loadImage(getBuffer, getText)
 }
 
 async function resolveGetter<T extends object>(
 	thing: GetterOrNot<PromiseOrNot<T | null>>,
 ) {
-	let value: T | null = thing as T;
+	let value: T | null = thing as T
 
-	if (typeof thing === "function") value = thing() as T;
+	if (typeof thing === "function") value = thing() as T
 
-	if (value instanceof Promise) value = await value;
+	if (value instanceof Promise) value = await value
 
-	return value;
+	return value
 }
 
 function getImageType(imageType: string) {
-  let type = imageType
+	let type = imageType
 
-  if (type.startsWith('image/')) {
-    type = type.split('/')[1]
-  }
-  if (type.startsWith('public.')) {
-    type = type.split('.')[1]
-  }
+	if (type.startsWith("image/")) {
+		type = type.split("/")[1]
+	}
+	if (type.startsWith("public.")) {
+		type = type.split(".")[1]
+	}
 
-  if (type === 'jpeg') type = 'jpg'
+	if (type === "jpeg") type = "jpg"
 
-  return type
+	return type
+}
+
+function extractImgSrc(htmlString: string): string | null {
+	// Use DOMParser to safely parse the string into a Document
+	const parser = new DOMParser()
+	const doc = parser.parseFromString(htmlString, "text/html")
+
+	// Query the first <img> element
+	const img = doc.querySelector("img")
+
+	// Return the src if it exists
+	return img?.getAttribute("src") ?? null
+}
+
+function isValidUrl(url: string) {
+	try {
+		const urlObj = new URL(url)
+		if (urlObj.protocol === "file:") return false
+		return true
+	} catch {
+		return false
+	}
+}
+
+function getLocalPath(path: string) {
+	let p = path
+
+	if (p.startsWith("file://")) p = p.slice(7)
+	if (p.startsWith("/.file")) return null
+	if (p.startsWith("/")) return p
+
+	return null
 }

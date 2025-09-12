@@ -71,7 +71,7 @@ function ScrollTabs(props: ScrollTabsProps) {
       <VStack
         padding={0}
         flex="0 0 auto"
-        height={'100%'}
+        // height={'100%'}
         gap={0}
         align={'stretch'}
         overflow={'hidden'}

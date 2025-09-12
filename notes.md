@@ -211,3 +211,100 @@ Okay, so now I have both clipboard and drops distilled into files and a list of 
 
 However the only instance I know of where text > files is when copying from chromium.
 
+damn I thought it would be simple enough to go images > text. But it looks like I might need to mix precedence or have special rules are something....
+
+Finder
+  - Copy: NSFilenamesPboardType**
+  - Drop: file image/png**
+Draw Things
+  - Copy: public.png* or public.tiff
+  - Drop: none
+Discord:
+  - Copy image (thumbnail and full): public.png (no metadata)
+  - Drop (thumbnail): text/plain text/uri-list
+  - Drop (full): image/webp (no metadata) text/uri-list (change format in query string)
+  - Copy link: public.utf8-plain-text NSStringPboardType
+  - Copy link (full): public.utf8-plain-text NSStringPboardType (change format query string)
+Chromium (Edge, presumably Chrome):
+  - Copy image: public.png (no metadata)
+    - org.chromium.source-url is the page url, which could be the image url
+    - public.html** has the img element with src
+  - Copy image link: public.utf8-plain-text**
+  - Drop image: image/png**
+Safari
+  - Copy image: pubic.tiff (no metadata) public.url** public.utf8-plain-text** NSStringPboardType
+  - Copy image address: public.url** public.utf8-plain-text** NSStringPboardType
+  - Drop image: image/png**
+PicArrange
+  - Copy: NSFilenamesPboardType**
+  - Drop: image/png**
+
+
+Maybe i should just provide all the types, and have a set of rules that can cone through
+
+when it comes to drops, image/*** seems to always be preferred unless it's a full size drop from discord, in which case the best option is text/uri-list (with a changed query)
+
+NSFilenamesPboardType is always the best
+
+if there's a public.html
+
+so maybe the rule definitions would be like
+
+rule = {
+  types: [']
+}
+
+---
+
+okay it seems that for drops, you have to get text itmes right away, but for files, as long as you have the file from .getAsFile, you can get the actual array buffer later.
+
+so we'll go with the 'look at all the available types and run through some rules' strategy, I guess.
+
+
+---
+
+I'm probably over thinking it
+
+- Get the first image in the drop/clip
+  - if it has DT metadata, you win!
+- Look through text types for paths 
+  - Local path - if it exists, load that image and return
+  - Url - check url, if exists, return
+- If no paths produced images, return the original image without metadata
+
+And maybe I should set the store up so I can load the image immediately, and replace it if a better alternative is found.
+
+--
+
+okay so that strategy still has problems because the public.tiff when you copy from finder is the png icon.
+
+---
+
+okay finally got it. turns out that (on mac at least) drag and drop comes from the same api that copy/paste does. that simplies things a lot, because I can load with the exact same function, just changing "general" to "drag". 
+
+So now, whenever 'loadImage' is triggered
+- Clip/drag types are retrieved
+- if there's an image type it will be loaded and a new imageitem created
+- if no image or the imageitem has no metadata
+  - grab all the familiar text entries
+  - for each type:
+    - extract any urls or paths
+      - for each path/url:
+        - try loading it
+        - if it loads, create the imageItem or update the one that was already loaded
+        - return
+
+Still need to...
+  - mechanism for creating a new image item to replace an existing one
+    - I think it should probably be replaced rather updated since the url is tied to the id
+  - skip loading an image type under certain circumstances
+
+and then more generally:
+  - feedback for when an image is loading
+  - feedback for when an image can't be loaded
+  - image cache clean up
+  - thumbnails
+  - clear history/pins on exit
+  - ui for closing/clearing items
+  - suspense/lazy loading (splash screen)
+  - button to copy an image

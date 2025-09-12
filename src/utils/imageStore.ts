@@ -17,12 +17,12 @@ if (!(await fs.exists(imageFolder))) {
   await fs.mkdir(imageFolder)
 }
 
-type ImageStoreEntry = {
+type ImageStoreEntryBase = {
   id: string
   type: string
 }
 
-type ImageStoreImage = {
+export type ImageStoreEntry = {
   id: string
   type: string
   url: string
@@ -31,7 +31,7 @@ type ImageStoreImage = {
 
 const imagesStore = createStore(
   'images',
-  { images: {} as Record<string, ImageStoreEntry> },
+  { images: {} as Record<string, ImageStoreEntryBase> },
   {
     autoStart: true,
     syncStrategy: 'debounce',
@@ -50,7 +50,7 @@ const _validTypes = ['png', 'tiff', 'jpg']
 async function saveImage(
   image: Uint8Array,
   type: string
-): Promise<ImageStoreImage | undefined> {
+): Promise<ImageStoreEntry | undefined> {
   if (!type || !_validTypes.includes(type)) return
   if (!image || image.length === 0) return
 
@@ -73,7 +73,7 @@ async function saveImage(
   }
 }
 
-async function getImage(id: string): Promise<ImageStoreImage | undefined> {
+async function getImage(id: string): Promise<ImageStoreEntry | undefined> {
   const entry = store.images[id]
 
   if (!entry) return

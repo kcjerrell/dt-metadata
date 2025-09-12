@@ -25,6 +25,7 @@ function TabPage(props: TabPageProps) {
       height={'100%'}
       minHeight={0}
       width={'100%'}
+      minWidth={0}
       overflowY={'scroll'}
       overflowX={'hidden'}
       overscrollBehavior={'auto contain'}
