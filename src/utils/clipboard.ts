@@ -9,9 +9,7 @@ import * as plist from "plist"
 import { since } from "@/devStore"
 
 type PasteboardNames = "general" | "drag"
-export async function getClipboardTypes(
-	pasteboard?: PasteboardNames,
-): Promise<string[]> {
+export async function getClipboardTypes(pasteboard?: PasteboardNames): Promise<string[]> {
 	return await invoke("read_clipboard_types", { pasteboard })
 }
 
@@ -41,9 +39,7 @@ export type ImageAndData = {
 	type: string
 }
 
-export async function getLocalImage(
-	path: string,
-): Promise<Uint8Array<ArrayBuffer> | undefined> {
+export async function getLocalImage(path: string): Promise<Uint8Array<ArrayBuffer> | undefined> {
 	// console.log(path)
 	// console.log(await exists(path))
 	// try {
@@ -62,9 +58,7 @@ export async function getLocalImage(
 	}
 }
 
-export async function getBufferImage(
-	buffer: Uint8Array,
-): Promise<ImageAndData | undefined> {
+export async function getBufferImage(buffer: Uint8Array): Promise<ImageAndData | undefined> {
 	try {
 		return {
 			data: buffer,
@@ -87,10 +81,7 @@ const textTypes = [
 	"public.url",
 ]
 
-
-export async function fetchImage(
-	url: string,
-): Promise<Uint8Array<ArrayBuffer> | undefined> {
+export async function fetchImage(url: string): Promise<Uint8Array<ArrayBuffer> | undefined> {
 	try {
 		const data = (await invoke("fetch_image_file", {
 			url: url,

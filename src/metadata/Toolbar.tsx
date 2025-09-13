@@ -1,26 +1,20 @@
-import {
-	ButtonGroup,
-	HStack,
-	IconButton,
-	Spacer,
-	type StackProps,
-} from "@chakra-ui/react";
-import { motion } from "motion/react";
-import type { PropsWithChildren } from "react";
-import { FiClipboard, FiXCircle } from "react-icons/fi";
-import { GrPin } from "react-icons/gr";
-import type { IconType } from "react-icons/lib";
-import { useSnapshot } from "valtio";
-import { clearImages, MetadataStore, pinImage } from "./state/store";
-import { loadFromPasteboard } from "./state/imageLoaders";
-import { toaster } from "@/components/ui/toaster";
+import { ButtonGroup, HStack, IconButton, Spacer, type StackProps } from "@chakra-ui/react"
+import { motion } from "motion/react"
+import type { PropsWithChildren } from "react"
+import { FiClipboard, FiXCircle } from "react-icons/fi"
+import { GrPin } from "react-icons/gr"
+import type { IconType } from "react-icons/lib"
+import { useSnapshot } from "valtio"
+import { clearImages, MetadataStore, pinImage } from "./state/store"
+import { loadFromPasteboard } from "./state/imageLoaders"
+import { toaster } from "@/components/ui/toaster"
 
 interface ToolbarProps extends StackProps {}
 
 function Toolbar(props: ToolbarProps) {
-	const { ...restProps } = props;
+	const { ...restProps } = props
 
-	const { currentImage } = useSnapshot(MetadataStore);
+	const { currentImage } = useSnapshot(MetadataStore)
 
 	return (
 		<HStack padding={2} data-tauri-drag-region>
@@ -63,16 +57,20 @@ function Toolbar(props: ToolbarProps) {
 							// console.log(data)
 							// addImage(data)
 							try {
-								await loadFromPasteboard();
+								await loadFromPasteboard()
 							} catch (e) {
-								console.error(e);
+								console.error(e)
 							}
 						}}
 					/>
 					<ToolbarButton
 						onClick={() => {
-							pinImage(true, currentImage?.pin !== null ? null : true);
-							toaster.create({title: 'Pinned Image', description: 'Image has been pinned', type: 'success'});
+							pinImage(true, currentImage?.pin !== null ? null : true)
+							toaster.create({
+								title: "Pinned Image",
+								description: "Image has been pinned",
+								type: "success",
+							})
 						}}
 					>
 						<Pinned pin={currentImage?.pin} />
@@ -82,15 +80,13 @@ function Toolbar(props: ToolbarProps) {
 			</ButtonGroup>
 			<Spacer data-tauri-drag-region />
 		</HStack>
-	);
+	)
 }
 
-const ToolbarButton = (
-	props: PropsWithChildren<{ onClick?: () => void; icon?: IconType }>,
-) => {
-	const { icon: Icon, children, onClick, ...restProps } = props;
+const ToolbarButton = (props: PropsWithChildren<{ onClick?: () => void; icon?: IconType }>) => {
+	const { icon: Icon, children, onClick, ...restProps } = props
 
-	const content = Icon ? <Icon /> : children;
+	const content = Icon ? <Icon /> : children
 
 	return (
 		<IconButton
@@ -105,13 +101,13 @@ const ToolbarButton = (
 		>
 			{content}
 		</IconButton>
-	);
-};
+	)
+}
 
 const Pinned = ({ pin }: { pin: number | null }) => {
-	const isPinned = pin != null;
+	const isPinned = pin != null
 
-	const UnPinned = motion(GrPin);
+	const UnPinned = motion(GrPin)
 
 	if (isPinned)
 		return (
@@ -132,18 +128,18 @@ const Pinned = ({ pin }: { pin: number | null }) => {
 					</g>
 				</g>
 			</motion.svg>
-		);
+		)
 
-	return <UnPinned />;
-};
-
-function base64ToUint8Array(base64: string): Uint8Array {
-	const binary = atob(base64);
-	const bytes = new Uint8Array(binary.length);
-	for (let i = 0; i < binary.length; i++) {
-		bytes[i] = binary.charCodeAt(i);
-	}
-	return bytes;
+	return <UnPinned />
 }
 
-export default Toolbar;
+function base64ToUint8Array(base64: string): Uint8Array {
+	const binary = atob(base64)
+	const bytes = new Uint8Array(binary.length)
+	for (let i = 0; i < binary.length; i++) {
+		bytes[i] = binary.charCodeAt(i)
+	}
+	return bytes
+}
+
+export default Toolbar

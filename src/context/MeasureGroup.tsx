@@ -1,4 +1,4 @@
-import { Box } from '@chakra-ui/react'
+import { Box } from "@chakra-ui/react"
 import {
 	createContext,
 	PropsWithChildren,
@@ -11,9 +11,9 @@ import {
 	useState,
 } from "react"
 
-const measureContainer = document.createElement("div") 
+const measureContainer = document.createElement("div")
 measureContainer.style.position = "relative"
-measureContainer.style.width = '0'
+measureContainer.style.width = "0"
 measureContainer.style.height = "0"
 measureContainer.style.overflow = "hidden"
 const measureElem = document.createElement("div")
@@ -30,10 +30,10 @@ const MeasureGroupContext = createContext<RefObject<{
 	gap: number
 	lineHeight: number
 	maxWidth: number
-  maxHeight: number
+	maxHeight: number
 }> | null>(null)
 
-export function useMeasureGroup(content: string) {
+export function useMeasureGroup(content?: string) {
 	const cv = useContext(MeasureGroupContext)
 
 	const [measure, setMeasure] = useState({
@@ -45,14 +45,14 @@ export function useMeasureGroup(content: string) {
 		if (!cv || !measureElem) return
 		const { columns, gap, lineHeight, maxHeight, maxWidth } = cv.current
 
-		measureElem.textContent = content
+		measureElem.textContent = content ?? ""
 
 		const width = measureElem.clientWidth
 		const height = measureElem.clientHeight
 
 		const span = width > maxWidth / columns - gap ? columns : 1
 		const collapse = height > maxHeight
-    console.log(content.toString().slice(0, 20), maxHeight, height, width)
+		// console.log(content.toString().slice(0, 20), maxHeight, height, width)
 		// console.log(width, measureElem.clientWidth, columns, gap)
 		// console.log(
 		// 	span,
@@ -73,13 +73,13 @@ export function useMeasureGroup(content: string) {
 type MeasureGroupProviderProps = PropsWithChildren<{
 	// containerRef: React.RefObject<HTMLDivElement>
 	columns: number
-  maxHeight?: string
+	maxHeight?: string
 }>
 export function MeasureGroupProvider(props: MeasureGroupProviderProps) {
-	const { columns, maxHeight = '6rem', children } = props
+	const { columns, maxHeight = "6rem", children } = props
 
-  const containerRef = useRef<HTMLDivElement>(null)
-	const cv = useRef({ columns, gap: 8, lineHeight: 0, maxWidth: 0, maxHeight: 0})
+	const containerRef = useRef<HTMLDivElement>(null)
+	const cv = useRef({ columns, gap: 8, lineHeight: 0, maxWidth: 0, maxHeight: 0 })
 
 	// if (!cv.current.measureElem) {
 	// 	const measureElem = document.createElement("div")
@@ -103,19 +103,25 @@ export function MeasureGroupProvider(props: MeasureGroupProviderProps) {
 		measureElem.style.maxWidth = `${cv.current.maxWidth}px`
 		const fontSize = window.getComputedStyle(containerRef.current).fontSize
 		// measureElem.style.width = 'auto'
-    
-    // measureElem.style.height = "auto"
+
+		// measureElem.style.height = "auto"
 		measureElem.style.fontSize = fontSize
 		measureElem.textContent = "ABC"
 		cv.current.lineHeight = measureElem.clientHeight
-    
-    // measureElem.style.whiteSpace="pre"
-    // measureElem.textContent = Array(6).fill("ABC").join("\n")
-    cv.current.maxHeight = measureElem.clientHeight * 4
-    // measureElem.style.whiteSpace = "normal"
-    
 
-    console.log(cv.current, fontSize, measureElem.clientWidth, measureElem.clientHeight, containerRef.current.clientWidth, containerRef.current.clientHeight)
+		// measureElem.style.whiteSpace="pre"
+		// measureElem.textContent = Array(6).fill("ABC").join("\n")
+		cv.current.maxHeight = measureElem.clientHeight * 4
+		// measureElem.style.whiteSpace = "normal"
+
+		console.log(
+			cv.current,
+			fontSize,
+			measureElem.clientWidth,
+			measureElem.clientHeight,
+			containerRef.current.clientWidth,
+			containerRef.current.clientHeight,
+		)
 		// console.log(cv.current.maxWidth, measureElem, measureElem.clientWidth, cv.current.lineHeight)
 	})
 

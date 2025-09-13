@@ -75,7 +75,11 @@ function HistoryItem(props: HistoryItemProps) {
 				overflow: "hidden",
 				border: "1px solid var(--chakra-colors-gray-700)",
 				backgroundColor: "var(--chakra-colors-gray-700)",
-				borderTop: isSelected ? "3px solid var(--chakra-colors-highlight)" : isPinned ? "3px solid gray" : "none",
+				borderTop: isSelected
+					? "3px solid var(--chakra-colors-highlight)"
+					: isPinned
+						? "3px solid gray"
+						: "none",
 				marginTop: isSelected || isPinned ? "-3px" : "0px",
 				transformOrigin: "top",
 			}}

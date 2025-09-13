@@ -1,7 +1,6 @@
-import { useColorMode } from "@/components/ui/color-mode"
+import { Box, type BoxProps, GridItem, type GridItemProps, HStack, Text } from "@chakra-ui/react"
+import { useState } from "react"
 import { useMeasureGroup } from "@/context/MeasureGroup"
-import { Box, BoxProps, Code, GridItem, GridItemProps, HStack, Text } from "@chakra-ui/react"
-import { useLayoutEffect, useRef, useState } from "react"
 
 interface DataItemProps extends GridItemProps {
 	label: string
@@ -38,7 +37,7 @@ function DataItem(props: DataItemProps) {
 
 	const [data, isJson = forceJson] = coerceData(dataProp, decimalPlaces)
 	// const isJson = forceJson || typeof data === "object"
-	const { collapse, span } = useMeasureGroup(data.toString())
+	const { collapse, span } = useMeasureGroup(data?.toString())
 
 	const colSpan = colsProp ?? span
 	const gridColumn = colSpan > 1 ? `1 / span ${colSpan}` : undefined
@@ -108,13 +107,13 @@ function DataItem(props: DataItemProps) {
 				overflowX={isJson && !collapsed ? "auto" : "hidden"}
 				minWidth={0}
 				onClick={() => {
-					const selection = document.getSelection().toString()
+					const selection = document?.getSelection()?.toString()
 					const copyText = selection || data.toString()
 					navigator.clipboard.writeText(copyText)
 					setShowCopied(true)
 					setTimeout(() => setShowCopied(false), 1000)
 				}}
-				_selection={{bgColor: "info/50", color: "fg.1"}}
+				_selection={{ bgColor: "info/50", color: "fg.1" }}
 				// borderImage={"-webkit-linear-gradient(45deg,orange,yellow) 20 stretch;"}
 				_after={
 					collapse && collapsed
@@ -145,9 +144,10 @@ function DataItem(props: DataItemProps) {
 export default DataItem
 
 function coerceData(
-	data: string | number | (string | number | undefined)[] | Record<string, unknown>,
+	data?: string | number | (string | number | undefined)[] | Record<string, unknown>,
 	decimalPlaces = 2,
-): [string, boolean?] {
+): [string | undefined, boolean?] {
+	if (data === undefined) return [undefined, false]
 	if (typeof data === "string") {
 		try {
 			if (data.startsWith("{") && data.endsWith("}")) {

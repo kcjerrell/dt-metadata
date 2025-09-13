@@ -77,10 +77,14 @@ function InfoPane(props: InfoPanelProps) {
 							<DataItem label={"Shift"} data={dtData?.config.shift} decimalPlaces={2} />
 						</HStack>
 						<DataItem label={"Prompt"} data={dtData?.prompt} cols={2} />
-						<DataItem label={"Negative Prompt"} data={
-							dtData?.negativePrompt
-							// Array(6).fill("ABC").join("\n")
-							} cols={2} />
+						<DataItem
+							label={"Negative Prompt"}
+							data={
+								dtData?.negativePrompt
+								// Array(6).fill("ABC").join("\n")
+							}
+							cols={2}
+						/>
 						<DataItem label={"Config"} data={dtData?.config} cols={2} expandByDefault />
 					</SimpleGrid>
 				</MeasureGroupProvider>

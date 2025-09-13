@@ -81,7 +81,8 @@ export function pinImage(imageOrCurrent: ImageItemParam | true, value: number | 
 	const storeImage = MetadataStore.images[index]
 	if (!storeImage) return
 
-	const pinValue = typeof value === "number" ? value : value === true ? Number.POSITIVE_INFINITY : null
+	const pinValue =
+		typeof value === "number" ? value : value === true ? Number.POSITIVE_INFINITY : null
 
 	storeImage.pin = pinValue
 	reconcilePins()
@@ -102,7 +103,11 @@ export function clearImages(keepTabs = false) {
 	MetadataStore.currentIndex = MetadataStore.images.length - 1
 }
 
-export async function createImageItem(imageData: Uint8Array<ArrayBuffer>, type: string, source: ImageSource) {
+export async function createImageItem(
+	imageData: Uint8Array<ArrayBuffer>,
+	type: string,
+	source: ImageSource,
+) {
 	console.log("create image item")
 	if (!imageData || !type || !source) return
 	if (imageData.length === 0) return
@@ -136,7 +141,12 @@ export async function createImageItem(imageData: Uint8Array<ArrayBuffer>, type: 
  * replace the given ImageItem with a new one from imageData, only if the new one has DTMetadata
  * and the original does not
  */
-export async function replaceWithBetter(imageItem: ImageItem, imageData: Uint8Array<ArrayBuffer>, imageType: string, source: ImageSource) {
+export async function replaceWithBetter(
+	imageItem: ImageItem,
+	imageData: Uint8Array<ArrayBuffer>,
+	imageType: string,
+	source: ImageSource,
+) {
 	const index = MetadataStore.images.indexOf(imageItem)
 	if (index === -1) return
 

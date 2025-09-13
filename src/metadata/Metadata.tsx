@@ -53,7 +53,14 @@ function Metadata(props: MetadataComponentProps) {
 				minHeight={0}
 				{...restProps}
 			>
-				<VStack flex="1 1 auto" padding={0} alignItems={"stretch"} justifyContent={"start"} gap={0} minWidth={0}>
+				<VStack
+					flex="1 1 auto"
+					padding={0}
+					alignItems={"stretch"}
+					justifyContent={"start"}
+					gap={0}
+					minWidth={0}
+				>
 					<Toolbar />
 					<Box
 						ref={dropRef}

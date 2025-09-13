@@ -1,4 +1,13 @@
-import { createContext, type RefObject, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react"
+import {
+	createContext,
+	type RefObject,
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from "react"
 import { areEquivalent } from "@/utils/helpers"
 
 export const ScrollTabsContext = createContext<ReturnType<typeof useCreateScrollTabs>>(undefined)

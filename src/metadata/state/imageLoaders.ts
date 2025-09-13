@@ -1,5 +1,11 @@
 import plist from "plist"
-import { fetchImage, getClipboardBinary, getClipboardText, getClipboardTypes, getLocalImage } from "@/utils/clipboard"
+import {
+	fetchImage,
+	getClipboardBinary,
+	getClipboardText,
+	getClipboardTypes,
+	getLocalImage,
+} from "@/utils/clipboard"
 import { createImageItem, replaceWithBetter } from "./store"
 import * as pathlib from "@tauri-apps/api/path"
 import type { ImageItem } from "./ImageItem"
@@ -83,10 +89,8 @@ export async function loadImage(imageOrGetter: ImageGetter, textOrGetter: TextGe
 
 	if (!textItem) return
 
-	if (imageItem)
-		await replaceWithBetter(imageItem, ...textItem)
-	else
-		await createImageItem(...textItem)
+	if (imageItem) await replaceWithBetter(imageItem, ...textItem)
+	else await createImageItem(...textItem)
 }
 
 function parseText(value: string, type: string) {

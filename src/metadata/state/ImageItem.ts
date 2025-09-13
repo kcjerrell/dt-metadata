@@ -1,18 +1,18 @@
-import ExifReader from 'exifreader'
-import type { DrawThingsMetaData, ImageSource } from '@/types'
-import ImageStore, { type ImageStoreEntry } from '@/utils/imageStore'
-import { getDrawThingsDataFromExif } from '../helpers'
+import ExifReader from "exifreader"
+import type { DrawThingsMetaData, ImageSource } from "@/types"
+import ImageStore, { type ImageStoreEntry } from "@/utils/imageStore"
+import { getDrawThingsDataFromExif } from "../helpers"
 
 export type ImageItemConstructorOpts = {
-  id: string;
-  pin?: number | null;
-  loadedAt: number;
-  source: ImageSource;
-  type: string;
-  exif?: ExifReader.Tags | null;
-  dtData?: DrawThingsMetaData | null;
-  entry?: ImageStoreEntry;
-};
+	id: string
+	pin?: number | null
+	loadedAt: number
+	source: ImageSource
+	type: string
+	exif?: ExifReader.Tags | null
+	dtData?: DrawThingsMetaData | null
+	entry?: ImageStoreEntry
+}
 
 export class ImageItem {
 	id: string
