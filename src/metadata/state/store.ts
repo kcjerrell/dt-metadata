@@ -5,14 +5,16 @@ import type { ImageSource } from "@/types"
 import ImageStore from "@/utils/imageStore"
 import { getDrawThingsDataFromExif } from "../helpers"
 import { ImageItem, type ImageItemConstructorOpts } from "./ImageItem"
+import { getCurrentWindow } from "@tauri-apps/api/window"
 
 export function bind<T extends object>(instance: T): T {
 	const props = Object.getOwnPropertyNames(Object.getPrototypeOf(instance))
 
 	for (const prop of props) {
-		const method = instance[prop]
+		const method = instance[prop as keyof T]
 		if (prop === "constructor" || typeof method !== "function") continue
-		instance[prop] = (...args: unknown[]) => method.apply(instance, args)
+		;(instance as Record<string, unknown>)[prop] = (...args: unknown[]) =>
+			method.apply(instance, args)
 	}
 
 	return instance
@@ -22,12 +24,13 @@ const metadataStore = store(
 	"metadata",
 	{
 		images: [] as ImageItem[],
-		currentIndex: null as number,
+		currentIndex: null as number | null,
 		zoomPreview: false,
 		maxHistory: 10,
 		clearHistoryOnExit: true,
 		clearPinsOnExit: false,
 		get currentImage(): ImageItem | undefined {
+			if (MetadataStore.currentIndex === null) return undefined
 			return MetadataStore.images[MetadataStore.currentIndex]
 		},
 	},
@@ -42,7 +45,7 @@ const metadataStore = store(
 				if ("images" in state && Array.isArray(state.images)) {
 					state.images = state.images.map((im) => {
 						if (im instanceof ImageItem) return im
-						return bind(proxy(new ImageItem(im)))
+						return bind(proxy(new ImageItem(im as ImageItemConstructorOpts)))
 					})
 				}
 
@@ -55,6 +58,35 @@ await metadataStore.start()
 export const MetadataStore = metadataStore.state
 
 type ImageItemParam = ReadonlyState<ImageItem> | ImageItem | number | null
+
+getCurrentWindow().onCloseRequested(async (e) => {
+	e.preventDefault()
+	const window = getCurrentWindow()
+	await window.hide()
+	await cleanUp()
+	await window.destroy()
+})
+
+export async function cleanUp() {
+	const clearHistory = MetadataStore.clearHistoryOnExit
+	const clearPins = MetadataStore.clearPinsOnExit
+
+	const saveIds = MetadataStore.images
+		.filter((im) => {
+			if (im.pin != null && !clearPins) return true
+			if (!clearHistory) return true
+			return false
+		})
+		.map((im) => im.id)
+
+	MetadataStore.images = MetadataStore.images.filter((im) => saveIds.includes(im.id))
+	await syncImageStore()
+}
+
+async function syncImageStore() {
+	const ids = MetadataStore.images.map((im) => im.id)
+	await ImageStore.sync(ids)
+}
 
 export function selectImage(image?: ImageItemParam) {
 	if (image == null) {
@@ -69,12 +101,15 @@ export function selectImage(image?: ImageItemParam) {
 	}
 }
 
-export function pinImage(image: ImageItemParam, value: number | boolean)
-export function pinImage(useCurrent: true, value: number | boolean)
-export function pinImage(imageOrCurrent: ImageItemParam | true, value: number | boolean | null) {
+export function pinImage(image: ImageItemParam, value: number | boolean): void
+export function pinImage(useCurrent: true, value: number | boolean): void
+export function pinImage(
+	imageOrCurrent: ImageItemParam | true,
+	value: number | boolean | null,
+): void {
 	let index = -1
 	if (typeof imageOrCurrent === "number") index = imageOrCurrent
-	else if (imageOrCurrent === true) index = MetadataStore.currentIndex
+	else if (imageOrCurrent === true) index = MetadataStore.currentIndex ?? -1
 	else index = MetadataStore.images.findIndex((im) => im.id === imageOrCurrent?.id)
 
 	if (index < 0 || index >= MetadataStore.images.length) return
@@ -89,18 +124,21 @@ export function pinImage(imageOrCurrent: ImageItemParam | true, value: number | 
 }
 
 function reconcilePins() {
-	const pins = MetadataStore.images.filter((im) => im.pin != null).sort((a, b) => a.pin - b.pin)
+	const pins = MetadataStore.images
+		.filter((im) => im.pin != null)
+		.sort((a, b) => (a.pin ?? 0) - (b.pin ?? 0))
 
 	pins.forEach((im, i) => {
 		im.pin = i + 1
 	})
 }
 
-export function clearImages(keepTabs = false) {
+export async function clearImages(keepTabs = false) {
 	if (keepTabs) MetadataStore.images = MetadataStore.images.filter((im) => im.pin != null)
 	else MetadataStore.images = []
 
 	MetadataStore.currentIndex = MetadataStore.images.length - 1
+	await syncImageStore()
 }
 
 export async function createImageItem(
@@ -169,6 +207,7 @@ export async function replaceWithBetter(
 		}
 		MetadataStore.images[index] = bind(proxy(new ImageItem(item)))
 	}
+	await syncImageStore()
 	if (dtData) return dtData
 }
 

@@ -7,7 +7,7 @@ import { useColorMode } from "@/components/ui/color-mode"
 import { getClipboardTypes } from "@/utils/clipboard"
 import DataItem from "./DataItem"
 import ScrollTabs from "./ScrollTabs"
-import { MetadataStore } from "./state/store"
+import { cleanUp, MetadataStore } from "./state/store"
 import { MeasureGroupProvider } from "@/context/MeasureGroup"
 
 interface InfoPanelProps extends BoxProps {}
@@ -178,6 +178,7 @@ function InfoPane(props: InfoPanelProps) {
 			</TabPage> */}
 			<TabPage label={"clip"}>
 				<VStack alignItems={"stretch"}>
+					<Button onClick={() =>  cleanUp()}>clean up</Button>
 					<Button
 						onClick={async () => {
 							const types = await getClipboardTypes()

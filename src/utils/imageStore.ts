@@ -36,6 +36,7 @@ const imagesStore = createStore(
 		autoStart: true,
 		syncStrategy: "debounce",
 		syncInterval: 1000,
+		saveOnChange: true,
 		hooks: {
 			beforeFrontendSync: (state) => {
 				console.log("fe sync")
@@ -98,10 +99,50 @@ async function getNewId() {
 	return id
 }
 
+async function removeImage(id: string) {
+	console.log("remove image", id)
+	const item = store.images[id]
+	if (!item) return
+	await removeFile(await getFullPath(id, item.type))
+	await removeFile(await getThumbPath(id))
+	delete store.images[id]
+}
+
+async function syncImages(keepIds: string[] = []) {
+	for (const id of Object.keys(store.images)) {
+		if (keepIds.includes(id)) continue
+
+		await removeImage(id)
+	}
+
+	// for (const file of await fs.readDir(imageFolder)) {
+	// 	if (file.name.startsWith(".") || file.isDirectory || file.isSymlink) continue
+	// 	console.log("looking at ", file.name)
+	// 	const filename = await path.basename(file.name, await path.extname(file.name))
+	// 	const id = filename.split("_")[0]
+
+	// 	if (!keepIds.includes(id)) {
+	// 		await removeFile(await path.join(imageFolder, file.name))
+	// 	}
+	// }
+}
+
 const ImageStore = {
 	save: saveImage,
 	get: getImage,
-	sync: async () => {},
+	remove: removeImage,
+	sync: syncImages,
 }
 
 export default ImageStore
+
+async function removeFile(filePath: string) {
+	console.log("remove file", filePath)
+	try {
+		if (await fs.exists(filePath)) {
+			await fs.remove(filePath)
+		}
+	} catch (e) {
+		console.error(e)
+	}
+}

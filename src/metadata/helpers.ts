@@ -24,7 +24,7 @@ export function hasDrawThingsData(
 	return false
 }
 
-export function getDrawThingsDataFromExif(exif?: ExifReader.Tags): DrawThingsMetaData | undefined {
+export function getDrawThingsDataFromExif(exif?: ExifReader.Tags | null): DrawThingsMetaData | undefined {
 	if (hasDrawThingsData(exif, true)) {
 		try {
 			const data = JSON.parse(exif.UserComment.description)
