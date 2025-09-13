@@ -1,19 +1,6 @@
-import {
-	Box,
-	Flex,
-	HStack,
-	Image,
-	type StackProps,
-	VStack,
-} from "@chakra-ui/react"
-import {
-	motion,
-	useAnimate,
-	useMotionValue,
-	type ValueAnimationTransition,
-} from "motion/react"
+import { Box, Flex, HStack, Image, type StackProps, VStack } from "@chakra-ui/react"
+import { motion, useAnimate, useMotionValue, type ValueAnimationTransition } from "motion/react"
 import { useEffect, useRef } from "react"
-import "react-json-view-lite/dist/index.css"
 import { useSnapshot } from "valtio"
 import { since } from "@/devStore"
 import History from "./History"
@@ -21,6 +8,8 @@ import InfoPane from "./InfoPane"
 import { MetadataStore } from "./state/store"
 import Toolbar from "./Toolbar"
 import { useMetadataDrop } from "./useMetadataDrop"
+import CheckLight from "../assets/check_light.png"
+import CheckDark from "../assets/check_dark.png"
 
 interface MetadataComponentProps extends StackProps {}
 
@@ -38,7 +27,11 @@ function Metadata(props: MetadataComponentProps) {
 	since("render")
 	return (
 		<Box
-			className={"check-bg"}
+			backgroundImage={`url(${CheckLight})`}
+			_dark={{
+				backgroundImage: `url(${CheckDark})`,
+			}}
+			backgroundSize={"50px 50px"}
 			width="100vw"
 			height="100vh"
 			position={"relative"}
@@ -60,14 +53,7 @@ function Metadata(props: MetadataComponentProps) {
 				minHeight={0}
 				{...restProps}
 			>
-				<VStack
-					flex="1 1 auto"
-					padding={0}
-					alignItems={"stretch"}
-					justifyContent={"start"}
-					gap={0}
-					minWidth={0}
-				>
+				<VStack flex="1 1 auto" padding={0} alignItems={"stretch"} justifyContent={"start"} gap={0} minWidth={0}>
 					<Toolbar />
 					<Box
 						ref={dropRef}
@@ -152,8 +138,7 @@ function Preview(props: PreviewProps) {
 	useEffect(() => {
 		if (show) {
 			if (imgRef.current) {
-				const { left, top, width, height } =
-					imgRef.current.getBoundingClientRect()
+				const { left, top, width, height } = imgRef.current.getBoundingClientRect()
 
 				posRef.current = { left, top, width, height }
 

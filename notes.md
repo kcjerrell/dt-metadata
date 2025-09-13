@@ -308,3 +308,7 @@ and then more generally:
   - ui for closing/clearing items
   - suspense/lazy loading (splash screen)
   - button to copy an image
+
+---
+
+definitely trying to hard on the data item

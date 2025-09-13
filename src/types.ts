@@ -1,5 +1,5 @@
-import { FileInfo } from '@tauri-apps/plugin-fs'
-import { Tags } from 'exifreader'
+import type { FileInfo } from '@tauri-apps/plugin-fs'
+import type { Tags } from 'exifreader'
 
 export type DrawThingsMetaData = {
   prompt: string

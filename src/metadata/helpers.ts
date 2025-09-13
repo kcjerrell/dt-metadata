@@ -1,4 +1,4 @@
-import { DrawThingsMetaData } from '@/types'
+import type { DrawThingsMetaData } from '@/types'
 
 export function hasDrawThingsData(
   exif?: unknown,

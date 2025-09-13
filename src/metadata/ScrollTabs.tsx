@@ -4,14 +4,14 @@ import {
   Box,
   BoxProps,
   Button,
-  ButtonProps,
+  type ButtonProps,
   HStack,
   SegmentGroup,
   Spacer,
-  StackProps,
+  type StackProps,
   VStack,
 } from '@chakra-ui/react'
-import { createContext, PropsWithChildren, UIEvent, useEffect, useRef } from 'react'
+import { createContext, type PropsWithChildren, UIEvent, useEffect, useRef } from 'react'
 import { proxy, useSnapshot } from 'valtio'
 
 interface ScrollTabsProps extends PropsWithChildren<Omit<StackProps,'direction'>> {

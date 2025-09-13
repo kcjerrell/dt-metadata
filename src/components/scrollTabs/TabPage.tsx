@@ -1,6 +1,6 @@
 import { ScrollTabsContext2 } from '@/metadata/ScrollTabs'
-import { Box, BoxProps } from '@chakra-ui/react'
-import { PropsWithChildren, useContext, useEffect } from 'react'
+import { Box, type BoxProps } from '@chakra-ui/react'
+import { type PropsWithChildren, useContext, useEffect } from 'react'
 import { useSnapshot } from 'valtio'
 
 export interface TabPageProps extends PropsWithChildren<BoxProps> {

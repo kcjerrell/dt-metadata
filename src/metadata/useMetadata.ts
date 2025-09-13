@@ -1,14 +1,14 @@
 import { convertFileSrc } from '@tauri-apps/api/core'
-import { DrawThingsMetaData, ImageMetadata } from '../types'
+import type { DrawThingsMetaData, ImageMetadata } from '../types'
 import ExifReader from 'exifreader'
 import { createContext, useCallback, useContext } from 'react'
 import { useMutative } from 'use-mutative'
 import { current } from 'mutative'
 import { FileInfo, stat } from '@tauri-apps/plugin-fs'
 import { getDrawThingsDataFromExif } from './helpers'
-import { ImageItem } from "@/types"
+import type { ImageItem } from "@/types"
 
-let imageId = 0
+const imageId = 0
 
 
 

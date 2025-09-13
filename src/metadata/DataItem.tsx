@@ -1,19 +1,21 @@
 import { useColorMode } from "@/components/ui/color-mode"
-import { Box, Code, GridItem, HStack, Text } from "@chakra-ui/react"
+import { useMeasureGroup } from "@/context/MeasureGroup"
+import { Box, BoxProps, Code, GridItem, GridItemProps, HStack, Text } from "@chakra-ui/react"
 import { useLayoutEffect, useRef, useState } from "react"
 
-type DataItemProps = {
+interface DataItemProps extends GridItemProps {
 	label: string
-	data?:
-		| string
-		| number
-		| (string | number | undefined)[]
-		| Record<string, unknown>
+	data?: string | number | (string | number | undefined)[] | Record<string, unknown>
 	forceJson?: boolean
 	cols?: number
 	decimalPlaces?: number
 	expandByDefault?: boolean
 	ignore?: boolean
+}
+
+const jsonProps: BoxProps = {
+	whiteSpace: "pre",
+	fontSize: "xs",
 }
 
 function DataItem(props: DataItemProps) {
@@ -25,45 +27,70 @@ function DataItem(props: DataItemProps) {
 		forceJson,
 		expandByDefault,
 		ignore,
+		...restProps
 	} = props
 
 	const [showCopied, setShowCopied] = useState(false)
-	const [collapsible, setCollapsible] = useState(false)
+	// const [collapse, setCollapsible] = useState(false)
 	const [collapsed, setCollapsed] = useState(!expandByDefault)
-	const dataRef = useRef<HTMLDivElement>(null)
+	// const [measuredSize, setMeasuredSize] = useState({ width: 0, height: 0 })
+	// const dataRef = useRef<HTMLDivElement>(null)
 
-	const data = coerceData(dataProp, decimalPlaces)
-	const isJson = forceJson || typeof data === "object"
+	const [data, isJson = forceJson] = coerceData(dataProp, decimalPlaces)
+	// const isJson = forceJson || typeof data === "object"
+	const { collapse, span } = useMeasureGroup(data.toString())
 
-	const cols = colsProp ? { colStart: 1, colEnd: colsProp + 1 } : {}
+	const colSpan = colsProp ?? span
+	const gridColumn = colSpan > 1 ? `1 / span ${colSpan}` : undefined
 
-	const dataProps = collapsible
+	const dataProps = collapse
 		? {
 				height: collapsed ? "6em" : "unset",
+				overflowY: collapsed ? "clip" : "scroll",
 			}
 		: {}
 
-	useLayoutEffect(() => {
-		const { height } = dataRef.current?.getBoundingClientRect() || {}
+	const extraProps = isJson ? jsonProps : {}
 
-		if (height && height > 100) {
-			setCollapsible(true)
-		}
-	}, [dataProp])
+	// useLayoutEffect(() => {
+	// 	measureElem.innerText = isJson ? JSON.stringify(data, null, 2) : `${data}`
+	// 	const { width, height } = measureElem.getBoundingClientRect()
+	// 	setMeasuredSize({ width, height })
+	// 	// return
+	// 	// const { height } = dataRef.current?.getBoundingClientRect() || {}
+
+	// 	// if (height && height > 100) {
+	// 	// setCollapsible(true)
+	// 	// }
+	// }, [data, isJson])
 
 	if (!data || ignore) return null
 
 	return (
-		<GridItem padding={1} display={"flex"} flexDirection={"column"} {...cols}>
+		<GridItem
+			flex={"1 1 auto"}
+			padding={1}
+			display={"flex"}
+			flexDirection={"column"}
+			position={"relative"}
+			gridColumn={gridColumn}
+			{...restProps}
+		>
 			<HStack justifyContent={"space-between"}>
 				<Box fontSize={"xs"} color={"fg.2"} fontWeight={"semibold"}>
 					{showCopied ? "Copied" : label}
 				</Box>
-
 				{/* Show all/Show less button for collapsible items */}
-				{collapsible && (
-					<Text fontSize={"xs"} _hover={{ color: "fg.1" }} asChild>
-						<button onClick={() => setCollapsed(!collapsed)}>
+				{collapse && (
+					<Text
+						fontSize={"xs"}
+						_hover={{ color: "fg.1" }}
+						// position={"absolute"}
+						// bottom={1}
+						// right={1}
+						asChild
+					>
+						<button type="button" onClick={() => setCollapsed(!collapsed)}>
 							{collapsed ? "Show all" : "Show less"}
 						</button>
 					</Text>
@@ -71,43 +98,46 @@ function DataItem(props: DataItemProps) {
 			</HStack>
 
 			<Box
-				ref={dataRef}
+				position={"relative"}
 				border={"2px solid transparent"}
 				paddingX={1}
 				_hover={{ borderColor: "fg/40" }}
 				color={"fg.2"}
 				bgColor={"bg.2"}
-				fontSize={"sm"}
-				overflowY={"hidden"}
-				overflow={isJson ? "auto" : "hidden"}
+				// fontSize={"sm"}
+				overflowX={isJson && !collapsed ? "auto" : "hidden"}
 				minWidth={0}
-				// whiteSpace={'pre-wrap'}
-				textOverflow={"ellipsis"}
 				onClick={() => {
-					navigator.clipboard.writeText(
-						isJson
-							? JSON.stringify(data, null, 2)
-							: data.toString(),  
-					)
+					const selection = document.getSelection().toString()
+					const copyText = selection || data.toString()
+					navigator.clipboard.writeText(copyText)
 					setShowCopied(true)
 					setTimeout(() => setShowCopied(false), 1000)
 				}}
-				mask={
-					collapsible && collapsed
-						? "linear-gradient(180deg, #ffffffff 80%, #00000000 100%)"
-						: "none"
+				_selection={{bgColor: "info/50", color: "fg.1"}}
+				// borderImage={"-webkit-linear-gradient(45deg,orange,yellow) 20 stretch;"}
+				_after={
+					collapse && collapsed
+						? {
+								content: '""',
+								position: "absolute",
+								height: "1rem",
+								backgroundImage:
+									"linear-gradient(0deg, var(--chakra-colors-bg-2) 0%, #00000000 100%)",
+								bottom: 0,
+								right: 0,
+								left: 0,
+							}
+						: undefined
 				}
 				{...dataProps}
+				{...extraProps}
 				asChild
 			>
-				{isJson ? (
-					<Code fontSize={"sm"} whiteSpace={"pre"} textWrap={"nowrap"}>
-						{JSON.stringify(data, null, 2)}
-					</Code>
-				) : (
-					<div>{data.toString()}</div>
-				)}
+				{isJson ? <code>{data.toString()}</code> : <div>{data.toString()}</div>}
 			</Box>
+
+			{/* <Box>{span.toString()} {collapse.toString()} {gridColumn}</Box> */}
 		</GridItem>
 	)
 }
@@ -115,25 +145,34 @@ function DataItem(props: DataItemProps) {
 export default DataItem
 
 function coerceData(
-	data:
-		| string
-		| number
-		| (string | number | undefined)[]
-		| Record<string, unknown>,
+	data: string | number | (string | number | undefined)[] | Record<string, unknown>,
 	decimalPlaces = 2,
-): string | Record<string, unknown> | unknown[] {
-	if (typeof data === "string") return data
-	if (typeof data === "number") return data.toFixed(decimalPlaces)
+): [string, boolean?] {
+	if (typeof data === "string") {
+		try {
+			if (data.startsWith("{") && data.endsWith("}")) {
+				return coerceData(JSON.parse(data))
+			}
+			if (data.startsWith("[") && data.endsWith("]")) {
+				return coerceData(JSON.parse(data))
+			}
+		} catch {}
+		return [data, false]
+	}
+	if (typeof data === "number") return [formatNumber(data, decimalPlaces)]
 	if (Array.isArray(data)) {
-		const isSimple = data.every(
-			(d) => typeof d === "string" || typeof d === "number" || d === null,
-		)
-		if (isSimple)
-			return `[${data.map((d) => coerceData(d, decimalPlaces)).join(", ")}]`
-		else return data
+		const isSimple = data.every((d) => typeof d === "string" || typeof d === "number" || d === null)
+		if (isSimple) return [`[${data.map((d) => coerceData(d, decimalPlaces)).join(", ")}]`]
+		else return coerceData(JSON.stringify(data))
 	}
 	if (typeof data === "object") {
-		return data
+		return [JSON.stringify(data, null, 2), true] // [data, true] // SON.stringify(data, null, 2)
 	}
-	return data
+	return [data, false]
+}
+
+function formatNumber(value: number, decimalPlaces = 2) {
+	const scale = 10 ** decimalPlaces
+	if (Math.round(value * scale) / scale === Math.round(value)) return value.toFixed(0)
+	return value.toFixed(decimalPlaces)
 }

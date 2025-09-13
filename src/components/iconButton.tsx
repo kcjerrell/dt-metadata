@@ -1,6 +1,6 @@
-import { Button, ButtonProps, chakra, Text } from '@chakra-ui/react'
-import Icon, { IconName } from './icons'
-import { IconType } from 'react-icons/lib'
+import { Button, type ButtonProps, chakra, Text } from '@chakra-ui/react'
+import Icon, { type IconName } from './icons'
+import type { IconType } from 'react-icons/lib'
 
 export interface IconButtonProps extends ButtonProps {
   iconName?: IconName

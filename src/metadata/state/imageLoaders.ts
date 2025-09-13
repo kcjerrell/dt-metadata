@@ -2,7 +2,7 @@ import plist from "plist"
 import { fetchImage, getClipboardBinary, getClipboardText, getClipboardTypes, getLocalImage } from "@/utils/clipboard"
 import { createImageItem, replaceWithBetter } from "./store"
 import * as pathlib from "@tauri-apps/api/path"
-import { ImageItem } from "./ImageItem"
+import type { ImageItem } from "./ImageItem"
 
 type PromiseOrNot<T> = Promise<T> | T
 type GetterOrNot<T> = T | (() => T)

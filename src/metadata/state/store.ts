@@ -4,7 +4,7 @@ import { proxy } from "valtio"
 import type { ImageSource } from "@/types"
 import ImageStore from "@/utils/imageStore"
 import { getDrawThingsDataFromExif } from "../helpers"
-import { ImageItem, ImageItemConstructorOpts } from "./ImageItem"
+import { ImageItem, type ImageItemConstructorOpts } from "./ImageItem"
 
 export function bind<T extends object>(instance: T): T {
 	const props = Object.getOwnPropertyNames(Object.getPrototypeOf(instance))

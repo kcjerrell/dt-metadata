@@ -1,5 +1,5 @@
 import { ScrollTabsContext2 } from '@/metadata/ScrollTabs'
-import { HStack, StackProps } from '@chakra-ui/react'
+import { HStack, type StackProps } from '@chakra-ui/react'
 import { useContext } from 'react'
 
 interface TabPagesContainerProps extends StackProps {}

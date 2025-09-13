@@ -6,12 +6,13 @@
 		"useIgnoreFile": false
 	},
 	"files": {
-		"ignoreUnknown": false
+		"ignoreUnknown": false,
+		"includes": ["./src/**/*.{js,jsx,ts,tsx}"]			
 	},
 	"formatter": {
 		"enabled": true,
 		"indentStyle": "tab",
-		"lineWidth": 120
+		"lineWidth": 100
 	},
 	"linter": {
 		"enabled": true,

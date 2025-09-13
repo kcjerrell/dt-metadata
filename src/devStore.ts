@@ -34,7 +34,7 @@ export function useSeries(arg0: unknown[], interval = 500) {
     return () => {
       clearInterval(timeout.current)
     }
-  }, [timeout])
+  }, [interval])
 
   return item
 }

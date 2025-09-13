@@ -1,5 +1,5 @@
 import { useAppState } from '@/hooks/useAppState'
-import { Box, Button, ButtonProps, HStack, StackProps } from '@chakra-ui/react'
+import { Box, Button, type ButtonProps, HStack, type StackProps } from '@chakra-ui/react'
 import { MdOutlineDarkMode } from 'react-icons/md'
 import IconButton from './iconButton'
 import { useColorMode } from './ui/color-mode'
