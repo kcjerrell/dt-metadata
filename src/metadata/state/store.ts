@@ -101,8 +101,8 @@ export function selectImage(image?: ImageItemParam) {
 	}
 }
 
-export function pinImage(image: ImageItemParam, value: number | boolean): void
-export function pinImage(useCurrent: true, value: number | boolean): void
+export function pinImage(image: ImageItemParam, value: number | boolean | null): void
+export function pinImage(useCurrent: true, value: number | boolean | null): void
 export function pinImage(
 	imageOrCurrent: ImageItemParam | true,
 	value: number | boolean | null,

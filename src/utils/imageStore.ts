@@ -1,8 +1,10 @@
-import { convertFileSrc } from "@tauri-apps/api/core"
+import { convertFileSrc, invoke } from "@tauri-apps/api/core"
 import * as path from "@tauri-apps/api/path"
 import * as fs from "@tauri-apps/plugin-fs"
 import { store as createStore } from "@tauri-store/valtio"
 import { customAlphabet } from "nanoid"
+import { writeImage } from "@tauri-apps/plugin-clipboard-manager"
+import { Image } from "@tauri-apps/api/image"
 
 const nanoid = customAlphabet("0123456789abcdefghijklmnopqrstuvwxyz", 12)
 
@@ -127,11 +129,24 @@ async function syncImages(keepIds: string[] = []) {
 	// }
 }
 
+async function copyImage(id: string) {
+	const entry = await getImage(id)
+	if (!entry) return
+
+	const path = await getFullPath(id, entry.type)
+	const data = await fs.readFile(path)
+	await invoke("write_clipboard_binary", { ty: "public." + entry.type, data })
+	// const blob = new Blob([data])
+	// console.log('this far')
+	// navigator.clipboard.write([new ClipboardItem({ "image/png": blob })])
+}
+
 const ImageStore = {
 	save: saveImage,
 	get: getImage,
 	remove: removeImage,
 	sync: syncImages,
+	copy: copyImage,
 }
 
 export default ImageStore

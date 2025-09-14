@@ -181,15 +181,20 @@ function Preview(props: PreviewProps) {
 		>
 			<motion.div
 				initial={{
-					opacity: 1,
+					opacity: 0,
 					backgroundColor: "#00000000",
 				}}
 				animate={{
 					backgroundColor: show ? "#000000ff" : "#00000000",
+					opacity: show ? 1 : 0,
 				}}
 				transition={{
 					duration: 0.3,
 					ease: "easeInOut",
+					opacity: {
+						duration: 0,
+						delay: show ? 0 : 0.3
+					}
 				}}
 				style={{
 					position: "relative",

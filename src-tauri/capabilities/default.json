@@ -12,8 +12,16 @@
     "clipboard-manager:allow-read-text",
     "clipboard-manager:allow-write-text",
     "clipboard-manager:allow-read-image",
+    "clipboard-manager:allow-write-image",
     "fs:allow-stat",
-    "fs:allow-read",
+    {
+      "allow": [
+        {
+          "path": "$APPDATA"
+        }
+      ],
+      "identifier": "fs:scope"
+    },
     "fs:allow-write",
     "fs:allow-write-file",
     "fs:allow-mkdir",
@@ -26,7 +34,8 @@
     "clipboard:read-all",
     "http:allow-fetch",
     "core:event:default",
-    "valtio:default"
+    "valtio:default",
+    "clipboard:write-all"
   ],
   "windows": [
     "main"

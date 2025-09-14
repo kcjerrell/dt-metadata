@@ -78,6 +78,25 @@ fn read_clipboard_binary(ty: String, pasteboard: Option<String>) -> Result<Vec<u
 }
 
 #[tauri::command]
+fn write_clipboard_binary(ty: String, data: Vec<u8>) -> Result<(), String> {
+    let pb = get_clipboard(None)?; // general pasteboard only
+    let ns_type = NSString::from_str(&ty);
+
+    // Convert Vec<u8> into NSData
+    let ns_data = unsafe { NSData::from_vec(data) };
+    let dataref: &NSData = ns_data.as_ref();
+    unsafe {
+        pb.clearContents();
+        let ok = pb.setData_forType(Some(dataref), &ns_type);
+        if !ok {
+            return Err(format!("Failed to write binary data for {}", ty));
+        }
+    }
+
+    Ok(())
+}
+
+#[tauri::command]
 async fn fetch_image_file(url: String) -> Result<Vec<u8>, String> {
     let resp = reqwest::get(&url).await.map_err(|e| e.to_string())?;
     let bytes = resp.bytes().await.map_err(|e| e.to_string())?;
@@ -97,6 +116,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             read_clipboard_types,
             read_clipboard_binary,
+            write_clipboard_binary,
             read_clipboard_strings,
             fetch_image_file
         ])
@@ -105,7 +125,7 @@ pub fn run() {
                 .title("Transparent Titlebar Window")
                 .inner_size(800.0, 600.0)
                 .disable_drag_drop_handler();
-                // .background_color(tauri::window::Color(0, 0, 0, 255));
+            // .background_color(tauri::window::Color(0, 0, 0, 255));
 
             // set transparent title bar only when building for macOS
             #[cfg(target_os = "macos")]
@@ -113,7 +133,6 @@ pub fn run() {
                 .title_bar_style(TitleBarStyle::Overlay)
                 .hidden_title(true)
                 .visible(false);
-            
 
             let _window = win_builder.build().unwrap();
 

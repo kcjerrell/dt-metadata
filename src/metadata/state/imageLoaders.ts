@@ -219,9 +219,10 @@ function isValidUrl(url: string) {
 	}
 }
 
-function getLocalPath(path: string) {
+export function getLocalPath(path: string) {
 	let p = path
 
+	if (p.startsWith("asset://")) p = p.slice(8)
 	if (p.startsWith("file://")) p = p.slice(7)
 	if (p.startsWith("/.file")) return null
 	if (p.startsWith("/")) return p
