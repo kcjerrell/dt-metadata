@@ -147,12 +147,12 @@ export async function createImageItem(
 	source: ImageSource,
 ) {
 	console.log("create image item")
-	if (!imageData || !type || !source) return
-	if (imageData.length === 0) return
+	if (!imageData || !type || !source) return null
+	if (imageData.length === 0) return null
 
 	// save image to image store
 	const entry = await ImageStore.save(imageData, type)
-	if (!entry) return
+	if (!entry) return null
 
 	const exif = await getExif(imageData.buffer)
 	const dtData = getDrawThingsDataFromExif(exif)

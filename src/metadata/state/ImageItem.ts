@@ -68,15 +68,14 @@ export class ImageItem {
 		this._exifStatus = "pending"
 
 		if (!this._entry) await this.loadEntry()
+		if (!this._entry?.url) return
 
 		try {
-			const exif = await ExifReader.load(this.url)
+			const exif = await ExifReader.load(this._entry.url)
 			this._exif = exif
 			this._dtData = getDrawThingsDataFromExif(exif) ?? null
-			console.log("exif", exif, this._dtData)
-			console.log("exif loaded, updating image data", this.id)
 		} catch (e) {
-			console.warn(e)
+			console.warn("couldn't load exif from ", this._entry.url, e)
 		} finally {
 			this._exifStatus = "done"
 		}

@@ -1,17 +1,11 @@
 import { ChakraProvider } from "@chakra-ui/react"
-
-import App from "./App"
+import { getCurrentWindow } from "@tauri-apps/api/window"
 import { lazy, StrictMode, Suspense, useEffect } from "react"
 import { createRoot } from "react-dom/client"
 import { ColorModeProvider } from "./components/ui/color-mode"
-
 import { system } from "./theme/theme"
-
-import { Test } from "./Test"
-
 import "./index.css"
-import { invoke } from "@tauri-apps/api/core"
-import { getCurrentWindow } from "@tauri-apps/api/window"
+import { MessageProvider } from "./context/Alert"
 
 const MetadataContainer = lazy(async () => {
 	// await new Promise((resolve) => setTimeout(resolve, 20000))
@@ -23,7 +17,9 @@ createRoot(document.getElementById("root")!).render(
 		<ChakraProvider value={system}>
 			<ColorModeProvider>
 				<Suspense fallback={<Loading />}>
-					<MetadataContainer />
+					<MessageProvider>
+						<MetadataContainer />
+					</MessageProvider>
 				</Suspense>
 				{/* <Test/> */}
 			</ColorModeProvider>

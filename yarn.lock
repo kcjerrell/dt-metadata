@@ -720,7 +720,7 @@
   resolved "https://registry.npmjs.org/@tauri-apps/api/-/api-2.0.1.tgz"
   integrity sha512-eoQWT+Tq1qSwQpHV+nw1eNYe5B/nm1PoRjQCRiEOS12I1b+X4PUcREfXVX8dPcBT6GrzWGDtaecY0+1p0Rfqlw==
 
-"@tauri-apps/api@^2", "@tauri-apps/api@^2.0.3", "@tauri-apps/api@^2.6.0", "@tauri-apps/api@^2.8.0":
+"@tauri-apps/api@^2", "@tauri-apps/api@^2.0.0-alpha.11", "@tauri-apps/api@^2.0.3", "@tauri-apps/api@^2.6.0", "@tauri-apps/api@^2.8.0":
   version "2.8.0"
   resolved "https://registry.npmjs.org/@tauri-apps/api/-/api-2.8.0.tgz"
   integrity sha512-ga7zdhbS2GXOMTIZRT0mYjKJtR9fivsXzsyq5U3vjDL0s6DTMwYRm0UHNjzTY5dh4+LSC68Sm/7WEiimbQNYlw==
@@ -831,6 +831,13 @@
   integrity sha512-PjBnlnH6jyI71MGhrPaxUUCsOzc7WO1mbc4gRhME0m2oxLgCqbksw6JyeKQimuzv4ysdpNO3YbmaY2haf82a3A==
   dependencies:
     "@tauri-apps/api" "^2.8.0"
+
+"@tauri-apps/plugin-window-state@~2":
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/@tauri-apps/plugin-window-state/-/plugin-window-state-2.4.0.tgz#4bfdc50d05ab332eb48ab63b3828210e8861f0d4"
+  integrity sha512-hRSzPNi2NG0lPFthfVY0V5C1MyWN/gGaQtQYw7i9zZhLzrhZveHZ2omHG1rIiIsjfTGbO7fhjydSoeTTK9GqLw==
+  dependencies:
+    "@tauri-apps/api" "^2.6.0"
 
 "@tauri-store/shared@0.9.1":
   version "0.9.1"
@@ -2159,6 +2166,13 @@ tauri-plugin-clipboard-api@^2.1.11:
     "@tauri-apps/api" "2.0.1"
     valibot "^0.40.0"
 
+"tauri-plugin-nspopover@git+https://github.com/freethinkel/tauri-nspopover-plugin":
+  version "4.0.0"
+  resolved "git+https://github.com/freethinkel/tauri-nspopover-plugin#efdd92922d337d350d59d8cf20c821e24ca16b48"
+  dependencies:
+    "@tauri-apps/api" "^2.0.0-alpha.11"
+    tslib "^2.1.0"
+
 tinyglobby@^0.2.14:
   version "0.2.14"
   resolved "https://registry.npmjs.org/tinyglobby/-/tinyglobby-0.2.14.tgz"
@@ -2172,7 +2186,7 @@ tsconfck@^3.0.3:
   resolved "https://registry.npmjs.org/tsconfck/-/tsconfck-3.1.6.tgz"
   integrity sha512-ks6Vjr/jEw0P1gmOVwutM3B7fWxoWBL2KRDb1JfqGVawBmO5UsvmWOQFGHBPl5yxYz4eERr19E6L7NMv+Fej4w==
 
-tslib@^2.4.0, tslib@^2.8.0:
+tslib@^2.1.0, tslib@^2.4.0, tslib@^2.8.0:
   version "2.8.1"
   resolved "https://registry.npmjs.org/tslib/-/tslib-2.8.1.tgz"
   integrity sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w==

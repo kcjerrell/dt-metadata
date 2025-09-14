@@ -170,8 +170,9 @@ function Preview(props: PreviewProps) {
 	return (
 		<Box
 			ref={scope}
-			width={"100%"}
-			height={"100%"}
+			width={"100vw"}
+			height={"100vh"}
+			overflow={"clip"}
 			position={"absolute"}
 			zIndex={20}
 			bgColor={"black/90"}

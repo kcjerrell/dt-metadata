@@ -27,7 +27,7 @@ type TextGetter = GetterOrNot<PromiseOrNot<Text | null>>
  */
 export async function loadImage(imageOrGetter: ImageGetter, textOrGetter: TextGetter) {
 	const fileImage = await resolveGetter(imageOrGetter)
-	let imageItem = null as ImageItem
+	let imageItem: ImageItem | null = null
 
 	if (fileImage?.data && fileImage.type) {
 		imageItem = await createImageItem(fileImage.data, getImageType(fileImage.type), {
@@ -38,9 +38,8 @@ export async function loadImage(imageOrGetter: ImageGetter, textOrGetter: TextGe
 
 	// try loading text
 	const text = (await resolveGetter(textOrGetter)) ?? {}
-	console.log("text", text)
 
-	let textItem = null as Parameters<typeof createImageItem>
+	let textItem = null as Parameters<typeof createImageItem> | null
 	const checked = [] as string[]
 
 	for (const textType of clipboardTextTypes) {
@@ -112,19 +111,13 @@ function parseText(value: string, type: string) {
 		case "public.url":
 		case "org.chromium.source-url":
 		case "public.utf8-plain-text":
-		default:
-			// URLs, possibly file URLs
 			paths = value
 				.split("\n")
 				.map((f) => f.trim())
 				.filter((f) => f.length > 0)
 			break
-		// Try to detect file paths or URLs in plain text
-		// paths = value
-		//   .split('\n')
-		//   .map(f => f.trim())
-		//   .filter(f => f.length > 0)
 	}
+
 	const files = [] as string[]
 	const urls = [] as string[]
 
@@ -150,8 +143,6 @@ const clipboardTextTypes = [
 const clipboardImageTypes = ["public.png", "public.tiff", "public.jpeg"]
 export async function loadFromPasteboard(pasteboard = "general" as "general" | "drag") {
 	const types = await getClipboardTypes(pasteboard)
-	console.log(types)
-	// return
 
 	const getBuffer = async () => {
 		for (const type of clipboardImageTypes) {
@@ -160,6 +151,7 @@ export async function loadFromPasteboard(pasteboard = "general" as "general" | "
 				if (data) return { data, type }
 			}
 		}
+		return null
 	}
 
 	const getText = async () => {
@@ -172,13 +164,16 @@ export async function loadFromPasteboard(pasteboard = "general" as "general" | "
 	await loadImage(getBuffer, getText)
 }
 
-async function resolveGetter<T extends object>(thing: GetterOrNot<PromiseOrNot<T | null>>) {
-	let value: T | null = thing as T
-
-	if (typeof thing === "function") value = thing() as T
-
-	if (value instanceof Promise) value = await value
-
+/**
+ * If the arg is not a function, it will be returned. If it is a function, it will be
+ * called, and awaited if necessary.
+ * @param thing could be an item, or a function that returns an item
+ * @returns
+ */
+async function resolveGetter<T>(thing: GetterOrNot<PromiseOrNot<T | null>>) {
+	const value: T | null =
+		typeof thing === "function" ? ((thing as () => PromiseOrNot<T | null>)() as T) : (thing as T)
+	if (value instanceof Promise) return await value
 	return value
 }
 
@@ -197,16 +192,22 @@ function getImageType(imageType: string) {
 	return type
 }
 
+/**
+ * When copying or dragging an image from chromium, public.html will have a single
+ * <img> element. This will return the value of the src attribute
+ * @param htmlString html containing a single img element
+ * @returns img.src
+ */
+
 function extractImgSrc(htmlString: string): string | null {
-	// Use DOMParser to safely parse the string into a Document
-	const parser = new DOMParser()
-	const doc = parser.parseFromString(htmlString, "text/html")
-
-	// Query the first <img> element
-	const img = doc.querySelector("img")
-
-	// Return the src if it exists
-	return img?.getAttribute("src") ?? null
+	try {
+		const parser = new DOMParser()
+		const doc = parser.parseFromString(htmlString, "text/html")
+		const img = doc.querySelector("img")
+		return img?.getAttribute("src") ?? null
+	} catch {
+		return null
+	}
 }
 
 function isValidUrl(url: string) {

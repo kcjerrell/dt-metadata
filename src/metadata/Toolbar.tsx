@@ -8,7 +8,7 @@ import {
 	VStack,
 } from "@chakra-ui/react"
 import { AnimatePresence, motion } from "motion/react"
-import { type PropsWithChildren, useRef, useState } from "react"
+import { type PropsWithChildren, useCallback, useEffect, useRef, useState } from "react"
 import { FiClipboard, FiCopy, FiInfo, FiXCircle } from "react-icons/fi"
 import { GrPin } from "react-icons/gr"
 import type { IconType } from "react-icons/lib"
@@ -16,6 +16,7 @@ import { useSnapshot } from "valtio"
 import ImageStore from "@/utils/imageStore"
 import { loadFromPasteboard } from "./state/imageLoaders"
 import { clearImages, MetadataStore, pinImage } from "./state/store"
+import { useMessages } from "@/context/Alert"
 
 interface ToolbarProps extends StackProps {}
 
@@ -29,14 +30,25 @@ function Toolbar(props: ToolbarProps) {
 	const [message, setMessage] = useState("")
 	const msgTimeout = useRef<ReturnType<typeof setTimeout>>(null)
 
-	const showMessage = (msg: string, duration = 3000) => {
+	const showMessage = useCallback((msg: string, duration = 3000) => {
 		if (msgTimeout.current) clearTimeout(msgTimeout.current)
 		setMessage(msg)
 		msgTimeout.current = setTimeout(() => {
 			setMessage("")
 			msgTimeout.current = null
 		}, duration)
-	}
+	}, [])
+
+	const messageChannel = useMessages("toolbar")
+	console.log("channel", messageChannel)
+	useEffect(() => {
+		const message = messageChannel.messages[0]
+		if (!message) return
+		showMessage(message.message, message.duration ?? 3000)
+		setTimeout(() => {
+			messageChannel.removeMessage(message)
+		}, 3000)
+	}, [messageChannel?.messages[0], messageChannel?.removeMessage, showMessage])
 
 	return (
 		<HStack padding={2} data-tauri-drag-region height={"3rem"}>

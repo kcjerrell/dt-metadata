@@ -45,23 +45,11 @@ function DataItem(props: DataItemProps) {
 	const dataProps = collapse
 		? {
 				height: collapsed ? "6em" : "unset",
-				overflowY: collapsed ? "clip" : "scroll",
+				overflowY: 'clip'
 			}
 		: {}
 
 	const extraProps = isJson ? jsonProps : {}
-
-	// useLayoutEffect(() => {
-	// 	measureElem.innerText = isJson ? JSON.stringify(data, null, 2) : `${data}`
-	// 	const { width, height } = measureElem.getBoundingClientRect()
-	// 	setMeasuredSize({ width, height })
-	// 	// return
-	// 	// const { height } = dataRef.current?.getBoundingClientRect() || {}
-
-	// 	// if (height && height > 100) {
-	// 	// setCollapsible(true)
-	// 	// }
-	// }, [data, isJson])
 
 	if (!data || ignore) return null
 
@@ -84,9 +72,6 @@ function DataItem(props: DataItemProps) {
 					<Text
 						fontSize={"xs"}
 						_hover={{ color: "fg.1" }}
-						// position={"absolute"}
-						// bottom={1}
-						// right={1}
 						asChild
 					>
 						<button type="button" onClick={() => setCollapsed(!collapsed)}>
@@ -103,7 +88,6 @@ function DataItem(props: DataItemProps) {
 				_hover={{ borderColor: "fg/40" }}
 				color={"fg.2"}
 				bgColor={"bg.2"}
-				// fontSize={"sm"}
 				overflowX={isJson && !collapsed ? "auto" : "hidden"}
 				minWidth={0}
 				onClick={() => {
@@ -114,7 +98,6 @@ function DataItem(props: DataItemProps) {
 					setTimeout(() => setShowCopied(false), 1000)
 				}}
 				_selection={{ bgColor: "info/50", color: "fg.1" }}
-				// borderImage={"-webkit-linear-gradient(45deg,orange,yellow) 20 stretch;"}
 				_after={
 					collapse && collapsed
 						? {
@@ -135,8 +118,6 @@ function DataItem(props: DataItemProps) {
 			>
 				{isJson ? <code>{data.toString()}</code> : <div>{data.toString()}</div>}
 			</Box>
-
-			{/* <Box>{span.toString()} {collapse.toString()} {gridColumn}</Box> */}
 		</GridItem>
 	)
 }

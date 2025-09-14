@@ -1,6 +1,8 @@
 import { useMemo, useRef } from "react"
 import { proxy, useSnapshot } from "valtio"
 import { loadFromPasteboard } from "./state/imageLoaders"
+import { getCurrentWindow } from '@tauri-apps/api/window'
+import { usePostMessage } from '@/context/Alert'
 
 export function useMetadataDrop() {
 	const state = useRef(null)
@@ -11,6 +13,8 @@ export function useMetadataDrop() {
 
 	const snap = useSnapshot(state.current)
 
+	const postMessage = usePostMessage()
+
 	const handlers = useMemo(
 		() => ({
 			onDragOver: (e: React.DragEvent<HTMLDivElement>) => {
@@ -18,6 +22,12 @@ export function useMetadataDrop() {
 			},
 			onDrop: (e: React.DragEvent<HTMLDivElement>) => {
 				e.preventDefault()
+				getCurrentWindow().setFocus()
+				postMessage({
+					channel: "toolbar",
+					message: "Loading image...",
+					
+				})
 				loadFromPasteboard("drag")
 				state.current.isDragging = false
 			},
@@ -30,7 +40,7 @@ export function useMetadataDrop() {
 				state.current.isDragging = false
 			},
 		}),
-		[],
+		[postMessage],
 	)
 
 	return {
