@@ -9,6 +9,9 @@ import DataItem from "./DataItem"
 import ScrollTabs from "./ScrollTabs"
 import { cleanUp, MetadataStore } from "./state/store"
 import { MeasureGroupProvider } from "@/context/MeasureGroup"
+import { getAllWindows } from '@tauri-apps/api/window'
+import { getAllWebviewWindows } from '@tauri-apps/api/webviewWindow'
+import { getAllWebviews } from '@tauri-apps/api/webview'
 
 interface InfoPanelProps extends BoxProps {}
 
@@ -178,7 +181,16 @@ function InfoPane(props: InfoPanelProps) {
 			</TabPage> */}
 			<TabPage label={"clip"}>
 				<VStack alignItems={"stretch"}>
-					<Button onClick={() =>  cleanUp()}>clean up</Button>
+					<Button
+						onClick={async () => {
+							console.log(await getAllWindows())
+							console.log(await getAllWebviewWindows())
+							console.log(await getAllWebviews())
+						}}
+					>
+						Window
+					</Button>
+					<Button onClick={() => cleanUp()}>clean up</Button>
 					<Button
 						onClick={async () => {
 							const types = await getClipboardTypes()

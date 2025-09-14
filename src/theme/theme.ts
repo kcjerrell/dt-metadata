@@ -1,6 +1,6 @@
 import { createSystem, defaultConfig, defineConfig } from "@chakra-ui/react"
-import CheckDark from "@/assets/check_dark.png?url"
-import CheckLight from "@/assets/check_light.png?url"
+// import CheckDark from "@/assets/check_dark.png?url"
+// import CheckLight from "@/assets/check_light.png?url"
 
 // const CheckLight = './check_light.png'
 // const CheckDark = './check_dark.png'
@@ -15,8 +15,8 @@ const themeConfig = defineConfig({
 		},
 		".check-bg": {
 			bgImage: {
-				_light: `url(${CheckLight})`,
-				_dark: `url(${CheckDark})`,
+				_light: "url(check_light.png)",
+				_dark: "url(check_dark.png)",
 			},
 			bgSize: "50px 50px",
 		},

@@ -3,18 +3,6 @@
   "description": "Capability for the main window",
   "identifier": "default",
   "permissions": [
-    "core:default",
-    "core:window:allow-show",
-    "core:window:allow-hide",
-    "core:window:allow-close",
-    "core:window:allow-destroy",
-    "core:window:allow-set-focus",
-    "opener:default",
-    "clipboard-manager:allow-read-text",
-    "clipboard-manager:allow-write-text",
-    "clipboard-manager:allow-read-image",
-    "clipboard-manager:allow-write-image",
-    "fs:allow-stat",
     {
       "allow": [
         {
@@ -23,22 +11,40 @@
       ],
       "identifier": "fs:scope"
     },
-    "fs:allow-write",
-    "fs:allow-write-file",
+    "clipboard-manager:allow-read-image",
+    "clipboard-manager:allow-read-text",
+    "clipboard-manager:allow-write-image",
+    "clipboard-manager:allow-write-text",
+    "clipboard:read-all",
+    "clipboard:write-all",
+    "core:default",
+    "core:event:default",
+    "core:tray:allow-new",
+    "core:tray:default",
+    "core:window:allow-close",
+    "core:window:allow-destroy",
+    "core:window:allow-hide",
+    "core:window:allow-set-focus",
+    "core:window:allow-show",
+    "core:window:allow-start-dragging",
+    "fs:allow-appdata-read-recursive",
+    "fs:allow-appdata-write-recursive",
+    "fs:allow-exists",
     "fs:allow-mkdir",
     "fs:allow-read-file",
-    "fs:allow-exists",
-    "fs:allow-appdata-write-recursive",
-    "fs:allow-appdata-read-recursive",
-    "core:window:allow-start-dragging",
-    "store:default",
-    "clipboard:read-all",
+    "fs:allow-stat",
+    "fs:allow-write",
+    "fs:allow-write-file",
     "http:allow-fetch",
-    "core:event:default",
-    "valtio:default",
-    "clipboard:write-all"
+    "nspopover:allow-hide-popover",
+    "nspopover:allow-is-popover-shown",
+    "nspopover:allow-show-popover",
+    "opener:default",
+    "store:default",
+    "valtio:default"
   ],
   "windows": [
-    "main"
+    "main",
+    "panel"
   ]
 }

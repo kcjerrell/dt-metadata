@@ -1,10 +1,10 @@
-use objc2::rc::Retained;
-use objc2_app_kit::{NSPasteboard, NSPasteboardNameDrag};
-use objc2_foundation::{NSArray, NSData, NSString};
-#[cfg(target_os = "macos")]
 use tauri::TitleBarStyle;
 use tauri::{WebviewUrl, WebviewWindowBuilder};
 use tauri_plugin_http::reqwest;
+
+use objc2::rc::Retained;
+use objc2_app_kit::{NSPasteboard, NSPasteboardNameDrag};
+use objc2_foundation::{NSArray, NSData, NSString};
 
 fn get_clipboard(pasteboard: Option<String>) -> Result<Retained<NSPasteboard>, String> {
     unsafe {
@@ -83,11 +83,12 @@ fn write_clipboard_binary(ty: String, data: Vec<u8>) -> Result<(), String> {
     let ns_type = NSString::from_str(&ty);
 
     // Convert Vec<u8> into NSData
-    let ns_data = unsafe { NSData::from_vec(data) };
-    let dataref: &NSData = ns_data.as_ref();
+    let binding = NSData::from_vec(data);
+    let ns_data = binding.as_ref();
+
     unsafe {
         pb.clearContents();
-        let ok = pb.setData_forType(Some(dataref), &ns_type);
+        let ok = pb.setData_forType(Some(ns_data), &ns_type);
         if !ok {
             return Err(format!("Failed to write binary data for {}", ty));
         }
@@ -103,6 +104,15 @@ async fn fetch_image_file(url: String) -> Result<Vec<u8>, String> {
     Ok(bytes.to_vec())
 }
 
+// #[tauri::command]
+// fn init_panel(app: tauri::AppHandle) -> Result<(), String> {
+//     let _panel = app.get_webview_window("panel").unwrap();
+//     _panel.to_popover(ToPopoverOptions {
+//         is_fullsize_content: true,
+//     });
+//     Ok(())
+// }
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -114,47 +124,38 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_clipboard::init())
         .plugin(tauri_plugin_valtio::init())
+        // .plugin(tauri_plugin_nspopover::init())
         .invoke_handler(tauri::generate_handler![
             read_clipboard_types,
             read_clipboard_binary,
             write_clipboard_binary,
             read_clipboard_strings,
-            fetch_image_file
+            fetch_image_file,
+            // init_panel,
         ])
         .setup(|app| {
             let win_builder = WebviewWindowBuilder::new(app, "main", WebviewUrl::default())
                 .title("Transparent Titlebar Window")
                 .inner_size(800.0, 600.0)
+                .visible(false)
                 .disable_drag_drop_handler();
-            // .background_color(tauri::window::Color(0, 0, 0, 255));
 
             // set transparent title bar only when building for macOS
             #[cfg(target_os = "macos")]
             let win_builder = win_builder
-                .title_bar_style(TitleBarStyle::Overlay)
                 .hidden_title(true)
-                .visible(false);
+                .title_bar_style(TitleBarStyle::Overlay);
 
             let _window = win_builder.build().unwrap();
 
-            // // set background color only when building for macOS
-            // #[cfg(target_os = "macos")]
-            // {
-            //     use objc2_app_kit::{NSColor, NSWindow};
-            //     use objc2_app_kit::{id, nil};
+            // let _panel_builder =
+            //     WebviewWindowBuilder::new(app, "panel", WebviewUrl::App(PathBuf::from("#mini")))
+            //         .title("DT Metadata Mini")
+            //         .inner_size(400.0, 400.0)
+            //         .disable_drag_drop_handler()
+            //         .visible(false);
 
-            //     let ns_window = window.ns_window().unwrap() as id;
-            //     unsafe {
-            //         let bg_color = NSColor::colorWithRed_green_blue_alpha_(
-            //             nil,
-            //             50.0 / 255.0,
-            //             158.0 / 255.0,
-            //             163.5 / 255.0,
-            //             1.0,
-            //         );
-            //         ns_window.setBackgroundColor_(bg_color);
-            //     }
-            // }
+            // let _panel = _panel_builder.build().unwrap();
 
             Ok(())
         })

@@ -144,7 +144,7 @@ function Toolbar(props: ToolbarProps) {
 									setMessage((msg) => {
 										if (msg) return ""
 										// setTimeout(() => setMessage(""), 5000)
-										return "Hello"
+										return document.location.toString()
 									})
 								}}
 							/>

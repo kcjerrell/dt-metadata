@@ -8,8 +8,6 @@ import InfoPane from "./InfoPane"
 import { MetadataStore } from "./state/store"
 import Toolbar from "./Toolbar"
 import { useMetadataDrop } from "./useMetadataDrop"
-import CheckLight from "../assets/check_light.png"
-import CheckDark from "../assets/check_dark.png"
 
 interface MetadataComponentProps extends StackProps {}
 
@@ -27,10 +25,7 @@ function Metadata(props: MetadataComponentProps) {
 	since("render")
 	return (
 		<Box
-			backgroundImage={`url(${CheckLight})`}
-			_dark={{
-				backgroundImage: `url(${CheckDark})`,
-			}}
+			className={"check-bg"}
 			backgroundSize={"50px 50px"}
 			width="100vw"
 			height="100vh"
@@ -194,8 +189,8 @@ function Preview(props: PreviewProps) {
 					ease: "easeInOut",
 					opacity: {
 						duration: 0,
-						delay: show ? 0 : 0.3
-					}
+						delay: show ? 0 : 0.3,
+					},
 				}}
 				style={{
 					position: "relative",
