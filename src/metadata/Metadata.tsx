@@ -43,7 +43,7 @@ function Metadata(props: MetadataComponentProps) {
 				overflow={"hidden"}
 				overscrollBehavior={"none none"}
 				flex="1 1 auto"
-				// bgColor="bg.0"
+				bgColor="fg.1/10"
 				minWidth={0}
 				minHeight={0}
 				{...restProps}

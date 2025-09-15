@@ -7,14 +7,12 @@ import { system } from "./theme/theme"
 import "./index.css"
 import { MessageProvider } from "./context/Alert"
 
-let app = "main"
-switch (document.location.hash) {
-	case "#mini":
-		app = "mini"
-}
-console.log(app)
+const app = document.location.hash === "#mini" ? "mini" : "main"
+
 const AppComponent = lazy(async () => {
 	if (app === "mini") return import("./Mini")
+
+	await getCurrentWindow().show()
 	return import("./metadata/MetadataContainer")
 })
 
@@ -27,25 +25,12 @@ createRoot(document.getElementById("root")!).render(
 						<AppComponent />
 					</MessageProvider>
 				</Suspense>
-				{/* <Test/> */}
 			</ColorModeProvider>
 		</ChakraProvider>
 	</StrictMode>,
 )
 
 function Loading({ show }: { show: boolean }) {
-	const didShowWindow = useRef(false)
-	useEffect(() => {
-		if (!show) return
-		if (!didShowWindow.current) {
-			// getCurrentWindow().hide()
-			setTimeout(() => {
-				getCurrentWindow().show()
-			}, 5)
-			didShowWindow.current = true
-		}
-	}, [show])
-
 	return (
 		<div className={"loading-container"}>
 			<div className={"loading-text"}>Loading...</div>
