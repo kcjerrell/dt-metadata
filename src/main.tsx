@@ -1,6 +1,6 @@
 import { ChakraProvider } from "@chakra-ui/react"
 import { getCurrentWindow } from "@tauri-apps/api/window"
-import { lazy, StrictMode, Suspense, useEffect, useRef } from "react"
+import { lazy, StrictMode, Suspense } from "react"
 import { createRoot } from "react-dom/client"
 import { ColorModeProvider } from "./components/ui/color-mode"
 import { system } from "./theme/theme"
@@ -16,11 +16,11 @@ const AppComponent = lazy(async () => {
 	return import("./metadata/MetadataContainer")
 })
 
-createRoot(document.getElementById("root")!).render(
+createRoot(document.getElementById("root")).render(
 	<StrictMode>
 		<ChakraProvider value={system}>
 			<ColorModeProvider>
-				<Suspense fallback={<Loading show={app === "main"} />}>
+				<Suspense fallback={<Loading />}>
 					<MessageProvider>
 						<AppComponent />
 					</MessageProvider>
@@ -30,7 +30,7 @@ createRoot(document.getElementById("root")!).render(
 	</StrictMode>,
 )
 
-function Loading({ show }: { show: boolean }) {
+function Loading() {
 	return (
 		<div className={"loading-container"}>
 			<div className={"loading-text"}>Loading...</div>
