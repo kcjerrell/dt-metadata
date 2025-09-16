@@ -1,6 +1,6 @@
 import { Box, type BoxProps, GridItem, type GridItemProps, HStack, Text } from "@chakra-ui/react"
 import { useState } from "react"
-import { useMeasureGroup } from "@/context/MeasureGroup"
+import { useMeasureGrid } from "@/components/measureGrid/useMeasureGrid"
 
 interface DataItemProps extends GridItemProps {
 	label: string
@@ -37,14 +37,15 @@ function DataItem(props: DataItemProps) {
 
 	const [data, isJson = forceJson] = coerceData(dataProp, decimalPlaces)
 	// const isJson = forceJson || typeof data === "object"
-	const { collapse, span } = useMeasureGroup(data?.toString())
+	const { collapse, span, maxHeight } = useMeasureGrid(data?.toString())
 
 	const colSpan = colsProp ?? span
 	const gridColumn = colSpan > 1 ? `1 / span ${colSpan}` : undefined
 
 	const dataProps = collapse
 		? {
-				height: collapsed ? "6em" : "unset",
+				// height: collapsed ? "6em" : "unset",
+				maxHeight: collapsed ? maxHeight : "unset",
 				overflowY: 'clip'
 			}
 		: {}

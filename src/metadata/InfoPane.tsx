@@ -1,17 +1,17 @@
-import { type BoxProps, Button, HStack, SimpleGrid, VStack } from "@chakra-ui/react"
-import { useRef, useState } from "react"
+import { type BoxProps, Button, HStack, VStack } from "@chakra-ui/react"
+import { getAllWebviews } from '@tauri-apps/api/webview'
+import { getAllWebviewWindows } from '@tauri-apps/api/webviewWindow'
+import { getAllWindows } from '@tauri-apps/api/window'
+import { useState } from "react"
 import { FiMoon } from "react-icons/fi"
 import { useSnapshot } from "valtio"
+import MeasureGrid from '@/components/measureGrid/MeasureGrid'
 import TabPage from "@/components/scrollTabs/TabPage"
 import { useColorMode } from "@/components/ui/color-mode"
 import { getClipboardTypes } from "@/utils/clipboard"
 import DataItem from "./DataItem"
 import ScrollTabs from "./ScrollTabs"
 import { cleanUp, MetadataStore } from "./state/store"
-import { MeasureGroupProvider } from "@/context/MeasureGroup"
-import { getAllWindows } from '@tauri-apps/api/window'
-import { getAllWebviewWindows } from '@tauri-apps/api/webviewWindow'
-import { getAllWebviews } from '@tauri-apps/api/webview'
 
 interface InfoPanelProps extends BoxProps {}
 
@@ -26,8 +26,6 @@ function InfoPane(props: InfoPanelProps) {
 	const { exif, dtData } = image ?? {}
 
 	const [clipTypes, setClipTypes] = useState([] as string[])
-
-	const exifRef = useRef<HTMLDivElement>(null)
 
 	return (
 		<ScrollTabs
@@ -47,21 +45,17 @@ function InfoPane(props: InfoPanelProps) {
 			{...restProps}
 		>
 			<TabPage key={`${image?.id}_image`} label={"image"}>
-				<MeasureGroupProvider columns={2}>
-					<SimpleGrid columns={2} ref={exifRef} fontSize={"sm"}>
+					<MeasureGrid columns={2} fontSize={"sm"}>
 						{Object.entries(
 							(exif ?? {}) as Record<string, { value: string; description?: string }>,
 						).map(([k, v]) => {
 							const data = v.description || v.value
-							const cols = data.length > 50 ? 2 : undefined
-							return <DataItem key={k} label={k} data={data} cols={undefined} />
+							return <DataItem key={k} label={k} data={data}/>
 						})}
-					</SimpleGrid>
-				</MeasureGroupProvider>
+					</MeasureGrid>
 			</TabPage>
 			<TabPage key={`${image?.id}_config`} label={"config"}>
-				<MeasureGroupProvider columns={2}>
-					<SimpleGrid columns={2} fontSize={"sm"}>
+					<MeasureGrid columns={2} fontSize={"sm"}>
 						<DataItem
 							label={"Size"}
 							data={`${dtData?.config.width} x ${dtData?.config.height}`}
@@ -89,8 +83,7 @@ function InfoPane(props: InfoPanelProps) {
 							cols={2}
 						/>
 						<DataItem label={"Config"} data={dtData?.config} cols={2} expandByDefault />
-					</SimpleGrid>
-				</MeasureGroupProvider>
+					</MeasureGrid>
 			</TabPage>
 			<TabPage key={`${image?.id}_gen`} label={"gen"}>
 				{dtData?.profile?.timings?.map((t) => (

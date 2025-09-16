@@ -1,3 +1,4 @@
+import * as pathlib from "@tauri-apps/api/path"
 import plist from "plist"
 import {
 	fetchImage,
@@ -6,9 +7,8 @@ import {
 	getClipboardTypes,
 	getLocalImage,
 } from "@/utils/clipboard"
-import { createImageItem, replaceWithBetter } from "./store"
-import * as pathlib from "@tauri-apps/api/path"
 import type { ImageItem } from "./ImageItem"
+import { createImageItem, replaceWithBetter } from "./store"
 
 type PromiseOrNot<T> = Promise<T> | T
 type GetterOrNot<T> = T | (() => T)
@@ -45,7 +45,7 @@ export async function loadImage(imageOrGetter: ImageGetter, textOrGetter: TextGe
 	for (const textType of clipboardTextTypes) {
 		if (textItem) break
 		if (!text[textType]) continue
-
+		
 		const { files, urls } = parseText(text[textType], textType)
 		console.log(`${textType} has ${files.length} files and ${urls.length} urls`)
 
@@ -122,11 +122,13 @@ function parseText(value: string, type: string) {
 	const urls = [] as string[]
 
 	for (const p of paths) {
-		if (isValidUrl(p)) urls.push(p)
-		else {
-			const localPath = getLocalPath(p)
-			if (localPath) files.push(localPath)
+		const url = getUrl(p)
+		if (url) {
+			urls.push(url)
+			continue
 		}
+		const localPath = getLocalPath(p)
+		if (localPath) files.push(localPath)
 	}
 
 	return { files, urls }
@@ -161,7 +163,7 @@ export async function loadFromPasteboard(pasteboard = "general" as "general" | "
 		)
 	}
 
-	await loadImage(getBuffer, getText)
+	await loadImage(getBuffer, getText).catch(console.error)
 }
 
 /**
@@ -210,13 +212,25 @@ function extractImgSrc(htmlString: string): string | null {
 	}
 }
 
-function isValidUrl(url: string) {
+function getUrl(url: string) {
 	try {
 		const urlObj = new URL(url)
-		if (urlObj.protocol === "file:") return false
-		return true
+
+		if (
+			urlObj.hostname.toLowerCase() === "media.discordapp.net" &&
+			urlObj.pathname.startsWith("/attachments/")
+		) {
+			//	https://media.discordapp.net/attachments/1095620416065781790/1415640042264596551/ethereal_fantasy_concept_art_of_billie_piper_is_the_movie_version_of__no_mans_sky___designed_by_chris_foss___magnificent__celestial__ethereal__painterly__epic__majestic__magical__f_1061124224224.png?ex=68c93707&is=68c7e587&hm=7874aad49c772c20ef6c4fa17aa25b7837fb8cd3a05d3d3499e55c27fab26e20&=&format=webp&quality=lossless&width=1152&height=1152
+			urlObj.searchParams.delete("format")
+			urlObj.searchParams.delete("width")
+			urlObj.searchParams.delete("height")
+			urlObj.searchParams.delete("quality")
+		}
+		if (urlObj.protocol === "file:") return null
+
+		return urlObj.toString()
 	} catch {
-		return false
+		return null
 	}
 }
 
