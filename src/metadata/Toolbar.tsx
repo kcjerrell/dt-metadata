@@ -16,7 +16,7 @@ import { useSnapshot } from "valtio"
 import ImageStore from "@/utils/imageStore"
 import { loadFromPasteboard } from "./state/imageLoaders"
 import { clearImages, MetadataStore, pinImage } from "./state/store"
-import { useMessages } from "@/context/Alert"
+import { useMessages } from "@/context/Messages"
 
 interface ToolbarProps extends StackProps {}
 

@@ -1,4 +1,4 @@
-import { Box, SimpleGrid, SimpleGridProps } from '@chakra-ui/react'
+import { SimpleGrid, type SimpleGridProps } from '@chakra-ui/react'
 import { type PropsWithChildren, useLayoutEffect, useRef } from "react"
 import { MeasureGroupContext } from "@/components/measureGrid/useMeasureGrid"
 

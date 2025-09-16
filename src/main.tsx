@@ -5,7 +5,7 @@ import { createRoot } from "react-dom/client"
 import { ColorModeProvider } from "./components/ui/color-mode"
 import { system } from "./theme/theme"
 import "./index.css"
-import { MessageProvider } from "./context/Alert"
+import { MessagesProvider } from "./context/Messages"
 
 const app = document.location.hash === "#mini" ? "mini" : "main"
 
@@ -21,9 +21,9 @@ createRoot(document.getElementById("root")).render(
 		<ChakraProvider value={system}>
 			<ColorModeProvider>
 				<Suspense fallback={<Loading />}>
-					<MessageProvider>
+					<MessagesProvider>
 						<AppComponent />
-					</MessageProvider>
+					</MessagesProvider>
 				</Suspense>
 			</ColorModeProvider>
 		</ChakraProvider>

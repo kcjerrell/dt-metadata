@@ -2,7 +2,7 @@ import { useMemo, useRef } from "react"
 import { proxy, useSnapshot } from "valtio"
 import { loadFromPasteboard } from "./state/imageLoaders"
 import { getCurrentWindow } from '@tauri-apps/api/window'
-import { usePostMessage } from '@/context/Alert'
+import { usePostMessage } from '@/context/Messages'
 
 export function useMetadataDrop() {
 	const state = useRef(null)

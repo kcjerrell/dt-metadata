@@ -1,10 +1,10 @@
-import { createContext, type PropsWithChildren, useContext, useEffect, useRef } from "react"
+import { createContext, type PropsWithChildren, useContext, useRef } from "react"
 import { proxy, useSnapshot } from "valtio"
 
-type MessageContextType = {
+type MessagesContextType = {
 	channels: Record<string, MessageChannel>
 	postMessage: (message: Omit<Message, "id">) => void
-	removeMessage: (message: Message) => void
+	removeMessage: (message: Pick<Message, 'id' | 'channel'>) => void
 }
 type MessageChannel = {
 	id: string
@@ -20,12 +20,12 @@ type Message = {
 }
 
 let messageIdCounter = 0
-export const MessageContext = createContext<MessageContextType | null>(null)
+export const MessagesContext = createContext<MessagesContextType | null>(null)
 
-export function MessageProvider(props: PropsWithChildren) {
+export function MessagesProvider(props: PropsWithChildren) {
 	const { children } = props
 
-	const store = useRef<MessageContextType>(null)
+	const store = useRef<MessagesContextType>(null)
 
 	if (store.current === null) {
 		store.current = proxy({
@@ -33,9 +33,13 @@ export function MessageProvider(props: PropsWithChildren) {
 			postMessage: (message: Omit<Message, "id">) => {
 				const channel = message.channel
 				if (!store.current?.channels?.[channel]) return
-				store.current.channels[channel].messages.push({ ...message, id: messageIdCounter++ })
+				const id = messageIdCounter++
+				store.current.channels[channel].messages.push({ ...message, id })
+				return () => {
+					store.current.removeMessage({channel, id})
+				}
 			},
-			removeMessage: (message: Message) => {
+			removeMessage: (message: Pick<Message, 'id' | 'channel'>) => {
 				const channel = store.current?.channels[message.channel]
 				if (!channel) return
 				const index = channel?.messages.findIndex((m) => m.id === message.id)
@@ -45,11 +49,11 @@ export function MessageProvider(props: PropsWithChildren) {
 		})
 	}
 
-	return <MessageContext value={store.current}>{children}</MessageContext>
+	return <MessagesContext value={store.current}>{children}</MessagesContext>
 }
 
 export function usePostMessage() {
-	const context = useContext(MessageContext)
+	const context = useContext(MessagesContext)
 	if (context === null) {
 		throw new Error("usePostMessage must be used within a MessageProvider")
 	}
@@ -57,7 +61,7 @@ export function usePostMessage() {
 }
 
 export function useMessages(type: string) {
-	const context = useContext(MessageContext)
+	const context = useContext(MessagesContext)
 	if (context === undefined || context === null) {
 		throw new Error("useMessages must be used within a MessageProvider")
 	}

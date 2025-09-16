@@ -202,7 +202,7 @@ function InfoPane(props: InfoPanelProps) {
 					</Button>
 					<ul style={{ overflowX: "scroll" }}>
 						{clipTypes.map((t, i) => (
-							<li style={{ whiteSpace: "nowrap" }} key={i}>
+							<li style={{ whiteSpace: "nowrap" }} key={`${i}_${t}`}>
 								{t}
 							</li>
 						))}
