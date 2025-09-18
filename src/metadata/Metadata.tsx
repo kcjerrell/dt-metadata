@@ -15,6 +15,8 @@ import InfoPane from "./InfoPane"
 import { MetadataStore } from "./state/store"
 import Toolbar from "./Toolbar"
 import { useMetadataDrop } from "./useMetadataDrop"
+import "../menu"
+
 
 interface MetadataComponentProps extends StackProps {}
 

@@ -11,7 +11,7 @@
   },
   "plugins": {
     "updater": {
-      "pubkey": "CONTENT FROM PUBLICKEY.PEM",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEVCQzBFMDk5QUY4NjE0MkEKUldRcUZJYXZtZURBNnkwQUVyeXRXS0t2d0p1bThhRnRkN1FmUWtkWG1OVExmbmtCMG0vNldBVGQK",
       "endpoints": [
         "https://github.com/kcjer/dt-metadata/releases/latest/download/latest.json"
       ]
@@ -60,6 +60,7 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "createUpdaterArtifacts": true
   }
 }
