@@ -5,7 +5,7 @@
   "platforms": {
     "darwin-aarch64": {
       "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRcUZJYXZtZURBNnpZbDZpL1lzRlQ3WXg0YmV1UG9kd1doZjIrWmJVRSs3TXo2dDBsVWVtOWxKMWUrNFdsbDJXSUt1cmd3NENtYWlpOU9SK1YwN0hYNmNHaERVWXk4VGdJPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzU4MjE4MDc5CWZpbGU6ZHQtbWV0YWRhdGEuYXBwLnRhci5negpMVCt3SHh4QTV6ck4rdERvbk5PRDk4RldNWjJnS0tTamdOczNzQXFlaEV2TGpPQnh1UkR1SHZMM216bFJFaUw0b0ZTNU9jdUdiUVdYUW9QTzBWd0lBQT09Cg==",
-      "url": "https://github.com/kcjerrell/dt-metadata/releases/download/latest/dt-metadata_0.1.1_aarch64.dmg"
+      "url": "https://github.com/kcjerrell/dt-metadata/releases/download/v0.1.1/dt-metadata_0.1.1_aarch64.dmg"
     }
   }
 }
