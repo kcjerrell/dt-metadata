@@ -10,10 +10,43 @@ const aboutSubmenu = await Submenu.new({
 			id: "chceckUpdates",
 			text: "Check for updates",
 			action: async () => {
-				const update = await check()
-        console.log(update)
-        await update.downloadAndInstall()
-        await relaunch()
+				const result = await check()
+				console.log(result)
+				if (!result) return
+				await result.downloadAndInstall()
+				await relaunch()
+				// const latest = await fetch(
+				// 	"https://api.github.com/repos/kcjerrell/dt-metadata/releases/latest",
+				// 	{
+				// 		headers: {
+				// 			Accept: "application/vnd.github+json",
+				// 			"X-GitHub-Api-Version": "2022-11-28",
+				// 		},
+				// 	},
+				// )
+				// 	.then((res) => res?.json())
+				// 	.catch(void 0)
+				// console.log("latest release", latest)
+				// const assetsUrl = latest?.assets_url
+
+				// if (!assetsUrl) return
+
+				// const release = (await fetch(`${assetsUrl}`, {
+				// 	headers: {
+				// 		Accept: "application/vnd.github+json",
+				// 		"X-GitHub-Api-Version": "2022-11-28",
+				// 	},
+				// })
+				// 	.then((res) => res?.json())
+				// 	.catch(void 0)) as Record<string, string>[]
+
+				// console.log("assets", release)
+				// const releaseJsonUrl = release.find((r) => r.name === "release.json")?.browser_download_url
+				// console.log(releaseJsonUrl)
+				// const update = await check({
+				// 	proxy: releaseJsonUrl,
+				// })
+        // console.log(update)
 			},
 		}),
 		await MenuItem.new({
