@@ -41,7 +41,8 @@
     "nspopover:allow-show-popover",
     "opener:default",
     "store:default",
-    "valtio:default"
+    "valtio:default",
+    "updater:default"
   ],
   "windows": [
     "main",

@@ -1,6 +1,13 @@
-import { Box, Flex, HStack, Image, type StackProps, VStack } from "@chakra-ui/react"
-import { motion, useAnimate, useMotionValue, type ValueAnimationTransition } from "motion/react"
-import { useEffect, useRef } from "react"
+import { Box, BoxProps, Flex, HStack, Image, type StackProps, VStack } from "@chakra-ui/react"
+import {
+	animate,
+	motion,
+	useAnimate,
+	useMotionTemplate,
+	useMotionValue,
+	type ValueAnimationTransition,
+} from "motion/react"
+import { PropsWithChildren, useEffect, useRef } from "react"
 import { useSnapshot } from "valtio"
 import { since } from "@/devStore"
 import History from "./History"
@@ -25,6 +32,7 @@ function Metadata(props: MetadataComponentProps) {
 	since("render")
 	return (
 		<Box
+			id={"metadata"}
 			className={"check-bg"}
 			backgroundSize={"50px 50px"}
 			width="100vw"
@@ -33,89 +41,120 @@ function Metadata(props: MetadataComponentProps) {
 			overscrollBehavior={"none none"}
 			{...handlers}
 		>
-			<HStack
-				position={"absolute"}
-				width="100%"
-				height="100%"
-				justifyContent="stretch"
-				alignItems="stretch"
-				gap={0}
-				overflow={"hidden"}
-				overscrollBehavior={"none none"}
-				flex="1 1 auto"
-				bgColor="fg.1/10"
-				minWidth={0}
-				minHeight={0}
-				{...restProps}
-			>
-				<VStack
-					flex="1 1 auto"
-					padding={0}
-					alignItems={"stretch"}
-					justifyContent={"start"}
+			<BgLayer isDragging={isDragging}>
+				<HStack
+					position={"absolute"}
+					width="100%"
+					height="100%"
+					justifyContent="stretch"
+					alignItems="stretch"
 					gap={0}
+					overflow={"hidden"}
+					overscrollBehavior={"none none"}
+					flex="1 1 auto"
+					// bgColor={isDragging ? "blue" : "fg.1/10"}
 					minWidth={0}
+					minHeight={0}
+					{...restProps}
 				>
-					<Toolbar />
-					<Box
-						ref={dropRef}
-						flex={"1 1 auto"}
-						display="flex"
-						justifyContent="center"
-						alignItems="center"
+					<VStack
+						flex="1 1 auto"
+						padding={0}
+						alignItems={"stretch"}
+						justifyContent={"start"}
+						gap={0}
 						minWidth={0}
-						minHeight={0}
-						padding={currentImage ? 1 : 8}
-						width={"100%"}
 					>
-						{currentImage?.url ? (
-							<Image
-								ref={imgRef}
-								visibility={zoomPreview ? "hidden" : "visible"}
-								objectFit={"contain"}
-								src={currentImage?.url}
-								width={"100%"}
-								height={"100%"}
-								borderRadius={"sm"}
-								onClick={() => {
-									MetadataStore.zoomPreview = true
-								}}
-							/>
-						) : (
-							<Flex
-								bgColor={isDragging ? "blue/20" : "unset"}
-								color={"fg/50"}
-								fontSize={"xl"}
-								justifyContent={"center"}
-								alignItems={"center"}
-								border={"3px dashed"}
-								borderColor={"fg/40"}
-								width={"100%"}
-								height={"100%"}
-								borderRadius={"md"}
-							>
-								Drop image here
-							</Flex>
-						)}
-					</Box>
-					<History />
-				</VStack>
-				<InfoPane width={"20rem"} />
-			</HStack>
+						<Toolbar />
+						<Box
+							ref={dropRef}
+							flex={"1 1 auto"}
+							display="flex"
+							justifyContent="center"
+							alignItems="center"
+							minWidth={0}
+							minHeight={0}
+							padding={currentImage ? 1 : 8}
+							width={"100%"}
+						>
+							{currentImage?.url ? (
+								<Image
+									ref={imgRef}
+									visibility={zoomPreview ? "hidden" : "visible"}
+									objectFit={"contain"}
+									src={currentImage?.url}
+									width={"100%"}
+									height={"100%"}
+									borderRadius={"sm"}
+									onClick={() => {
+										MetadataStore.zoomPreview = true
+									}}
+								/>
+							) : (
+								<Flex
+									bgColor={isDragging ? "blue/20" : "unset"}
+									color={"fg/50"}
+									fontSize={"xl"}
+									justifyContent={"center"}
+									alignItems={"center"}
+									border={"3px dashed"}
+									borderColor={"fg/40"}
+									width={"100%"}
+									height={"100%"}
+									borderRadius={"md"}
+								>
+									Drop image here
+								</Flex>
+							)}
+						</Box>
+						<History />
+					</VStack>
+					<InfoPane width={"20rem"} />
+				</HStack>
 
-			<Preview
-				src={currentImage?.url}
-				onClick={() => {
-					MetadataStore.zoomPreview = false
-				}}
-				show={zoomPreview}
-				imgRef={imgRef}
-			/>
+				<Preview
+					src={currentImage?.url}
+					onClick={() => {
+						MetadataStore.zoomPreview = false
+					}}
+					show={zoomPreview}
+					imgRef={imgRef}
+				/>
+			</BgLayer>
 		</Box>
 	)
 }
 
-type PreviewProps = {
+function BgLayer({ isDragging, children }: PropsWithChildren<{ isDragging: boolean }>) {
+	// const mva = useMotionValue(0)
+	// const mvb = useMotionValue(0)
+	// const mvc = useMotionValue(100)
+
+	// const grad = useMotionTemplate`radial-gradient(circle at center, #0629db ${mva}%, #33e170 ${mvb}%), #0629db ${mvc}%`
+
+	// useEffect(() => {
+	// 	animate(mva, [100, 0, 100], {
+	// 		times: [0, 1, 1],
+	// 		duration: 3,
+	// 		repeat: Infinity,
+	// 		repeatType: "loop",
+	// 	})
+		// animate(mvb, [100, 0, 100], {times: [0, 1, 1], duration: 3, repeat: Infinity, repeatType: "loop", delay: 1 })
+		// animate(mvc, [100, 0, 100], {times: [0, 1, 1], duration: 3, repeat: Infinity, repeatType: "loop", delay: 2 })
+	// }, [mva, mvb, mvc])
+
+	return (
+		<motion.div
+			style={{
+				// background: isDragging ? grad : "blue",
+			}}
+		>
+			{children}
+		</motion.div>
+	)
+}
+
+interface PreviewProps extends BoxProps {
 	src?: string
 	onClick?: () => void
 	show?: boolean
@@ -128,7 +167,7 @@ const posTransition: ValueAnimationTransition<number> = {
 }
 
 function Preview(props: PreviewProps) {
-	const { src, onClick, show, imgRef } = props
+	const { src, onClick, show, imgRef, ...restProps } = props
 
 	const leftMv = useMotionValue(0)
 	const topMv = useMotionValue(0)
@@ -173,6 +212,7 @@ function Preview(props: PreviewProps) {
 			bgColor={"black/90"}
 			onClick={() => onClick?.()}
 			pointerEvents={show ? "all" : "none"}
+			{...restProps}
 			asChild
 		>
 			<motion.div

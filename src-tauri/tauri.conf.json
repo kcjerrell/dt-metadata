@@ -9,11 +9,16 @@
     "beforeBuildCommand": "yarn build",
     "frontendDist": "../dist"
   },
+  "plugins": {
+    "updater": {
+      "pubkey": "CONTENT FROM PUBLICKEY.PEM",
+      "endpoints": [
+        "https://github.com/kcjer/dt-metadata/releases/latest/download/latest.json"
+      ]
+    }
+  },
   "app": {
-
-    "windows": [
-
-    ],
+    "windows": [],
     "security": {
       "assetProtocol": {
         "enable": true,
