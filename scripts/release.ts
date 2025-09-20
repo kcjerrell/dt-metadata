@@ -61,20 +61,20 @@ await fse.writeFile("src-tauri/Cargo.toml", cargoTomlLinesUpdated.join("\n"))
 await runTauriBuild()
 
 // make sure we have everything
-const dmgPath = `./src-tauri/target/release/bundle/dmg/dt-metadata_${version}_aarch64.dmg`
+const dmgPath = `./src-tauri/target/release/bundle/dmg/DTM_${version}_aarch64.dmg`
 if (!fse.existsSync(dmgPath)) {
   throw new Error(`Could not find ${dmgPath}`)
 }
 const dmgData = await fse.readFile(dmgPath)
 
-const tarGzPath = `./src-tauri/target/release/bundle/macos/dt-metadata.app.tar.gz`
+const tarGzPath = `./src-tauri/target/release/bundle/macos/DTM.app.tar.gz`
 if (!fse.existsSync(tarGzPath))
   throw new Error(`Could not find ${tarGzPath}`)
 if (fse.statSync(tarGzPath).ctimeMs < startTime)
   throw new Error('tar.gz is old')
 const tarGzData = await fse.readFile(tarGzPath)
 
-const tarGzSigPath = `./src-tauri/target/release/bundle/macos/dt-metadata.app.tar.gz.sig`
+const tarGzSigPath = `./src-tauri/target/release/bundle/macos/DTM.app.tar.gz.sig`
 if (!fse.existsSync(tarGzSigPath))
   throw new Error(`Could not find ${tarGzSigPath}`)
 if (fse.statSync(tarGzSigPath).ctimeMs < startTime)
@@ -88,7 +88,7 @@ const releaseJson = {
   "platforms": {
     "darwin-aarch64": {
       "signature": tarGzSigData,
-      "url": `https://github.com/kcjerrell/dt-metadata/releases/download/v${version}/dt-metadata.app.tar.gz`
+      "url": `https://github.com/kcjerrell/dt-metadata/releases/download/v${version}/DTM.app.tar.gz`
     }
   }
 }
@@ -104,7 +104,7 @@ const release = await createRelease(version)
 const dmgRes = await octokit.repos.uploadReleaseAsset({
   ...repo,
   release_id: release.id,
-  name: `dt-metadata_${version}_aarch64.dmg`,
+  name: `DTM_${version}_aarch64.dmg`,
   data: dmgData as unknown as string,
   headers: {
     "content-type": "application/zip",
@@ -119,7 +119,7 @@ console.log("Uploaded release asset:", dmgRes.data.url)
 const tarGzRes = await octokit.repos.uploadReleaseAsset({
   ...repo,
   release_id: release.id,
-  name: `dt-metadata.app.tar.gz`,
+  name: `DTM.app.tar.gz`,
   data: tarGzData as unknown as string,
   headers: {
     "content-type": "application/gzip",
