@@ -1,11 +1,11 @@
 import { type BoxProps, Button, HStack, VStack } from "@chakra-ui/react"
-import { getAllWebviews } from '@tauri-apps/api/webview'
-import { getAllWebviewWindows } from '@tauri-apps/api/webviewWindow'
-import { getAllWindows } from '@tauri-apps/api/window'
+import { getAllWebviews } from "@tauri-apps/api/webview"
+import { getAllWebviewWindows } from "@tauri-apps/api/webviewWindow"
+import { getAllWindows } from "@tauri-apps/api/window"
 import { useState } from "react"
 import { FiMoon } from "react-icons/fi"
 import { useSnapshot } from "valtio"
-import MeasureGrid from '@/components/measureGrid/MeasureGrid'
+import MeasureGrid from "@/components/measureGrid/MeasureGrid"
 import TabPage from "@/components/scrollTabs/TabPage"
 import { useColorMode } from "@/components/ui/color-mode"
 import { getClipboardTypes } from "@/utils/clipboard"
@@ -45,45 +45,45 @@ function InfoPane(props: InfoPanelProps) {
 			{...restProps}
 		>
 			<TabPage key={`${image?.id}_image`} label={"image"}>
-					<MeasureGrid columns={2} fontSize={"sm"}>
-						{Object.entries(
-							(exif ?? {}) as Record<string, { value: string; description?: string }>,
-						).map(([k, v]) => {
-							const data = v.description || v.value
-							return <DataItem key={k} label={k} data={data}/>
-						})}
-					</MeasureGrid>
+				<MeasureGrid columns={2} fontSize={"sm"} maxItemLines={5}>
+					{Object.entries(
+						(exif ?? {}) as Record<string, { value: string; description?: string }>,
+					).map(([k, v]) => {
+						const data = v.description || v.value
+						return <DataItem key={k} label={k} data={data} />
+					})}
+				</MeasureGrid>
 			</TabPage>
 			<TabPage key={`${image?.id}_config`} label={"config"}>
-					<MeasureGrid columns={2} fontSize={"sm"}>
+				<MeasureGrid columns={2} fontSize={"sm"} maxItemLines={5}>
+					<DataItem
+						label={"Size"}
+						data={`${dtData?.config.width} x ${dtData?.config.height}`}
+						ignore={dtData?.config.width === undefined || dtData?.config.height === undefined}
+					/>
+					<DataItem label={"Seed"} data={dtData?.config.seed} decimalPlaces={0} />
+					{null}
+					<DataItem label={"Model"} data={dtData?.config.model} cols={2} />
+					<HStack gridColumn={"span 2"} justifyContent={"space-evenly"}>
+						<DataItem label={"Steps"} data={dtData?.config.steps} decimalPlaces={0} />
 						<DataItem
-							label={"Size"}
-							data={`${dtData?.config.width} x ${dtData?.config.height}`}
-							ignore={dtData?.config.width === undefined || dtData?.config.height === undefined}
+							label={"ImageGuidance"}
+							data={dtData?.config.imageGuidanceScale}
+							decimalPlaces={1}
 						/>
-						<DataItem label={"Seed"} data={dtData?.config.seed} decimalPlaces={0} />
-						{null}
-						<DataItem label={"Model"} data={dtData?.config.model} cols={2} />
-						<HStack gridColumn={"span 2"} justifyContent={"space-evenly"}>
-							<DataItem label={"Steps"} data={dtData?.config.steps} decimalPlaces={0} />
-							<DataItem
-								label={"ImageGuidance"}
-								data={dtData?.config.imageGuidanceScale}
-								decimalPlaces={1}
-							/>
-							<DataItem label={"Shift"} data={dtData?.config.shift} decimalPlaces={2} />
-						</HStack>
-						<DataItem label={"Prompt"} data={dtData?.prompt} cols={2} />
-						<DataItem
-							label={"Negative Prompt"}
-							data={
-								dtData?.negativePrompt
-								// Array(6).fill("ABC").join("\n")
-							}
-							cols={2}
-						/>
-						<DataItem label={"Config"} data={dtData?.config} cols={2} expandByDefault />
-					</MeasureGrid>
+						<DataItem label={"Shift"} data={dtData?.config.shift} decimalPlaces={2} />
+					</HStack>
+					<DataItem label={"Prompt"} data={dtData?.prompt} cols={2} />
+					<DataItem
+						label={"Negative Prompt"}
+						data={
+							dtData?.negativePrompt
+							// Array(6).fill("ABC").join("\n")
+						}
+						cols={2}
+					/>
+					<DataItem label={"Config"} data={dtData?.config} cols={2} expandByDefault />
+				</MeasureGrid>
 			</TabPage>
 			<TabPage key={`${image?.id}_gen`} label={"gen"}>
 				{dtData?.profile?.timings?.map((t) => (

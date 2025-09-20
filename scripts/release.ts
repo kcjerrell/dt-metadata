@@ -135,8 +135,8 @@ async function createRelease(tag: string) {
   console.log("Creating release...")
   const res = await octokit.repos.createRelease({
     ...repo,
-    tag_name: version,
-    name: version,
+    tag_name: `v${version}`,
+    name: `v${version}`,
     target_commitish: "main",
   })
 
