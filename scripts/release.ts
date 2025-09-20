@@ -6,7 +6,7 @@
 // put a version number as arg
 import "dotenv/config"
 import fse from "fs-extra"
-import { spawn } from 'node:child_process'
+import { exec, spawn } from 'node:child_process'
 import { Octokit } from "@octokit/rest"
 
 const startTime = Date.now()
@@ -34,7 +34,7 @@ console.log("Creating release for version", version)
 const packageJson = await fse.readJSON("package.json")
 const prevVersion = packageJson.version
 if (compareVersions(version, prevVersion) <= 0) {
-  throw new Error("Version must be greater than previous version")
+  // throw new Error("Version must be greater than previous version")
 }
 
 packageJson.version = version
@@ -94,7 +94,8 @@ const releaseJson = {
 }
 await fse.writeJson("./release/release.json", releaseJson, { spaces: 2 })
 
-await exec("git add")
+await exec(`git commit -a -m "v${version} release"`)
+await exec('git push')
 
 // create release
 const release = await createRelease(version)
