@@ -13,9 +13,6 @@ import { areEquivalent } from "@/utils/helpers"
 export const ScrollTabsContext = createContext<ReturnType<typeof useCreateScrollTabs>>(undefined)
 
 export function useCreateScrollTabs(initialTab?: string, onChanged?: (tab: string) => void) {
-	console.log("useceateScrollTabs")
-	// const [state, setState] = useMutative<ScrollTabContextState>({ tabs: [], selectedTabIndex: 0 })
-
 	const [selectedTab, setSelectedTab] = useState(initialTab)
 	const [tabs, setTabs] = useState<string[]>([])
 	const refs = useRef<Record<string, RefObject<HTMLDivElement>>>({})

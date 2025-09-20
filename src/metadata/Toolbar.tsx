@@ -7,19 +7,19 @@ import {
 	type StackProps,
 	VStack,
 } from "@chakra-ui/react"
+import { relaunch } from "@tauri-apps/plugin-process"
 import { AnimatePresence, motion } from "motion/react"
-import { type PropsWithChildren, useCallback, useEffect, useRef, useState } from "react"
+import { useEffect, type PropsWithChildren } from "react"
 import { FiClipboard, FiCopy, FiInfo, FiXCircle } from "react-icons/fi"
 import { GrPin } from "react-icons/gr"
 import type { IconType } from "react-icons/lib"
 import { useSnapshot } from "valtio"
+import { type ColorMode, useColorMode } from "@/components/ui/color-mode"
+import { postMessage, useMessages } from "@/context/Messages"
+import AppState from "@/hooks/useAppState"
 import ImageStore from "@/utils/imageStore"
 import { loadFromPasteboard } from "./state/imageLoaders"
 import { clearImages, MetadataStore, pinImage } from "./state/store"
-import { postMessage, useMessages } from "@/context/Messages"
-import { GiUpgrade } from "react-icons/gi"
-import { useAppState } from "@/hooks/useAppState"
-import { ColorMode, useColorMode } from "@/components/ui/color-mode"
 
 interface ToolbarProps extends StackProps {}
 
@@ -29,8 +29,6 @@ function Toolbar(props: ToolbarProps) {
 	const { ...restProps } = props
 
 	const { currentImage } = useSnapshot(MetadataStore)
-
-	const appState = useAppState()
 
 	// const [message, setMessage] = useState("")
 	// const msgTimeout = useRef<ReturnType<typeof setTimeout>>(null)
@@ -144,18 +142,7 @@ function Toolbar(props: ToolbarProps) {
 									})
 								}}
 							/>
-							{appState.updateAvailable && (
-								<ToolbarButton
-									icon={UpgradeIcon}
-									onClick={() =>
-										postMessage({
-											message: "yay an update",
-											channel: "toolbar",
-											duration: 3000,
-										})
-									}
-								/>
-							)}
+							<UpgradeButton />
 						</HStack>
 					</ButtonGroup>
 					<AnimatePresence>
@@ -205,8 +192,38 @@ function Toolbar(props: ToolbarProps) {
 	)
 }
 
-const ToolbarButton = (props: PropsWithChildren<{ onClick?: () => void; icon?: IconType }>) => {
-	const { icon: Icon, children, onClick, ...restProps } = props
+const UpgradeButton = (props) => {
+	const appState = useSnapshot(AppState.store)
+
+	useEffect(() => {
+		if (appState.updateStatus === "unknown") AppState.checkForUpdate()
+	}, [appState.updateStatus])
+
+	if (["checking", "unknown", "none"].includes(appState.updateStatus)) return null
+
+	if (["found", "ready", "installed"].includes(appState.updateStatus)) {
+		return (
+			<ToolbarButton
+				icon={UpgradeIcon}
+				tip={appState.updateStatus}
+				onClick={async () => {
+					if (appState.updateStatus === "found") await AppState.downloadUpdate()
+					else if (appState.updateStatus === "ready") await AppState.installUpdate()
+					else if (appState.updateStatus === "installed") await relaunch()
+				}}
+			/>
+		)
+	}
+
+	if (appState.updateStatus === "downloading") {
+		return <Box>{(appState.updateProgress / appState.updateSize) * 100}%</Box>
+	}
+}
+
+const ToolbarButton = (
+	props: PropsWithChildren<{ onClick?: () => void; icon?: IconType; tip?: string }>,
+) => {
+	const { icon: Icon, children, onClick, tip, ...restProps } = props
 
 	const content = Icon ? <Icon /> : children
 
@@ -220,6 +237,7 @@ const ToolbarButton = (props: PropsWithChildren<{ onClick?: () => void; icon?: I
 			}}
 			scale={1.2}
 			size={"sm"}
+			title={tip}
 			onClick={onClick}
 			{...restProps}
 		>
@@ -281,7 +299,7 @@ const UpgradeIcon = () => {
 				repeat: Infinity,
 				repeatType: "loop",
 				ease: "easeOut",
-				delay: 0.7
+				delay: 0.7,
 			}}
 			whileHover={{ y: 0 }}
 			// style={{ scale: 2 }}

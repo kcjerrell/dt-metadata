@@ -1,25 +1,16 @@
-import { Box, BoxProps, Flex, HStack, Image, type StackProps, VStack } from "@chakra-ui/react"
-import {
-	animate,
-	AnimatePresence,
-	motion,
-	useAnimate,
-	useMotionTemplate,
-	useMotionValue,
-	type ValueAnimationTransition,
-} from "motion/react"
-import { PropsWithChildren, useEffect, useRef } from "react"
+import { Box, type BoxProps, Flex, HStack, Image, VStack } from "@chakra-ui/react"
+import { motion, useAnimate, useMotionValue, type ValueAnimationTransition } from "motion/react"
+import { type PropsWithChildren, useEffect, useRef } from "react"
 import { useSnapshot } from "valtio"
-import { since } from "@/devStore"
+import { isInsideImage } from "@/utils/helpers"
+import "../menu"
 import History from "./History"
 import InfoPane from "./InfoPane"
 import { MetadataStore } from "./state/store"
 import Toolbar from "./Toolbar"
 import { useMetadataDrop } from "./useMetadataDrop"
-import "../menu"
-import { isInsideImage } from "@/utils/helpers"
 
-interface MetadataComponentProps extends StackProps {}
+interface MetadataComponentProps extends ChakraProps {}
 
 function Metadata(props: MetadataComponentProps) {
 	const { ...restProps } = props
@@ -32,7 +23,6 @@ function Metadata(props: MetadataComponentProps) {
 
 	const { isDragging, handlers } = useMetadataDrop()
 
-	since("render")
 	return (
 		<Box
 			id={"metadata"}

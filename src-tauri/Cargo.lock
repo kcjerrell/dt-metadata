@@ -1230,7 +1230,7 @@ dependencies = [
 
 [[package]]
 name = "dt-metadata"
-version = "0.1.1"
+version = "0.1.0"
 dependencies = [
  "objc2 0.6.2",
  "objc2-app-kit 0.3.1",
