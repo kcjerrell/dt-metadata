@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "dt-metadata",
+  "productName": "DTM",
   "version": "0.1.0",
   "identifier": "com.kcjer.dt-metadata",
   "build": {

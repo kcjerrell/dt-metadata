@@ -54,10 +54,8 @@ export async function loadImage(imageOrGetter: ImageGetter, textOrGetter: TextGe
 			if (textItem) break
 			if (checked.includes(file)) continue
 			checked.push(file)
-			console.log(`gonna try downloading ${file}`)
 			const image = await getLocalImage(file)
 			if (image) {
-				console.log("got an image")
 				textItem = [
 					image,
 					(await pathlib.extname(file)) ?? "png",
