@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "release": "tsx scripts/release.ts"
   },
   "dependencies": {
     "@chakra-ui/react": "^3.26.0",
@@ -41,12 +42,16 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.4",
+    "@octokit/rest": "^22.0.0",
     "@tauri-apps/cli": "^2",
+    "@types/fs-extra": "^11.0.4",
     "@types/plist": "^3.0.5",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.6.0",
     "babel-plugin-react-compiler": "^19.1.0-rc.3",
+    "dotenv": "^17.2.2",
+    "fs-extra": "^11.3.2",
     "globals": "^16.4.0",
     "jiti": "^2.5.1",
     "typescript": "^5.9.2",
