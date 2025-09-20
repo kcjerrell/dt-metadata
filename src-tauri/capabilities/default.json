@@ -3,14 +3,6 @@
   "description": "Capability for the main window",
   "identifier": "default",
   "permissions": [
-    {
-      "allow": [
-        {
-          "path": "$APPDATA"
-        }
-      ],
-      "identifier": "fs:scope"
-    },
     "clipboard-manager:allow-read-image",
     "clipboard-manager:allow-read-text",
     "clipboard-manager:allow-write-image",
@@ -21,28 +13,29 @@
     "core:event:default",
     "core:tray:allow-new",
     "core:tray:default",
+    "core:window:default",
     "core:window:allow-close",
     "core:window:allow-destroy",
     "core:window:allow-hide",
     "core:window:allow-set-focus",
     "core:window:allow-show",
     "core:window:allow-start-dragging",
-    "fs:allow-appdata-read-recursive",
+    "fs:create-app-specific-dirs",
+    "fs:read-app-specific-dirs-recursive",
     "fs:allow-appdata-write-recursive",
     "fs:allow-exists",
-    "fs:allow-mkdir",
     "fs:allow-read-file",
     "fs:allow-stat",
-    "fs:allow-write",
-    "fs:allow-write-file",
-    "http:allow-fetch",
+    "http:default",
     "nspopover:allow-hide-popover",
     "nspopover:allow-is-popover-shown",
     "nspopover:allow-show-popover",
     "opener:default",
     "store:default",
     "valtio:default",
-    "updater:default"
+    "updater:default",
+    "process:default",
+    "dialog:default"
   ],
   "windows": [
     "main",

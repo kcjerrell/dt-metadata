@@ -16,7 +16,10 @@ import { useSnapshot } from "valtio"
 import ImageStore from "@/utils/imageStore"
 import { loadFromPasteboard } from "./state/imageLoaders"
 import { clearImages, MetadataStore, pinImage } from "./state/store"
-import { useMessages } from "@/context/Messages"
+import { postMessage, useMessages } from "@/context/Messages"
+import { GiUpgrade } from "react-icons/gi"
+import { useAppState } from "@/hooks/useAppState"
+import { ColorMode, useColorMode } from "@/components/ui/color-mode"
 
 interface ToolbarProps extends StackProps {}
 
@@ -27,32 +30,34 @@ function Toolbar(props: ToolbarProps) {
 
 	const { currentImage } = useSnapshot(MetadataStore)
 
-	const [message, setMessage] = useState("")
-	const msgTimeout = useRef<ReturnType<typeof setTimeout>>(null)
+	const appState = useAppState()
 
-	const showMessage = useCallback((msg: string, duration = 3000) => {
-		if (msgTimeout.current) clearTimeout(msgTimeout.current)
-		setMessage(msg)
-		msgTimeout.current = setTimeout(() => {
-			setMessage("")
-			msgTimeout.current = null
-		}, duration)
-	}, [])
+	// const [message, setMessage] = useState("")
+	// const msgTimeout = useRef<ReturnType<typeof setTimeout>>(null)
+
+	// const showMessage = useCallback((msg: string, duration = 3000) => {
+	// 	if (msgTimeout.current) clearTimeout(msgTimeout.current)
+	// 	setMessage(msg)
+	// 	msgTimeout.current = setTimeout(() => {
+	// 		setMessage("")
+	// 		msgTimeout.current = null
+	// 	}, duration)
+	// }, [])
 
 	const messageChannel = useMessages("toolbar")
-	console.log("channel", messageChannel)
-	useEffect(() => {
-		const message = messageChannel.messages[0]
-		if (!message) return
-		showMessage(message.message, message.duration ?? 3000)
-		setTimeout(() => {
-			messageChannel.removeMessage(message)
-		}, 3000)
-	}, [messageChannel?.messages[0], messageChannel?.removeMessage, showMessage])
+	// console.log("channel", messageChannel)
+	// useEffect(() => {
+	// 	const message = messageChannel.messages[0]
+	// 	if (!message) return
+	// 	showMessage(message.message, message.duration ?? 3000)
+	// 	setTimeout(() => {
+	// 		messageChannel.removeMessage(message)
+	// 	}, 3000)
+	// }, [messageChannel?.messages[0], messageChannel?.removeMessage, showMessage])
 
 	return (
 		<HStack padding={2} data-tauri-drag-region height={"3rem"}>
-			<Spacer data-tauri-drag-region />
+			<Spacer minWidth={"45px"} data-tauri-drag-region />
 			<Box
 				position={"relative"}
 				alignItems={"flex-start"}
@@ -73,7 +78,7 @@ function Toolbar(props: ToolbarProps) {
 					flex={"0 0 auto"}
 					borderRadius={"xl"}
 					border={"1px solid {gray/20}"}
-					borderBottom={message ? "0px" : "1px"}
+					borderBottom={messageChannel.messages.length ? "0px" : "1px"}
 					overflow={"hidden"}
 					boxShadow={"lg"}
 					height={"auto"}
@@ -95,24 +100,6 @@ function Toolbar(props: ToolbarProps) {
 							<ToolbarButton
 								icon={FiClipboard}
 								onClick={async () => {
-									// const bytes = await invoke<Uint8Array>('read_clipboard_png')
-									// // Convert bytes to Blob
-									// console.log('got bytes', bytes.length)
-									// addImage(bytes)
-									// const types = await clipboard.getAvailableTypes()
-									// console.log(types)
-									// if (types.image) {
-									//   const url = await clipboard.readImageBinary('Uint8Array')
-									//   addImage(url)
-									// }
-									// const types = await invoke("read_clipboard_types")
-									// console.log(types)
-									// const url =
-									//   // 'https://cdn.discordapp.com/attachments/1059883294486953984/1413470831375286272/he_is_on_a_white_background_-__2829551034.png?ex=68bf588b&is=68be070b&hm=781ae7399b9c3f45a2a80ec30ff1284e61cc678f6a1e84cf56810ea0be4edfbc&'
-									//   'https://cdn.discordapp.com/attachments/1095620416065781790/1413489634838839438/0_scaly_crocodile_unicorn___pegasus_full_body_portrait_2171547597.png?ex=68bf6a0e&is=68be188e&hm=c5b0df21d73ef39bb8036285f1b47a15809852d652a603f46312d7dbc4531438&'
-									// const data = await invoke('fetch_image_file', { url })
-									// console.log(data)
-									// addImage(data)
 									try {
 										await loadFromPasteboard()
 									} catch (e) {
@@ -124,7 +111,12 @@ function Toolbar(props: ToolbarProps) {
 								onClick={() => {
 									const pin = currentImage?.pin !== null ? null : true
 									pinImage(true, pin)
-									showMessage(pin ? "Image pinned" : "Pin removed")
+									postMessage({
+										message: pin ? "Image pinned" : "Pin removed",
+										uType: "pinimage",
+										duration: 3000,
+										channel: "toolbar",
+									})
 								}}
 							>
 								<Pinned pin={currentImage?.pin} />
@@ -135,36 +127,76 @@ function Toolbar(props: ToolbarProps) {
 								onClick={async () => {
 									if (!currentImage) return
 									await ImageStore.copy(currentImage?.id)
-									showMessage("Image copied")
+									postMessage({
+										message: "Show copy",
+										duration: 3000,
+										channel: "toolbar",
+									})
 								}}
 							/>
 							<ToolbarButton
 								icon={FiInfo}
 								onClick={() => {
-									setMessage((msg) => {
-										if (msg) return ""
-										// setTimeout(() => setMessage(""), 5000)
-										return document.location.toString()
+									postMessage({
+										message: "Message!",
+										duration: 3000,
+										channel: "toolbar",
 									})
 								}}
 							/>
+							{appState.updateAvailable && (
+								<ToolbarButton
+									icon={UpgradeIcon}
+									onClick={() =>
+										postMessage({
+											message: "yay an update",
+											channel: "toolbar",
+											duration: 3000,
+										})
+									}
+								/>
+							)}
 						</HStack>
 					</ButtonGroup>
 					<AnimatePresence>
-						{message && (
-							<motion.div
-								key="msg"
-								initial={{ opacity: 0, height: 0 }}
-								animate={{ opacity: 1, height: "auto" }}
-								exit={{ opacity: 0, height: 0 }}
-								transition={{ duration: 0.1 }}
-								style={{ overflow: "hidden", maxWidth: "100%" }}
+						{messageChannel.messages.map((message, i, msgs) => (
+							<Box
+								asChild
+								key={`msg_${message.id}`}
+								_before={
+									i > 0 && msgs.length > 1
+										? {
+												content: '""',
+												display: "block",
+												height: "1px",
+												width: "70%",
+												bg: "fg.1/50",
+												marginX: "auto",
+											}
+										: undefined
+								}
+								overflow={"hidden"}
+								maxWidth={"100%"}
 							>
-								<Box p={2} width={"100%"} textAlign={"center"} fontSize={"sm"} color={"fg.2"}>
-									{message}
-								</Box>
-							</motion.div>
-						)}
+								<motion.div
+									initial={{ opacity: 0, height: 0 }}
+									animate={{ opacity: 1, height: "auto" }}
+									exit={{ opacity: 0, height: 0 }}
+									transition={{ duration: 0.1 }}
+								>
+									<Box
+										p={1}
+										width={"100%"}
+										textAlign={"center"}
+										fontSize={"sm"}
+										color={"fg.2"}
+										// _before={{ content: '""', display: "block", height: "1px", bg: "fg.1/50" }}
+									>
+										{message.message}
+									</Box>
+								</motion.div>
+							</Box>
+						))}
 					</AnimatePresence>
 				</MotionVStack>
 			</Box>
@@ -183,9 +215,10 @@ const ToolbarButton = (props: PropsWithChildren<{ onClick?: () => void; icon?: I
 			color={"fg.3"}
 			_hover={{
 				bg: "unset",
-				scale: 1.05,
+				scale: 1.35,
 				color: "fg.1",
 			}}
+			scale={1.2}
 			size={"sm"}
 			onClick={onClick}
 			{...restProps}
@@ -223,6 +256,109 @@ const Pinned = ({ pin }: { pin?: number | null }) => {
 		)
 
 	return <UnPinned />
+}
+
+const UpgradeIcon = () => {
+	const { colorMode } = useColorMode()
+
+	return (
+		<motion.svg
+			width="200"
+			height="200"
+			viewBox="0 0 200 200"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+			// style={{ scaleX: 1, scaleY: 1 }}
+			animate={{
+				// filter: ["drop-shadow(3px 3px 2px #000000)"]
+				// boxShadow: ["3px 3px 2px #000000"]
+				y: [0, 0, 1, -2, 1, -2, 0],
+				// scale: [1, 1.2]
+			}}
+			transition={{
+				duration: 5,
+				times: [0, 0.5, 0.7, 0.725, 0.8, 0.825, 1],
+				repeat: Infinity,
+				repeatType: "loop",
+				ease: "easeOut",
+				delay: 0.7
+			}}
+			whileHover={{ y: 0 }}
+			// style={{ scale: 2 }}
+		>
+			<title>upgrade</title>
+			<g>
+				<UpgradePath
+					i={2}
+					d={
+						"M90.2344 0L0 60.1562L0 101.706L90.2344 41.55L180.469 101.706L180.469 60.1562L90.2344 0Z"
+					}
+					colorMode={colorMode}
+					tx={9.766}
+					ty={11.647}
+				/>
+				<UpgradePath
+					i={1}
+					d="M58.9844 0L0 39.8141L0 75.0809L58.9844 35.2664L117.969 75.0809L117.969 39.8141L58.9844 0Z"
+					tx={41.016}
+					ty={61.664}
+					colorMode={colorMode}
+				/>
+				<UpgradePath
+					i={0}
+					d="M33.9844 0L0 22.9395L0 49.3457L33.9844 26.6895L67.9688 49.3457L67.9688 22.9395L33.9844 0Z"
+					tx={66.016}
+					ty={105.414}
+					colorMode={colorMode}
+				/>
+				{/* <UpgradePath
+					i={0}
+					d="M33.9844 0L0 22.6562L0 47.8L33.9844 25.1438L67.9688 47.8L67.9688 22.6563L33.9844 0Z"
+					tx={66.016}
+					ty={140.553}
+					colorMode={colorMode}
+				/> */}
+			</g>
+		</motion.svg>
+	)
+}
+// 11.647, 61.664, 105.414, 140.553
+const UpgradePath = ({
+	d,
+	tx,
+	ty,
+	i,
+	colorMode,
+}: {
+	d: string
+	tx: number
+	ty: number
+	i: number
+	colorMode: ColorMode
+}) => {
+	const colorDuration = 5
+	const fg = colorMode === "light" ? "#565e67" : "#8e97a2"
+	const fgb = colorMode === "light" ? "#476d53ff" : "#66a676ff"
+	return (
+		<motion.path
+			d={d}
+			animate={{
+				fill: [fgb, fg, "#83ff67ff", fgb],
+				scale: [1, 1.1, 1.2, 1],
+			}}
+			transition={{
+				duration: colorDuration,
+				times: [0, 0.8, 0.9, 1],
+				ease: ["easeOut", "linear", "linear"],
+				repeat: Infinity,
+				repeatType: "loop",
+				delay: 0.1 * i, // (colorDuration * i) / 16,
+			}}
+			stroke-width="0"
+			stroke="#000000"
+			style={{ x: tx, y: ty * 1.3 }}
+		/>
+	)
 }
 
 export default Toolbar

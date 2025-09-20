@@ -804,6 +804,13 @@
   dependencies:
     "@tauri-apps/api" "^2.6.0"
 
+"@tauri-apps/plugin-dialog@~2":
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/@tauri-apps/plugin-dialog/-/plugin-dialog-2.4.0.tgz#e37388bd3197f920a9975e323a105a75cb55d648"
+  integrity sha512-OvXkrEBfWwtd8tzVCEXIvRfNEX87qs2jv6SqmVPiHcJjBhSF/GUvjqUNIDmKByb5N8nvDqVUM7+g1sXwdC/S9w==
+  dependencies:
+    "@tauri-apps/api" "^2.8.0"
+
 "@tauri-apps/plugin-fs@~2":
   version "2.4.2"
   resolved "https://registry.npmjs.org/@tauri-apps/plugin-fs/-/plugin-fs-2.4.2.tgz"

@@ -9,6 +9,7 @@ import {
 } from "@/utils/clipboard"
 import type { ImageItem } from "./ImageItem"
 import { createImageItem, replaceWithBetter } from "./store"
+import { postMessage } from "@/context/Messages"
 
 type PromiseOrNot<T> = Promise<T> | T
 type GetterOrNot<T> = T | (() => T)
@@ -25,7 +26,7 @@ type TextGetter = GetterOrNot<PromiseOrNot<Text | null>>
  * @param getBuffer either an image buffer (or a function that returns or promises one)
  * @param getText an object of text items that may contain paths/urls (or a function that returns or promises one)
  */
-export async function loadImage(imageOrGetter: ImageGetter, textOrGetter: TextGetter) {
+export async function loadImage(imageOrGetter: ImageGetter, textOrGetter: TextGetter) : Promise<boolean> {
 	const fileImage = await resolveGetter(imageOrGetter)
 	let imageItem: ImageItem | null = null
 
@@ -33,7 +34,7 @@ export async function loadImage(imageOrGetter: ImageGetter, textOrGetter: TextGe
 		imageItem = await createImageItem(fileImage.data, getImageType(fileImage.type), {
 			clipboard: fileImage.type,
 		})
-		if (imageItem?.dtData) return
+		if (imageItem?.dtData) return true
 	}
 
 	// try loading text
@@ -45,7 +46,7 @@ export async function loadImage(imageOrGetter: ImageGetter, textOrGetter: TextGe
 	for (const textType of clipboardTextTypes) {
 		if (textItem) break
 		if (!text[textType]) continue
-		
+
 		const { files, urls } = parseText(text[textType], textType)
 		console.log(`${textType} has ${files.length} files and ${urls.length} urls`)
 
@@ -86,10 +87,11 @@ export async function loadImage(imageOrGetter: ImageGetter, textOrGetter: TextGe
 		}
 	}
 
-	if (!textItem) return
+	// we didn't find an image url/path, return true if an image item was found
+	if (!textItem) return imageItem != null
 
-	if (imageItem) await replaceWithBetter(imageItem, ...textItem)
-	else await createImageItem(...textItem)
+	if (imageItem) return !!(await replaceWithBetter(imageItem, ...textItem))
+	else return !!(await createImageItem(...textItem))
 }
 
 function parseText(value: string, type: string) {
@@ -163,7 +165,18 @@ export async function loadFromPasteboard(pasteboard = "general" as "general" | "
 		)
 	}
 
-	await loadImage(getBuffer, getText).catch(console.error)
+	const msg = postMessage({
+		channel: "toolbar",
+		message: "Loading image...",
+	})
+	try {
+		const success = await loadImage(getBuffer, getText)
+		if (success) msg.remove()
+			else msg.update("No image found", 2000)
+	} catch (e) {
+		console.error(e)
+		msg.update("No image found", 2000)
+	}
 }
 
 /**

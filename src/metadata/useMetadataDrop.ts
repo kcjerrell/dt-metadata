@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useRef } from "react"
-import { proxy, useSnapshot } from "valtio"
-import { loadFromPasteboard } from "./state/imageLoaders"
 import { getCurrentWindow } from "@tauri-apps/api/window"
-import { usePostMessage } from "@/context/Messages"
+import { useMemo, useRef } from "react"
+import { proxy, useSnapshot } from "valtio"
+import { postMessage } from "@/context/Messages"
+import { loadFromPasteboard } from "./state/imageLoaders"
 
 export function useMetadataDrop() {
 	const state = useRef(null)
@@ -12,8 +12,6 @@ export function useMetadataDrop() {
 	}
 
 	const snap = useSnapshot(state.current)
-
-	const postMessage = usePostMessage()
 
 	const handlers = useMemo(
 		() => ({
@@ -25,10 +23,6 @@ export function useMetadataDrop() {
 				state.current.isDragging = false
 				state.current.dragCounter = 0
 				getCurrentWindow().setFocus()
-				postMessage({
-					channel: "toolbar",
-					message: "Loading image...",
-				})
 				loadFromPasteboard("drag")
 			},
 			onDragEnter: (e: React.DragEvent<HTMLDivElement>) => {
@@ -44,7 +38,7 @@ export function useMetadataDrop() {
 				// console.log("drag leave", e.currentTarget)
 			},
 		}),
-		[postMessage],
+		[],
 	)
 
 	// useEffect(() => {

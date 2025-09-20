@@ -1,11 +1,19 @@
-import { Menu, MenuItem, Submenu, PredefinedMenuItem } from "@tauri-apps/api/menu"
-import { check } from "@tauri-apps/plugin-updater"
+import { Menu, MenuItem, PredefinedMenuItem, Submenu } from "@tauri-apps/api/menu"
+import { message } from "@tauri-apps/plugin-dialog"
 import { relaunch } from "@tauri-apps/plugin-process"
+import { check } from "@tauri-apps/plugin-updater"
 
 // Will become the application submenu on MacOS
 const aboutSubmenu = await Submenu.new({
 	text: "About",
 	items: [
+		await MenuItem.new({
+			id: "dtm-about",
+			text: "About DTM",
+			action: async () => {
+				await message("DTM\nDraw Things Metadata Viewer\nVersion 0.1.0", {title: "DTM", kind: "info"})
+			},
+		}),
 		await MenuItem.new({
 			id: "chceckUpdates",
 			text: "Check for updates",
@@ -15,38 +23,6 @@ const aboutSubmenu = await Submenu.new({
 				if (!result) return
 				await result.downloadAndInstall()
 				await relaunch()
-				// const latest = await fetch(
-				// 	"https://api.github.com/repos/kcjerrell/dt-metadata/releases/latest",
-				// 	{
-				// 		headers: {
-				// 			Accept: "application/vnd.github+json",
-				// 			"X-GitHub-Api-Version": "2022-11-28",
-				// 		},
-				// 	},
-				// )
-				// 	.then((res) => res?.json())
-				// 	.catch(void 0)
-				// console.log("latest release", latest)
-				// const assetsUrl = latest?.assets_url
-
-				// if (!assetsUrl) return
-
-				// const release = (await fetch(`${assetsUrl}`, {
-				// 	headers: {
-				// 		Accept: "application/vnd.github+json",
-				// 		"X-GitHub-Api-Version": "2022-11-28",
-				// 	},
-				// })
-				// 	.then((res) => res?.json())
-				// 	.catch(void 0)) as Record<string, string>[]
-
-				// console.log("assets", release)
-				// const releaseJsonUrl = release.find((r) => r.name === "release.json")?.browser_download_url
-				// console.log(releaseJsonUrl)
-				// const update = await check({
-				// 	proxy: releaseJsonUrl,
-				// })
-        // console.log(update)
 			},
 		}),
 		await MenuItem.new({
@@ -62,35 +38,28 @@ const aboutSubmenu = await Submenu.new({
 const editSubmenu = await Submenu.new({
 	text: "Edit",
 	items: [
-		await MenuItem.new({
-			id: "undo",
-			text: "Undo",
-			action: () => {
-				console.log("Undo clicked")
-			},
+		await PredefinedMenuItem.new({
+			text: "Cut",
+			item: "Cut",
 		}),
-		await MenuItem.new({
-			id: "redo",
-			text: "Redo",
-			action: () => {
-				console.log("Redo clicked")
-			},
+		await PredefinedMenuItem.new({
+			text: "Copy",
+			item: "Copy",
+		}),
+		await PredefinedMenuItem.new({
+			text: "Paste",
+			item: "Paste",
 		}),
 	],
 })
 
-const windowMenu = await Submenu.new({
+const windowSubmenu = await Submenu.new({
 	text: "Window",
-	items: [{ id: "Something", text: "Something" }],
+	id: "window",
 })
 
 const menu = await Menu.new({
-	items: [aboutSubmenu, editSubmenu, windowMenu],
+	items: [aboutSubmenu, editSubmenu, windowSubmenu],
 })
 
 menu.setAsAppMenu()
-
-// You can also update the submenu icon dynamically
-// fileSubmenu.setIcon("document")
-// Or set a native icon (only one type applies per platform)
-// fileSubmenu.setIcon("NSFolder")

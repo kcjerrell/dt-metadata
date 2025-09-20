@@ -1,6 +1,7 @@
 import { Box, BoxProps, Flex, HStack, Image, type StackProps, VStack } from "@chakra-ui/react"
 import {
 	animate,
+	AnimatePresence,
 	motion,
 	useAnimate,
 	useMotionTemplate,
@@ -16,7 +17,7 @@ import { MetadataStore } from "./state/store"
 import Toolbar from "./Toolbar"
 import { useMetadataDrop } from "./useMetadataDrop"
 import "../menu"
-
+import { isInsideImage } from "@/utils/helpers"
 
 interface MetadataComponentProps extends StackProps {}
 
@@ -80,18 +81,20 @@ function Metadata(props: MetadataComponentProps) {
 							width={"100%"}
 						>
 							{currentImage?.url ? (
-								<Image
-									ref={imgRef}
-									visibility={zoomPreview ? "hidden" : "visible"}
-									objectFit={"contain"}
-									src={currentImage?.url}
-									width={"100%"}
-									height={"100%"}
-									borderRadius={"sm"}
-									onClick={() => {
-										MetadataStore.zoomPreview = true
-									}}
-								/>
+									<Image
+										key={currentImage?.id}
+										ref={imgRef}
+										visibility={zoomPreview ? "hidden" : "visible"}
+										transitionDelay={zoomPreview ? "0" : "0.25s"}
+										objectFit={"contain"}
+										src={currentImage?.url}
+										width={"100%"}
+										height={"100%"}
+										borderRadius={"sm"}
+										onClick={(e) => {
+											if (isInsideImage(e, e.currentTarget)) MetadataStore.zoomPreview = true
+										}}
+									/>
 							) : (
 								<Flex
 									bgColor={isDragging ? "blue/20" : "unset"}
@@ -141,15 +144,17 @@ function BgLayer({ isDragging, children }: PropsWithChildren<{ isDragging: boole
 	// 		repeat: Infinity,
 	// 		repeatType: "loop",
 	// 	})
-		// animate(mvb, [100, 0, 100], {times: [0, 1, 1], duration: 3, repeat: Infinity, repeatType: "loop", delay: 1 })
-		// animate(mvc, [100, 0, 100], {times: [0, 1, 1], duration: 3, repeat: Infinity, repeatType: "loop", delay: 2 })
+	// animate(mvb, [100, 0, 100], {times: [0, 1, 1], duration: 3, repeat: Infinity, repeatType: "loop", delay: 1 })
+	// animate(mvc, [100, 0, 100], {times: [0, 1, 1], duration: 3, repeat: Infinity, repeatType: "loop", delay: 2 })
 	// }, [mva, mvb, mvc])
 
 	return (
 		<motion.div
-			style={{
-				// background: isDragging ? grad : "blue",
-			}}
+			style={
+				{
+					// background: isDragging ? grad : "blue",
+				}
+			}
 		>
 			{children}
 		</motion.div>
@@ -165,7 +170,7 @@ interface PreviewProps extends BoxProps {
 
 const posTransition: ValueAnimationTransition<number> = {
 	duration: 0.3,
-	ease: "easeInOut",
+	ease: "linear",
 }
 
 function Preview(props: PreviewProps) {
@@ -228,7 +233,7 @@ function Preview(props: PreviewProps) {
 				}}
 				transition={{
 					duration: 0.3,
-					ease: "easeInOut",
+					ease: "circOut",
 					opacity: {
 						duration: 0,
 						delay: show ? 0 : 0.3,
