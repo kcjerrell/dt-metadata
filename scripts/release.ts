@@ -92,7 +92,7 @@ const releaseJson = {
     }
   }
 }
-await fse.writeJson("./release/release.json", releaseJson, { spaces: 2 })
+await fse.writeJson("./docs/release.json", releaseJson, { spaces: 2 })
 
 await exec(`git commit -a -m "v${version} release"`)
 await exec('git push')
