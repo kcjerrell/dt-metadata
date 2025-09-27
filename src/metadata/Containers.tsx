@@ -7,8 +7,8 @@ export const CheckRoot = chakra("div", {
 			_dark: "url(check_dark.png)",
 		},
 		bgSize: "50px 50px",
-		width: "100vw",
-		height: "100vh",
+		// width: "100%",
+		// height: "100%",
 		overscrollBehavior: "none none",
 		position: "relative"
 	},
@@ -20,7 +20,7 @@ export const LayoutRoot = chakra(
 		base: {
 			position: "absolute",
 			display: "flex",
-			width: "100%",
+			width: "100%", 
 			justifyContent: "normal",
 			alignItems: "stretch",
 			gap: 0,
@@ -62,19 +62,7 @@ export const CurrentImage = chakra(
 			minHeight: 0,
 			height: "100%",
 			borderRadius: "sm",
-		},
-		variants: {
-			zoomPreview: {
-				true: {
-					visibility: "hidden",
-					transitionDelay: "0s",
-				},
-				false: {
-					visibility: "visible",
-					transitionDelay: "0.25s",
-				},
-			},
-		},
+		}
 	}),
 )
 

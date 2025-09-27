@@ -156,6 +156,7 @@ export async function createImageItem(
 	if (!entry) return null
 
 	const exif = await getExif(imageData.buffer)
+	console.log(exif)
 	const dtData = getDrawThingsDataFromExif(exif)
 
 	const item: ImageItemConstructorOpts = {

@@ -6,6 +6,7 @@ version = 4
 name = "DTM"
 version = "0.1.1"
 dependencies = [
+ "little_exif",
  "objc2 0.6.2",
  "objc2-app-kit 0.3.1",
  "objc2-foundation 0.3.1",
@@ -26,6 +27,7 @@ dependencies = [
  "tauri-plugin-updater",
  "tauri-plugin-valtio",
  "tauri-plugin-window-state",
+ "web-image-meta",
 ]
 
 [[package]]
@@ -896,6 +898,21 @@ checksum = "59ed5838eebb26a2bb2e58f6d5b5316989ae9d08bab10e0e6d103e656d1b0280"
 dependencies = [
  "libc",
 ]
+
+[[package]]
+name = "crc"
+version = "3.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9710d3b3739c2e349eb44fe848ad0b7c8cb1e42bd87ee49371df2f7acaf3e675"
+dependencies = [
+ "crc-catalog",
+]
+
+[[package]]
+name = "crc-catalog"
+version = "2.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "19d374276b40fb8bbdee95aef7c7fa6b5316ec764510eb64b8dd0e2ed0d7e7f5"
 
 [[package]]
 name = "crc32fast"
@@ -2526,6 +2543,15 @@ name = "jpeg-decoder"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "00810f1d8b74be64b13dbf3db89ac67740615d6c891f0e7b6179326533011a07"
+dependencies = [
+ "rayon",
+]
+
+[[package]]
+name = "jpeg-encoder"
+version = "0.6.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b454d911ac55068f53495488d8ccd0646eaa540c033a28ee15b07838afafb01f"
 
 [[package]]
 name = "js-sys"
@@ -2557,6 +2583,15 @@ checksum = "5dea2b27dd239b2556ed7a25ba842fe47fd602e7fc7433c2a8d6106d4d9edd70"
 dependencies = [
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "kamadak-exif"
+version = "0.5.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ef4fc70d0ab7e5b6bafa30216a6b48705ea964cdfc29c050f2412295eba58077"
+dependencies = [
+ "mutate_once",
 ]
 
 [[package]]
@@ -2697,6 +2732,20 @@ name = "litrs"
 version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f5e54036fe321fd421e10d732f155734c4e4afd610dd556d9a82833ab3ee0bed"
+
+[[package]]
+name = "little_exif"
+version = "0.6.15"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b011d9c78e4d2b33481dba3ff9fdb615cb63b9fb2e6b4d6b1de507c7e4f7f9e9"
+dependencies = [
+ "brotli",
+ "crc",
+ "log",
+ "miniz_oxide",
+ "paste",
+ "quick-xml 0.37.5",
+]
 
 [[package]]
 name = "lock_api"
@@ -2878,6 +2927,12 @@ dependencies = [
  "thiserror 2.0.16",
  "windows-sys 0.60.2",
 ]
+
+[[package]]
+name = "mutate_once"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "13d2233c9842d08cfe13f9eac96e207ca6a2ea10b80259ebe8ad0268be27d2af"
 
 [[package]]
 name = "ndk"
@@ -6288,6 +6343,21 @@ dependencies = [
  "dlib",
  "log",
  "pkg-config",
+]
+
+[[package]]
+name = "web-image-meta"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "345e45cce08e14e76a42ab280f1ca3083aee6e8cb68a78bcf9368b912f9f8f2f"
+dependencies = [
+ "crc32fast",
+ "flate2",
+ "jpeg-decoder",
+ "jpeg-encoder",
+ "kamadak-exif",
+ "png",
+ "thiserror 1.0.69",
 ]
 
 [[package]]

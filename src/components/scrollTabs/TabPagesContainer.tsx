@@ -16,7 +16,7 @@ const TabPagesContainer = chakra(
 			width: "100%",
 			minWidth: 0,
 			position: "relative",
-			height: "auto",
+			height: "100%",
 			minHeight: 0,
 
 			// if you want to re-enable snapping/scrolling, you could uncomment here:

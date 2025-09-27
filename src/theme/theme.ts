@@ -34,7 +34,7 @@ const themeConfig = defineConfig({
 	theme: {
 		breakpoints: {
 			tall: "300px",
-			wide: '600px',
+			wide: "600px",
 			// sm: "300px",
 			// md: "600px",
 			// lg: "900px",
@@ -77,7 +77,7 @@ const themeConfig = defineConfig({
 					},
 					"2": {
 						value: {
-							_light: "#ececec",
+							_light: "#e8eaeb",
 							_dark: "#252525",
 						},
 					},
@@ -117,7 +117,8 @@ const themeConfig = defineConfig({
 				highlight: {
 					DEFAULT: {
 						value: {
-							_light: "#ec6956",
+							_light: "#EC5F47",
+							// _light: "#e9624dff",
 							_dark: "#d25542",
 						},
 					},

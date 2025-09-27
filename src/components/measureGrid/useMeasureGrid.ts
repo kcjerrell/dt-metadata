@@ -10,7 +10,7 @@ type MeasureGroupContextObject = React.Context<{
 
 export const MeasureGroupContext: MeasureGroupContextObject = createContext(null)
 
-export function useMeasureGrid(content?: string) {
+export function useMeasureGrid(content?: string, forceSpan?: boolean) {
 	const cv = useContext(MeasureGroupContext)
 
 	const [measure, setMeasure] = useState({
@@ -35,7 +35,7 @@ export function useMeasureGrid(content?: string) {
 		const height = sizer.clientHeight
 		const maxWidth = sizer.parentElement?.clientWidth
 
-		const span = width > maxWidth / columns - gap ? columns : 1
+		const span = width > maxWidth / columns - gap || forceSpan ? columns : 1
 		const collapse = height > collapseHeight
 
 		setMeasure({

@@ -1,21 +1,18 @@
 import { Box, type BoxProps } from "@chakra-ui/react"
-import { motion, useAnimate, useMotionValue, type ValueAnimationTransition,  } from "motion/react"
-import { createRef, useEffect } from "react"
+import { motion, useAnimate, useMotionValue, type ValueAnimationTransition } from "motion/react"
+import { createRef, useEffect, useRef } from "react"
 import { proxy, ref, useSnapshot } from "valtio"
 
 const store = proxy({
 	showPreview: false,
 	sourceElement: ref(createRef<HTMLImageElement>()),
 	src: null as string | null,
-	originalOpacity: null as number | null,
-	initialRender: true,
 })
 
 export function showPreview(srcElem: HTMLImageElement, src?: string) {
 	store.sourceElement.current = srcElem
 	store.src = src ?? srcElem.src
 	store.showPreview = true
-	store.originalOpacity = parseFloat(getComputedStyle(srcElem).opacity)
 }
 
 export function hidePreview() {
@@ -25,8 +22,8 @@ export function hidePreview() {
 interface PreviewProps extends BoxProps {}
 
 const posTransition: ValueAnimationTransition<number> = {
-	duration: 3,
-	ease: "linear",
+	duration: 0.3,
+	ease: "circOut",
 }
 
 export function Preview(props: PreviewProps) {
@@ -37,55 +34,82 @@ export function Preview(props: PreviewProps) {
 
 	const leftMv = useMotionValue(0)
 	const topMv = useMotionValue(0)
-	const widthMv = useMotionValue(0)
-	const heightMv = useMotionValue(0)
+	const widthMv = useMotionValue<number>(0)
+	const heightMv = useMotionValue<number>(0)
 
 	const [scope, animate] = useAnimate()
 
+	const transRef = useRef<HTMLImageElement>(null)
+	const finalRef = useRef<HTMLImageElement>(null)
+
 	useEffect(() => {
-		show
 		const sourceElement = store.sourceElement.current
 		if (!sourceElement) return
 
-    const { left, top, width, height } = sourceElement.getBoundingClientRect()
+		const originalRect = sourceElement.getBoundingClientRect()
+		const previewRect = contain(
+			sourceElement.naturalWidth,
+			sourceElement.naturalHeight,
+			window.innerWidth,
+			window.innerHeight,
+		)
 
-		if (store.showPreview) {
-			const target: DOMRect = contain(
-				sourceElement.naturalWidth,
-				sourceElement.naturalHeight,
-				window.innerWidth,
-				window.innerHeight,
-			)
+		const sourceRect = store.showPreview ? originalRect : previewRect
+		const targetRect = store.showPreview ? previewRect : originalRect
 
-			leftMv.set(left)
-			widthMv.set(width)
-			topMv.set(top)
-			heightMv.set(height)
-      
-			animate(leftMv, target.left, posTransition)
-			animate(topMv, target.top, posTransition)
-			animate(widthMv, target.width, posTransition)
-			animate(heightMv, target.height, posTransition)
-			animate(sourceElement, { opacity: 0 })
-		} else {
-			animate(leftMv, left, posTransition)
-			animate(widthMv, width, posTransition)
-			animate(topMv, top, posTransition)
-			animate(heightMv, height, posTransition)
+		// const targetRect = store.showPreview ? cont
 
-			const controls = animate(
-				sourceElement,
-				{ opacity: store.originalOpacity },
-				{ duration: 0.1, delay: posTransition.duration - 0.1 },
-			)
+		const { left, top, width, height } = sourceRect
 
-			controls.finished.then(() => {
-				// sourceElement.style.opacity = store.originalOpacity
-				store.originalOpacity = null
-				store.sourceElement.current = null
-				store.src = null
-			})
-		}
+		// if (store.showPreview) {
+
+		leftMv.set(left)
+		widthMv.set(width)
+		topMv.set(top)
+		heightMv.set(height)
+
+		animate(leftMv, targetRect.left, posTransition)
+		animate(topMv, targetRect.top, posTransition)
+		animate(widthMv, targetRect.width, posTransition)
+		animate(heightMv, targetRect.height, posTransition)
+
+		animate(
+			transRef.current,
+			{ visibility: ["hidden", "visible", "visible", "hidden"] },
+			{ duration: posTransition.duration, times: [0, 0, 1, 1] },
+		)
+
+		animate(
+			finalRef.current,
+			{ visibility: ["hidden", "hidden", show ? "visible" : "hidden"] },
+			{ duration: posTransition.duration, times: [0, 1, 1] },
+		)
+
+		animate(
+			sourceElement,
+			{ visibility: ["hidden", "hidden", show ? "hidden" : "visible"] },
+			{ duration: posTransition.duration, times: [0, 1, 1] },
+		)
+
+		// } else {
+		// 	animate(leftMv, left, posTransition)
+		// 	animate(widthMv, width, posTransition)
+		// 	animate(topMv, top, posTransition)
+		// 	animate(heightMv, height, posTransition)
+
+		// 	const controls = animate(
+		// 		sourceElement,
+		// 		{ opacity: store.originalOpacity },
+		// 		{ duration: 0.1, delay: posTransition.duration - 0.1 },
+		// 	)
+
+		// 	controls.finished.then(() => {
+		// 		// sourceElement.style.opacity = store.originalOpacity
+		// 		store.originalOpacity = null
+		// 		store.sourceElement.current = null
+		// 		store.src = null
+		// 	})
+		// }
 	}, [animate, heightMv, leftMv, widthMv, topMv, show])
 
 	return (
@@ -112,12 +136,16 @@ export function Preview(props: PreviewProps) {
 					opacity: show ? 1 : 0,
 				}}
 				transition={{
-					duration: 3,
-					ease: "circOut",
+					...posTransition,
+					// ease: "circOut",
 					opacity: {
 						duration: 0,
-						delay: show ? 0 : 3,
+						delay: show ? 0 : posTransition.duration,
 					},
+					// opacity: {
+					// 	duration: 0,
+					// 	delay: show ? 0 : posTransition.duration,
+					// },
 				}}
 				style={
 					{
@@ -126,6 +154,7 @@ export function Preview(props: PreviewProps) {
 				}
 			>
 				<motion.img
+					ref={transRef}
 					style={{
 						position: "absolute",
 						objectFit: "contain",
@@ -133,6 +162,19 @@ export function Preview(props: PreviewProps) {
 						top: topMv,
 						width: widthMv,
 						height: heightMv,
+					}}
+					src={src}
+					transition={posTransition}
+				/>
+				<motion.img
+					ref={finalRef}
+					style={{
+						position: "absolute",
+						objectFit: "contain",
+						left: 0,
+						top: 0,
+						width: "100%",
+						height: "100%",
 					}}
 					src={src}
 					transition={posTransition}

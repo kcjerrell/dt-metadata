@@ -10,6 +10,7 @@ import { MetadataStore } from "./state/store"
 import Toolbar from "./Toolbar"
 import { useMetadataDrop } from "./useMetadataDrop"
 import { CheckRoot, ContentPane, CurrentImage, LayoutRoot } from "./Containers"
+import { showPreview } from '@/components/preview/preview'
 
 interface MetadataComponentProps extends ChakraProps {}
 
@@ -25,11 +26,9 @@ function Metadata(props: MetadataComponentProps) {
 	const { isDragging, handlers } = useMetadataDrop()
 
 	return (
-		<CheckRoot id={"metadata"}
-			{...handlers}
-		>
+		<CheckRoot id={"metadata"} {...handlers} {...restProps}>
 			<BgLayer isDragging={isDragging}>
-				<LayoutRoot {...restProps}>
+				<LayoutRoot>
 					<ContentPane>
 						<Toolbar />
 						<Box
@@ -48,10 +47,9 @@ function Metadata(props: MetadataComponentProps) {
 								<CurrentImage
 									key={currentImage?.id}
 									ref={imgRef}
-									zoomPreview={zoomPreview}
 									src={currentImage?.url}
 									onClick={(e) => {
-										if (isInsideImage(e, e.currentTarget)) MetadataStore.zoomPreview = true
+										if (isInsideImage(e, e.currentTarget)) showPreview(e.currentTarget)
 									}}
 								/>
 							) : (
@@ -70,14 +68,14 @@ function Metadata(props: MetadataComponentProps) {
 					<InfoPane width={"20rem"} />
 				</LayoutRoot>
 
-				<Preview
+				{/* <Preview
 					src={currentImage?.url}
 					onClick={() => {
 						MetadataStore.zoomPreview = false
 					}}
 					show={zoomPreview}
 					imgRef={imgRef}
-				/>
+				/> */}
 			</BgLayer>
 		</CheckRoot>
 	)
@@ -114,104 +112,6 @@ function BgLayer({ isDragging, children }: PropsWithChildren<{ isDragging: boole
 	)
 
 	// return <Box bgColor={["red/20", null, "green/20", null]}>{children}</Box>
-}
-
-interface PreviewProps extends BoxProps {
-	src?: string
-	onClick?: () => void
-	show?: boolean
-	imgRef?: React.RefObject<HTMLImageElement>
-}
-
-const posTransition: ValueAnimationTransition<number> = {
-	duration: 0.3,
-	ease: "linear",
-}
-
-function Preview(props: PreviewProps) {
-	const { src, onClick, show, imgRef, ...restProps } = props
-
-	const leftMv = useMotionValue(0)
-	const topMv = useMotionValue(0)
-	const widthMv = useMotionValue(0)
-	const heightMv = useMotionValue(0)
-	const posRef = useRef({ left: 0, top: 0, width: 0, height: 0 })
-	const [scope, animate] = useAnimate()
-
-	useEffect(() => {
-		if (show) {
-			if (imgRef.current) {
-				const { left, top, width, height } = imgRef.current.getBoundingClientRect()
-
-				posRef.current = { left, top, width, height }
-
-				leftMv.set(left)
-				widthMv.set(width)
-				topMv.set(top)
-				heightMv.set(height)
-				animate(leftMv, 0, posTransition)
-				animate(topMv, 0, posTransition)
-				animate(widthMv, window.innerWidth, posTransition)
-				animate(heightMv, window.innerHeight, posTransition)
-			}
-		} else {
-			const { left, top, width, height } = posRef.current
-			animate(leftMv, left)
-			animate(widthMv, width)
-			animate(topMv, top)
-			animate(heightMv, height)
-		}
-	}, [show, animate, heightMv, leftMv, widthMv, topMv, imgRef])
-
-	return (
-		<Box
-			ref={scope}
-			width={"100vw"}
-			height={"100vh"}
-			overflow={"clip"}
-			position={"absolute"}
-			zIndex={20}
-			bgColor={"black/90"}
-			onClick={() => onClick?.()}
-			pointerEvents={show ? "all" : "none"}
-			{...restProps}
-			asChild
-		>
-			<motion.div
-				initial={{
-					opacity: 0,
-					backgroundColor: "#00000000",
-				}}
-				animate={{
-					backgroundColor: show ? "#000000ff" : "#00000000",
-					opacity: show ? 1 : 0,
-				}}
-				transition={{
-					duration: 0.3,
-					ease: "circOut",
-					opacity: {
-						duration: 0,
-						delay: show ? 0 : 0.3,
-					},
-				}}
-				style={{
-					position: "relative",
-				}}
-			>
-				<motion.img
-					style={{
-						position: "absolute",
-						objectFit: "contain",
-						left: leftMv,
-						top: topMv,
-						width: widthMv,
-						height: heightMv,
-					}}
-					src={src}
-				/>
-			</motion.div>
-		</Box>
-	)
 }
 
 export default Metadata

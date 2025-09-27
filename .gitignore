@@ -25,4 +25,4 @@ dist-ssr
 
 notes.md
 .env
-.mp4
+*.mp4

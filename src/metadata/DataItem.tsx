@@ -2,6 +2,9 @@ import { Box, type BoxProps, GridItem, type GridItemProps, HStack, Text } from "
 import { useState } from "react"
 import { useMeasureGrid } from "@/components/measureGrid/useMeasureGrid"
 
+import JsonView from "@microlink/react-json-view"
+import { useColorMode } from "@/components/ui/color-mode"
+
 interface DataItemProps extends GridItemProps {
 	label: string
 	data?: string | number | (string | number | undefined)[] | Record<string, unknown>
@@ -29,6 +32,8 @@ function DataItem(props: DataItemProps) {
 		...restProps
 	} = props
 
+	const { colorMode } = useColorMode()
+
 	const [showCopied, setShowCopied] = useState(false)
 	// const [collapse, setCollapsible] = useState(false)
 	const [collapsed, setCollapsed] = useState(!expandByDefault)
@@ -46,13 +51,14 @@ function DataItem(props: DataItemProps) {
 		? {
 				// height: collapsed ? "6em" : "unset",
 				maxHeight: collapsed ? maxHeight : "unset",
-				overflowY: 'clip'
+				overflowY: "clip",
 			}
 		: {}
 
 	const extraProps = isJson ? jsonProps : {}
 
 	if (!data || ignore) return null
+	console.log(typeof data, data)
 
 	return (
 		<GridItem
@@ -62,6 +68,8 @@ function DataItem(props: DataItemProps) {
 			flexDirection={"column"}
 			position={"relative"}
 			gridColumn={gridColumn}
+			overflow={'clip'}
+			textOverflow={"ellipsis"}
 			{...restProps}
 		>
 			<HStack justifyContent={"space-between"}>
@@ -72,7 +80,7 @@ function DataItem(props: DataItemProps) {
 					userSelect={"none"}
 					cursor={"default"}
 				>
-					{showCopied ? "Copied" : label}
+					{showCopied ? "Copied" : label} {isJson && "JSON"}
 				</Box>
 				{/* Show all/Show less button for collapsible items */}
 				{collapse && (
@@ -121,7 +129,30 @@ function DataItem(props: DataItemProps) {
 				{...extraProps}
 				asChild
 			>
-				{isJson ? <code>{data.toString()}</code> : <div>{data.toString()}</div>}
+				{isJson ? (
+					// <Box overflowX={"scroll"}>
+					// 	<JsonView
+					// 		src={data}
+					// 		name={null}
+					// 		theme={colorMode === "dark" ? "grayscale" : "rjv-default"}
+					// 		style={{ backgroundColor: "var(--chakra-colors-bg-2)", fontSize: "10px", width: "auto",
+					// 			lineHeight: "1"
+					// 		 }}
+					// 		// iconStyle={"triangle"}
+					// 		indentWidth={2}
+					// 		collapsed={2}
+					// 		collapseStringsAfterLength={50}
+					// 		enableClipboard={false}
+					// 		displayObjectSize={false}
+					// 		displayDataTypes={false}
+					// 		displayArrayKey={false}
+					// 		quotesOnKeys={false}
+					// 	/>
+					// </Box>
+					<code>{data}</code>
+				) : (
+					<div>{data.toString()}</div>
+				)}
 			</Box>
 		</GridItem>
 	)
@@ -134,18 +165,27 @@ function coerceData(
 	decimalPlaces = 2,
 ): [string | undefined, boolean?] {
 	if (data === undefined) return [undefined, false]
+	if (typeof data === "number") return [formatNumber(data, decimalPlaces)]
 	if (typeof data === "string") {
-		try {
-			if (data.startsWith("{") && data.endsWith("}")) {
-				return coerceData(JSON.parse(data))
-			}
-			if (data.startsWith("[") && data.endsWith("]")) {
-				return coerceData(JSON.parse(data))
-			}
-		} catch {}
+		if (
+			(data.startsWith("{") && data.endsWith("}")) ||
+			(data.startsWith("[") && data.endsWith("]"))
+		) {
+			try {
+				return [JSON.stringify(JSON.parse(data), null, 2), true]
+			} catch {}
+			try {
+				const cleaned = data
+					.replace(/\bNaN\b/g, "null")
+					.replace(/\bInfinity\b/g, "null")
+					.replace(/\b-?Infinity\b/g, "null")
+					.replace(/\bundefined\b/g, "null")
+
+				return [JSON.stringify(JSON.parse(cleaned), null, 2), true]
+			} catch {}
+		}
 		return [data, false]
 	}
-	if (typeof data === "number") return [formatNumber(data, decimalPlaces)]
 	if (Array.isArray(data)) {
 		const isSimple = data.every((d) => typeof d === "string" || typeof d === "number" || d === null)
 		if (isSimple) return [`[${data.map((d) => coerceData(d, decimalPlaces)).join(", ")}]`]
