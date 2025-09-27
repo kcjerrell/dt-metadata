@@ -68,16 +68,6 @@ function ScrollTabs(props: ScrollTabsProps) {
 
 	return (
 		<ScrollTabsContext2.Provider value={store.current}>
-			<VStack
-				padding={0}
-				flex="0 0 auto"
-				// height={'100%'}
-				gap={0}
-				align={"stretch"}
-				overflow={"hidden"}
-				bgColor={"bg.3"}
-				{...restProps}
-			>
 				{/* move to separate component */}
 				<HStack width={"100%"} position={"relative"} gap={0} bgColor={"bg.3"} paddingX={1}>
 					{snap.tabs.map((v) => {
@@ -145,7 +135,6 @@ function ScrollTabs(props: ScrollTabsProps) {
 				>
 					{children}
 				</TabPagesContainer>
-			</VStack>
 		</ScrollTabsContext2.Provider>
 	)
 }

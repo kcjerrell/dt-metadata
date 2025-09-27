@@ -26,6 +26,7 @@
     "fs:allow-exists",
     "fs:allow-read-file",
     "fs:allow-stat",
+    "fs:allow-write-text-file",
     "http:default",
     "nspopover:allow-hide-popover",
     "nspopover:allow-is-popover-shown",
@@ -35,7 +36,17 @@
     "valtio:default",
     "updater:default",
     "process:default",
-    "dialog:default"
+    "dialog:default",
+    {
+      "identifier": "shell:allow-spawn",
+      "allow": [
+        {
+          "name": "ffmpeg",
+          "cmd": "ffmpeg",
+          "args": true
+        }
+      ]
+    }
   ],
   "windows": [
     "main",

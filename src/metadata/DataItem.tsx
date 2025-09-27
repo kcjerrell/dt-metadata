@@ -65,16 +65,18 @@ function DataItem(props: DataItemProps) {
 			{...restProps}
 		>
 			<HStack justifyContent={"space-between"}>
-				<Box fontSize={"xs"} color={"fg.2"} fontWeight={"semibold"}>
+				<Box
+					fontSize={"xs"}
+					color={"fg.2"}
+					fontWeight={"semibold"}
+					userSelect={"none"}
+					cursor={"default"}
+				>
 					{showCopied ? "Copied" : label}
 				</Box>
 				{/* Show all/Show less button for collapsible items */}
 				{collapse && (
-					<Text
-						fontSize={"xs"}
-						_hover={{ color: "fg.1" }}
-						asChild
-					>
+					<Text fontSize={"xs"} _hover={{ color: "fg.1" }} asChild>
 						<button type="button" onClick={() => setCollapsed(!collapsed)}>
 							{collapsed ? "Show all" : "Show less"}
 						</button>
@@ -84,9 +86,10 @@ function DataItem(props: DataItemProps) {
 
 			<Box
 				position={"relative"}
-				border={"2px solid transparent"}
+				outline={"1px solid transparent"}
+				border={"1px solid transparent"}
 				paddingX={1}
-				_hover={{ borderColor: "fg/40" }}
+				_hover={{ outlineColor: "fg/40" }}
 				color={"fg.2"}
 				bgColor={"bg.2"}
 				overflowX={isJson && !collapsed ? "auto" : "hidden"}
@@ -98,6 +101,7 @@ function DataItem(props: DataItemProps) {
 					setShowCopied(true)
 					setTimeout(() => setShowCopied(false), 1000)
 				}}
+				transition={"all .1s ease-in-out"}
 				_selection={{ bgColor: "info/50", color: "fg.1" }}
 				_after={
 					collapse && collapsed

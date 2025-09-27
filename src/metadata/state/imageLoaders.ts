@@ -63,6 +63,7 @@ export async function loadImage(imageOrGetter: ImageGetter, textOrGetter: TextGe
 						clipboard: textType,
 					},
 				]
+				createImageItem(...textItem)
 			}
 		}
 
@@ -81,6 +82,7 @@ export async function loadImage(imageOrGetter: ImageGetter, textOrGetter: TextGe
 						clipboard: textType,
 					},
 				]
+				createImageItem(...textItem)
 			}
 		}
 	}
@@ -92,7 +94,7 @@ export async function loadImage(imageOrGetter: ImageGetter, textOrGetter: TextGe
 	else return !!(await createImageItem(...textItem))
 }
 
-function parseText(value: string, type: string) {
+export function parseText(value: string, type: string) {
 	let paths: string[] = []
 
 	if (typeof value !== "string") return { files: [], urls: [] }
@@ -134,7 +136,7 @@ function parseText(value: string, type: string) {
 	return { files, urls }
 }
 
-const clipboardTextTypes = [
+export const clipboardTextTypes = [
 	"NSFilenamesPboardType",
 	"public.html",
 	"public.utf8-plain-text",

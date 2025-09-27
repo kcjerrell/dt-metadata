@@ -6,6 +6,7 @@ import ImageStore from "@/utils/imageStore"
 import { getDrawThingsDataFromExif } from "../helpers"
 import { ImageItem, type ImageItemConstructorOpts } from "./ImageItem"
 import { getCurrentWindow } from "@tauri-apps/api/window"
+import { readFile } from '@tauri-apps/plugin-fs'
 
 export function bind<T extends object>(instance: T): T {
 	const props = Object.getOwnPropertyNames(Object.getPrototypeOf(instance))
@@ -211,9 +212,15 @@ export async function replaceWithBetter(
 	if (dtData) return dtData
 }
 
-async function getExif(imageDataBuffer: ArrayBuffer) {
+export async function getExif(imagePath: string)
+export async function getExif(imageDataBuffer: ArrayBuffer)
+export async function getExif(arg: ArrayBuffer | string) {
+	let data = typeof arg !== "string" ? arg : null
+
+	if (data === null) data = (await readFile(arg as string)).buffer
+
 	try {
-		return await ExifReader.load(imageDataBuffer, { async: true })
+		return await ExifReader.load(data, { async: true })
 	} catch (e) {
 		console.warn(e)
 		return null

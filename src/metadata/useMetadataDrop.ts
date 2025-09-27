@@ -1,7 +1,6 @@
 import { getCurrentWindow } from "@tauri-apps/api/window"
 import { useMemo, useRef } from "react"
 import { proxy, useSnapshot } from "valtio"
-import { postMessage } from "@/context/Messages"
 import { loadFromPasteboard } from "./state/imageLoaders"
 
 export function useMetadataDrop() {
@@ -41,21 +40,6 @@ export function useMetadataDrop() {
 		[],
 	)
 
-	// useEffect(() => {
-	// 	const {onDragEnter, onDragLeave, onDragOver, onDrop} = handlers
-
-	// 	document.addEventListener("dragenter", onDragEnter as DragEvent)
-	// 	document.addEventListener("dragleave", onDragLeave as DragEvent)
-	// 	document.addEventListener("dragover", onDragOver)
-	// 	document.addEventListener("drop", onDrop as DragEvent)
-
-	// 	return () => {
-	// 		document.removeEventListener("dragenter", onDragEnter)
-	// 		document.removeEventListener("dragleave", onDragLeave)
-	// 		document.removeEventListener("dragover", onDragOver)
-	// 		document.removeEventListener("drop", onDrop)
-	// 	}
-	// })
 	console.log('usemetadataDrop')
 	return {
 		isDragging: snap.isDragging,

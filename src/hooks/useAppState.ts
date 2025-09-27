@@ -15,6 +15,7 @@ type AppStateType = {
 		| "installing"
 		| "installed"
 		| "error"
+	currentView: string
 }
 
 let update: Awaited<ReturnType<typeof check>> = null
@@ -22,6 +23,7 @@ const store: AppStateType = proxy({
 	updateSize: 0,
 	updateProgress: 0,
 	updateStatus: "unknown",
+	currentView: "metadata"
 })
 
 async function checkForUpdate() {
@@ -69,11 +71,16 @@ async function installUpdate() {
 	}
 }
 
+async function setView(view: string) {
+	store.currentView = view
+}
+
 const AppState = {
 	store,
 	checkForUpdate,
 	downloadUpdate,
 	installUpdate,
+	setView
 }
 
 export default AppState

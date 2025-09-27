@@ -9,6 +9,7 @@ import InfoPane from "./InfoPane"
 import { MetadataStore } from "./state/store"
 import Toolbar from "./Toolbar"
 import { useMetadataDrop } from "./useMetadataDrop"
+import { CheckRoot, ContentPane, CurrentImage, LayoutRoot } from "./Containers"
 
 interface MetadataComponentProps extends ChakraProps {}
 
@@ -24,40 +25,12 @@ function Metadata(props: MetadataComponentProps) {
 	const { isDragging, handlers } = useMetadataDrop()
 
 	return (
-		<Box
-			id={"metadata"}
-			className={"check-bg"}
-			backgroundSize={"50px 50px"}
-			width="100vw"
-			height="100vh"
-			position={"relative"}
-			overscrollBehavior={"none none"}
+		<CheckRoot id={"metadata"}
 			{...handlers}
 		>
 			<BgLayer isDragging={isDragging}>
-				<HStack
-					position={"absolute"}
-					width="100%"
-					height="100%"
-					justifyContent="stretch"
-					alignItems="stretch"
-					gap={0}
-					overflow={"hidden"}
-					overscrollBehavior={"none none"}
-					flex="1 1 auto"
-					// bgColor={isDragging ? "blue" : "fg.1/10"}
-					minWidth={0}
-					minHeight={0}
-					{...restProps}
-				>
-					<VStack
-						flex="1 1 auto"
-						padding={0}
-						alignItems={"stretch"}
-						justifyContent={"start"}
-						gap={0}
-						minWidth={0}
-					>
+				<LayoutRoot {...restProps}>
+					<ContentPane>
 						<Toolbar />
 						<Box
 							ref={dropRef}
@@ -69,43 +42,33 @@ function Metadata(props: MetadataComponentProps) {
 							minHeight={0}
 							padding={currentImage ? 1 : 8}
 							width={"100%"}
+							maxHeight={["40%", "unset"]}
 						>
 							{currentImage?.url ? (
-									<Image
-										key={currentImage?.id}
-										ref={imgRef}
-										visibility={zoomPreview ? "hidden" : "visible"}
-										transitionDelay={zoomPreview ? "0" : "0.25s"}
-										objectFit={"contain"}
-										src={currentImage?.url}
-										width={"100%"}
-										height={"100%"}
-										borderRadius={"sm"}
-										onClick={(e) => {
-											if (isInsideImage(e, e.currentTarget)) MetadataStore.zoomPreview = true
-										}}
-									/>
+								<CurrentImage
+									key={currentImage?.id}
+									ref={imgRef}
+									zoomPreview={zoomPreview}
+									src={currentImage?.url}
+									onClick={(e) => {
+										if (isInsideImage(e, e.currentTarget)) MetadataStore.zoomPreview = true
+									}}
+								/>
 							) : (
 								<Flex
-									bgColor={isDragging ? "blue/20" : "unset"}
 									color={"fg/50"}
 									fontSize={"xl"}
 									justifyContent={"center"}
 									alignItems={"center"}
-									border={"3px dashed"}
-									borderColor={"fg/40"}
-									width={"100%"}
-									height={"100%"}
-									borderRadius={"md"}
 								>
 									Drop image here
 								</Flex>
 							)}
 						</Box>
 						<History />
-					</VStack>
+					</ContentPane>
 					<InfoPane width={"20rem"} />
-				</HStack>
+				</LayoutRoot>
 
 				<Preview
 					src={currentImage?.url}
@@ -116,7 +79,7 @@ function Metadata(props: MetadataComponentProps) {
 					imgRef={imgRef}
 				/>
 			</BgLayer>
-		</Box>
+		</CheckRoot>
 	)
 }
 
@@ -149,6 +112,8 @@ function BgLayer({ isDragging, children }: PropsWithChildren<{ isDragging: boole
 			{children}
 		</motion.div>
 	)
+
+	// return <Box bgColor={["red/20", null, "green/20", null]}>{children}</Box>
 }
 
 interface PreviewProps extends BoxProps {

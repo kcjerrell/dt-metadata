@@ -6,6 +6,7 @@ import { getLocalImage } from "./utils/clipboard"
 import { createImageItem } from "./metadata/state/store"
 import * as pathLib from "@tauri-apps/api/path"
 import { loadFromPasteboard } from "./metadata/state/imageLoaders"
+import AppState from "./hooks/useAppState"
 
 // Will become the application submenu on MacOS
 const aboutSubmenu = await Submenu.new({
@@ -88,8 +89,35 @@ const editSubmenu = await Submenu.new({
 	],
 })
 
+const viewSubmenu = await Submenu.new({
+	text: "View",
+	items: [
+		await MenuItem.new({
+			text: "Metadata",
+			id: "view-metadata",
+			action: async () => {
+				AppState.setView("metadata")
+			},
+		}),
+		await MenuItem.new({
+			text: "Vid",
+			id: "view-vid",
+			action: async () => {
+				AppState.setView("vid")
+			},
+		}),
+		await MenuItem.new({
+			text: "Library",
+			id: "view-library",
+			action: async () => {
+				AppState.setView("library")
+			}
+		})
+	],
+})
+
 const menu = await Menu.new({
-	items: [aboutSubmenu, fileSubmenu, editSubmenu],
+	items: [aboutSubmenu, fileSubmenu, editSubmenu, viewSubmenu],
 })
 
 menu.setAsAppMenu()

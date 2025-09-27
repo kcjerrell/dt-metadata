@@ -5,22 +5,21 @@ import { createRoot } from "react-dom/client"
 import { ColorModeProvider } from "./components/ui/color-mode"
 import { system } from "./theme/theme"
 import "./index.css"
+import AppState from "./hooks/useAppState"
+import App from './App'
 
-const app = document.location.hash === "#mini" ? "mini" : "main"
+const app = document.location?.hash?.slice(1) ?? "main"
 
-const AppComponent = lazy(async () => {
-	if (app === "mini") return import("./Mini")
-
-	await getCurrentWindow().show()
-	return import("./metadata/MetadataContainer")
-})
+if (app === "mini") AppState.setView("mini")
+else if (app === "vid") AppState.setView("vid")
+else AppState.setView("main")
 
 createRoot(document.getElementById("root")).render(
 	<StrictMode>
 		<ChakraProvider value={system}>
 			<ColorModeProvider>
 				<Suspense fallback={<Loading />}>
-					<AppComponent />
+					<App />
 				</Suspense>
 			</ColorModeProvider>
 		</ChakraProvider>

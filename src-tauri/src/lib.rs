@@ -116,6 +116,7 @@ async fn fetch_image_file(url: String) -> Result<Vec<u8>, String> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
@@ -140,6 +141,7 @@ pub fn run() {
             let win_builder = WebviewWindowBuilder::new(app, "main", WebviewUrl::default())
                 .title("Transparent Titlebar Window")
                 .inner_size(800.0, 600.0)
+                .min_inner_size(600.0, 400.0)
                 .visible(false)
                 .disable_drag_drop_handler();
 

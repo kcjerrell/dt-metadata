@@ -55,7 +55,8 @@ function Toolbar(props: ToolbarProps) {
 
 	return (
 		<HStack padding={2} data-tauri-drag-region height={"3rem"}>
-			<Spacer minWidth={"45px"} data-tauri-drag-region />
+			{/* <Box bgColor={"red/2"} width={"45px"} height={"100%"} /> */}
+			<Spacer data-tauri-drag-region bgColor={"blue/2"} />
 			<Box
 				position={"relative"}
 				alignItems={"flex-start"}
@@ -187,7 +188,7 @@ function Toolbar(props: ToolbarProps) {
 					</AnimatePresence>
 				</MotionVStack>
 			</Box>
-			<Spacer data-tauri-drag-region />
+			<Spacer data-tauri-drag-region bgColor={"green/2"} />
 		</HStack>
 	)
 }

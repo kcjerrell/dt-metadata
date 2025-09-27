@@ -22,7 +22,7 @@ export function MeasureGrid(props: PropsWithChildren<MeasureGridProps>) {
 
 	return (
 		<MeasureGroupContext value={cv.current}>
-			<SimpleGrid columns={columns} {...restProps}>
+			<SimpleGrid columns={columns} overflowY={"hidden"} {...restProps}>
 				<Box
 					width={"100%"}
 					height={0}
