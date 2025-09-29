@@ -1,5 +1,5 @@
 import { check } from "@tauri-apps/plugin-updater"
-import { proxy } from "valtio"
+import { proxy, subscribe } from "valtio"
 
 type AppStateType = {
 	// update: Awaited<ReturnType<typeof check>>
@@ -23,7 +23,7 @@ const store: AppStateType = proxy({
 	updateSize: 0,
 	updateProgress: 0,
 	updateStatus: "unknown",
-	currentView: "metadata"
+	currentView: localStorage.getItem("currentView") || "metadata"
 })
 
 async function checkForUpdate() {
@@ -38,19 +38,6 @@ async function downloadUpdate() {
 	if (!update || store.updateStatus !== "found") return
 	store.updateStatus = "downloading"
 	try {
-		// await store.update.download((event) => {
-		// 	switch (event.event) {
-		// 		case "Started":
-		// 			store.updateSize = event.data.contentLength
-		// 			store.updateProgress = 0
-		// 			break
-		// 		case "Progress":
-		// 			store.updateProgress += event.data.chunkLength
-		// 			break
-		// 		case "Finished":
-		// 			break
-		// 	}
-		// })
 		await update.download()
 		store.updateStatus = "ready"
 	} catch (e) {
@@ -73,6 +60,7 @@ async function installUpdate() {
 
 async function setView(view: string) {
 	store.currentView = view
+	localStorage.setItem("currentView", view)
 }
 
 const AppState = {

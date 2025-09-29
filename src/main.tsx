@@ -7,11 +7,10 @@ import AppState from "./hooks/useAppState"
 import "./index.css"
 import { system } from "./theme/theme"
 
-const app = document.location?.hash?.slice(1) ?? "main"
+const hash  = document.location?.hash?.slice(1)
 
-if (app === "mini") AppState.setView("mini")
-else if (app === "vid") AppState.setView("vid")
-else AppState.setView("metadata")
+if (hash === "mini") AppState.setView("mini")
+else if (hash  === "vid") AppState.setView("vid")
 
 createRoot(document.getElementById("root")).render(
 	<StrictMode>
@@ -25,7 +24,7 @@ createRoot(document.getElementById("root")).render(
 	</StrictMode>,
 )
 
-function Loading() {
+export function Loading() {
 	return (
 		<div className={"loading-container"}>
 			<div className={"loading-text"}>Loading...</div>

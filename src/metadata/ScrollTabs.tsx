@@ -69,7 +69,7 @@ function ScrollTabs(props: ScrollTabsProps) {
 	return (
 		<ScrollTabsContext2.Provider value={store.current}>
 				{/* move to separate component */}
-				<HStack width={"100%"} position={"relative"} gap={0} bgColor={"bg.3"} paddingX={1}>
+				<HStack width={"100%"} position={"relative"} gap={0} bgColor={"bg.3"} paddingX={0}>
 					{snap.tabs.map((v) => {
 						const isSelected = v === snap.selectedTab
 						return (

@@ -45,3 +45,21 @@ export function isInsideImage(e: React.MouseEvent, img: HTMLImageElement): boole
 
 	return x >= offsetX && x <= offsetX + drawnWidth && y >= offsetY && y <= offsetY + drawnHeight
 }
+
+/**
+ * Fisher–Yates shuffle
+ * Shuffles the array in-place and also returns it
+ */
+export function shuffle<T>(array: T[]): T[] {
+	let m = array.length
+
+	while (m > 0) {
+		// Pick a random index
+		const i = Math.floor(Math.random() * m--)
+
+		// Swap element at m with element at i
+		;[array[m], array[i]] = [array[i], array[m]]
+	}
+
+	return array
+}

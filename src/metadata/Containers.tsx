@@ -7,6 +7,7 @@ export const CheckRoot = chakra("div", {
 			_dark: "url(check_dark.png)",
 		},
 		bgSize: "50px 50px",
+		// bgPos: "right",
 		// width: "100%",
 		// height: "100%",
 		overscrollBehavior: "none none",

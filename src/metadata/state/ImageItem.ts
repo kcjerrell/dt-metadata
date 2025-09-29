@@ -2,6 +2,7 @@ import ExifReader from "exifreader"
 import type { DrawThingsMetaData, ImageSource } from "@/types"
 import ImageStore, { type ImageStoreEntry } from "@/utils/imageStore"
 import { getDrawThingsDataFromExif } from "../helpers"
+import { ExifType, getExif } from './store'
 
 export type ImageItemConstructorOpts = {
 	id: string
@@ -9,7 +10,7 @@ export type ImageItemConstructorOpts = {
 	loadedAt: number
 	source: ImageSource
 	type: string
-	exif?: ExifReader.Tags | null
+	exif?: ExifType | null
 	dtData?: DrawThingsMetaData | null
 	entry?: ImageStoreEntry
 }
@@ -21,7 +22,7 @@ export class ImageItem {
 	source: ImageSource
 	type: string
 
-	private _exif?: ExifReader.Tags | null
+	private _exif?: ExifType
 	private _dtData?: DrawThingsMetaData | null
 	private _exifStatus?: "pending" | "done"
 	private _entry?: ImageStoreEntry
@@ -71,7 +72,7 @@ export class ImageItem {
 		if (!this._entry?.url) return
 
 		try {
-			const exif = await ExifReader.load(this._entry.url)
+			const exif = await getExif(this._entry.url)
 			this._exif = exif
 			this._dtData = getDrawThingsDataFromExif(exif) ?? null
 		} catch (e) {

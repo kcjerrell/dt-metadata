@@ -9,10 +9,10 @@ import MeasureGrid from "@/components/measureGrid/MeasureGrid"
 import TabPage from "@/components/scrollTabs/TabPage"
 import { useColorMode } from "@/components/ui/color-mode"
 import { getClipboardTypes } from "@/utils/clipboard"
-import DataItem from "./DataItem"
 import ScrollTabs from "./ScrollTabs"
 import { cleanUp, MetadataStore } from "./state/store"
-import { InfoPaneContainer } from './Containers'
+import { InfoPaneContainer } from "./Containers"
+import Details, { DataItem } from "./Details"
 
 interface InfoPanelProps extends BoxProps {}
 
@@ -40,16 +40,15 @@ function InfoPane(props: InfoPanelProps) {
 				]}
 				{...restProps}
 			>
-				<TabPage key={`${image?.id}_image`} label={"image"}>
-					<MeasureGrid columns={2} fontSize={"sm"} maxItemLines={5}>
+				{/* <MeasureGrid columns={2} fontSize={"sm"} maxItemLines={5}>
 						{Object.entries(
-							(exif ?? {}) as Record<string, { value: string; description?: string }>,
+							(exif ?? {}) as Record<string, unknown>,
 						).map(([k, v]) => {
-							const data = v.description || v.value
+							const data = v
 							return <DataItem key={k} label={k} data={data} />
 						})}
-					</MeasureGrid>
-				</TabPage>
+					</MeasureGrid> */}
+				<Details image={image} />
 				<TabPage key={`${image?.id}_config`} label={"config"}>
 					<MeasureGrid columns={2} fontSize={"sm"} maxItemLines={5}>
 						<DataItem

@@ -1,4 +1,5 @@
-import { createContext, RefObject, useContext, useLayoutEffect, useState } from "react"
+import { createContext, RefObject, useContext, useLayoutEffect, useRef, useState } from "react"
+import { proxy, useSnapshot } from "valtio"
 
 type MeasureGroupContextObject = React.Context<{
 	columns: number
@@ -8,16 +9,47 @@ type MeasureGroupContextObject = React.Context<{
 	maxItemLines: number
 }>
 
+type UseMeasureGridState = {
+	span: number
+	collapse: "normal" | "collapsed" | "expanded"
+	maxHeight: string
+	toggleCollapsed: () => void
+}
+
 export const MeasureGroupContext: MeasureGroupContextObject = createContext(null)
 
-export function useMeasureGrid(content?: string, forceSpan?: boolean) {
+type UseMeasureGridOpts = {
+	forceSpan?: boolean
+	onCollapseChange?: (value: "collapsed" | "expanded") => void
+	initialCollapse?: "collapsed" | "expanded"
+}
+const defaultUseMeasureGridOpts = {
+	forceSpan: false,
+	onCollapseChange: undefined,
+	initialCollapse: "collapsed",
+} as UseMeasureGridOpts
+export function useMeasureGrid(content?: string, opts: UseMeasureGridOpts = {}) {
+	const { forceSpan, onCollapseChange, initialCollapse } = {
+		...defaultUseMeasureGridOpts,
+		...opts,
+	}
 	const cv = useContext(MeasureGroupContext)
-
-	const [measure, setMeasure] = useState({
-		span: 1,
-		collapse: false,
-		maxHeight: "500px",
-	})
+	const stateRef = useRef<UseMeasureGridState>(null)
+	if (!stateRef.current) {
+		stateRef.current = proxy({
+			span: 1,
+			collapse: "normal",
+			maxHeight: "500px",
+			toggleCollapsed: () => {
+				if (stateRef.current.collapse === "normal") return
+				const newValue = stateRef.current.collapse === "expanded" ? "collapsed" : "expanded"
+				stateRef.current.collapse = newValue
+				if (onCollapseChange) onCollapseChange(newValue)
+			},
+		})
+	}
+	const state = stateRef.current
+	const snap = useSnapshot(state)
 
 	useLayoutEffect(() => {
 		if (!cv || !cv.sizerRef.current) return
@@ -35,15 +67,12 @@ export function useMeasureGrid(content?: string, forceSpan?: boolean) {
 		const height = sizer.clientHeight
 		const maxWidth = sizer.parentElement?.clientWidth
 
-		const span = width > maxWidth / columns - gap || forceSpan ? columns : 1
-		const collapse = height > collapseHeight
+		state.span = width > maxWidth / columns - gap || forceSpan ? columns : 1
+		if (height > collapseHeight && state.collapse === "normal") {
+			state.collapse = initialCollapse
+		}
+		state.maxHeight = `${collapseHeight}px`
+	}, [content, cv, forceSpan, state, initialCollapse])
 
-		setMeasure({
-			span,
-			collapse,
-			maxHeight: `${collapseHeight}px`,
-		})
-	}, [content, cv])
-
-	return measure
+	return snap
 }

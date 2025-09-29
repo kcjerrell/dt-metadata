@@ -1,20 +1,23 @@
 import type { DrawThingsMetaData } from "@/types"
+import { ExifType } from './state/store'
 
 export function hasDrawThingsData(
 	exif?: unknown,
 	skipParse = false,
-): exif is { UserComment: { description: string } } {
+): exif is { exif: {UserComment: { value: string } } }{
 	try {
 		if (
 			exif &&
 			typeof exif === "object" &&
-			"UserComment" in exif &&
-			exif.UserComment &&
-			typeof exif.UserComment === "object" &&
-			"description" in exif.UserComment &&
-			typeof exif.UserComment.description === "string"
+			"exif" in exif &&
+			typeof exif.exif === "object" &&
+			"UserComment" in exif.exif &&
+			exif.exif.UserComment &&
+			typeof exif.exif.UserComment === "object" &&
+			"value" in exif.exif.UserComment &&
+			typeof exif.exif.UserComment.value === "string"
 		) {
-			if (!skipParse) JSON.parse(exif.UserComment.description)
+			if (!skipParse) JSON.parse(exif.exif.UserComment.value)
 
 			return true
 		}
@@ -24,10 +27,13 @@ export function hasDrawThingsData(
 	return false
 }
 
-export function getDrawThingsDataFromExif(exif?: ExifReader.Tags | null): DrawThingsMetaData | undefined {
-	if (hasDrawThingsData(exif, true)) {
+export function getDrawThingsDataFromExif(exif?: ExifType | null): DrawThingsMetaData | undefined {
+	const hasExif = hasDrawThingsData(exif, true)
+	console.log(hasExif, exif)
+	if (hasExif) {
 		try {
-			const data = JSON.parse(exif.UserComment.description)
+			const value = exif.exif.UserComment.value
+			const data = JSON.parse(value)
 
 			data.prompt = data.c
 			delete data.c

@@ -6,7 +6,10 @@ import ImageStore from "@/utils/imageStore"
 import { getDrawThingsDataFromExif } from "../helpers"
 import { ImageItem, type ImageItemConstructorOpts } from "./ImageItem"
 import { getCurrentWindow } from "@tauri-apps/api/window"
-import { readFile } from '@tauri-apps/plugin-fs'
+import { readFile } from "@tauri-apps/plugin-fs"
+import * as exifr from "exifr"
+import { proxySet } from 'valtio/utils'
+const e = new exifr.Exifr()
 
 export function bind<T extends object>(instance: T): T {
 	const props = Object.getOwnPropertyNames(Object.getPrototypeOf(instance))
@@ -21,10 +24,16 @@ export function bind<T extends object>(instance: T): T {
 	return instance
 }
 
+type ImageUiData = {
+	scrollY: number
+	expanded: Set<string>
+}
+
 const metadataStore = store(
 	"metadata",
 	{
 		images: [] as ImageItem[],
+		imagesUi: {} as Record<string, ImageUiData>,
 		currentIndex: null as number | null,
 		zoomPreview: false,
 		maxHistory: 10,
@@ -34,9 +43,13 @@ const metadataStore = store(
 			if (MetadataStore.currentIndex === null) return undefined
 			return MetadataStore.images[MetadataStore.currentIndex]
 		},
+		get currentImageUi(): ImageUiData | undefined {
+			if (MetadataStore.currentIndex === null) return undefined
+			return MetadataStore.imagesUi[MetadataStore.images[MetadataStore.currentIndex].id]
+		},
 	},
 	{
-		filterKeys: ["currentImage", "currentIndex", "zoomPreview"],
+		filterKeys: ["currentImage", "currentIndex", "currentImageUi", "zoomPreview", "imagesUi"],
 		filterKeysStrategy: "omit",
 		hooks: {
 			beforeFrontendSync(state) {
@@ -138,6 +151,11 @@ export async function clearImages(keepTabs = false) {
 	if (keepTabs) MetadataStore.images = MetadataStore.images.filter((im) => im.pin != null)
 	else MetadataStore.images = []
 
+	for (const id in MetadataStore.imagesUi) {
+		if (!MetadataStore.images.find((im) => im.id === id))
+		delete MetadataStore.imagesUi[id]
+	}
+
 	MetadataStore.currentIndex = MetadataStore.images.length - 1
 	await syncImageStore()
 }
@@ -171,8 +189,10 @@ export async function createImageItem(
 	}
 
 	const imageItem = bind(proxy(new ImageItem(item)))
-
 	const itemIndex = MetadataStore.images.push(imageItem) - 1
+
+	MetadataStore.imagesUi[entry.id] = { scrollY: 0, expanded: proxySet<string>() }
+
 	selectImage(itemIndex)
 	return MetadataStore.images[itemIndex]
 }
@@ -208,20 +228,33 @@ export async function replaceWithBetter(
 			dtData,
 		}
 		MetadataStore.images[index] = bind(proxy(new ImageItem(item)))
+		delete MetadataStore.imagesUi[imageItem.id]
+		MetadataStore.imagesUi[entry.id] = { scrollY: 0, expanded: proxySet<string>() }
 	}
 	await syncImageStore()
 	if (dtData) return dtData
 }
 
-export async function getExif(imagePath: string)
-export async function getExif(imageDataBuffer: ArrayBuffer)
-export async function getExif(arg: ArrayBuffer | string) {
+export type ExifType = Record<string, Record<string, unknown>>
+export async function getExif(imagePath: string): Promise<ExifType>
+export async function getExif(imageDataBuffer: ArrayBuffer): Promise<ExifType>
+export async function getExif(arg: ArrayBuffer | string): Promise<ExifType> {
 	let data = typeof arg !== "string" ? arg : null
 
 	if (data === null) data = (await readFile(arg as string)).buffer
 
 	try {
-		return await ExifReader.load(data, { async: true })
+		// return await ExifReader.load(data, { async: true })
+		const exif = await exifr.parse(data, {
+			xmp: { multiSegment: true, parse: true },
+			makerNote: true,
+			userComment: true,
+			icc: true,
+			iptc: true,
+			mergeOutput: false,
+		})
+		console.log("exifr", exif)
+		return exif
 	} catch (e) {
 		console.warn(e)
 		return null

@@ -40,7 +40,6 @@ export function useMetadataDrop() {
 		[],
 	)
 
-	console.log('usemetadataDrop')
 	return {
 		isDragging: snap.isDragging,
 		handlers,

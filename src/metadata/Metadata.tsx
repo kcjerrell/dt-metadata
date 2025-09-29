@@ -27,7 +27,7 @@ function Metadata(props: MetadataComponentProps) {
 
 	return (
 		<CheckRoot id={"metadata"} {...handlers} {...restProps}>
-			<BgLayer isDragging={isDragging}>
+			<BgLayer isDragging={isDragging} >
 				<LayoutRoot>
 					<ContentPane>
 						<Toolbar />

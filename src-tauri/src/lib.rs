@@ -9,7 +9,7 @@ use objc2::rc::Retained;
 use objc2_app_kit::{NSPasteboard, NSPasteboardNameDrag};
 use objc2_foundation::{NSArray, NSData, NSString};
 
-mod metadata;
+// mod metadata;
 
 fn get_clipboard(pasteboard: Option<String>) -> Result<Retained<NSPasteboard>, String> {
     unsafe {
@@ -109,12 +109,14 @@ async fn fetch_image_file(url: String) -> Result<Vec<u8>, String> {
     Ok(bytes.to_vec())
 }
 
-#[tauri::command]
-async fn load_metadata(filepath: String) {
-    // let path = std::path::Path::new(&filepath);
-    // let pb = path.to_path_buf();
-    let _metadata = metadata::load_metadata(&filepath);
-}
+// #[tauri::command]
+// async fn load_metadata(filepath: String) -> Result<Option<HashMap<String, String>>, Box<dyn std::error::Error + 'static>> {
+//     // let path = std::path::Path::new(&filepath);
+//     // let pb = path.to_path_buf();
+//     let _metadata = metadata::load_metadata(&filepath);
+
+//     _metadata
+// }
 
 // #[tauri::command]
 // fn init_panel(app: tauri::AppHandle) -> Result<(), String> {
@@ -147,7 +149,7 @@ pub fn run() {
             write_clipboard_binary,
             read_clipboard_strings,
             fetch_image_file,
-            load_metadata
+            // load_metadata
             // init_panel,
         ])
         .setup(|app| {

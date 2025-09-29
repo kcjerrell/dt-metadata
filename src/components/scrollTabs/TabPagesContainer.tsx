@@ -12,7 +12,7 @@ const TabPagesContainer = chakra(
 			borderBottom: "none",
 			borderRight: "none",
 			borderColor: "bg.3",
-			padding: 2,
+			padding: 0,
 			width: "100%",
 			minWidth: 0,
 			position: "relative",
