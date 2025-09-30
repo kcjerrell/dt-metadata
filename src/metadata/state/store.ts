@@ -1,15 +1,13 @@
+import { getCurrentWindow } from "@tauri-apps/api/window"
+import { readFile } from "@tauri-apps/plugin-fs"
 import { store } from "@tauri-store/valtio"
-import ExifReader from "exifreader"
+import * as exifr from "exifr"
 import { proxy } from "valtio"
 import type { ImageSource } from "@/types"
 import ImageStore from "@/utils/imageStore"
 import { getDrawThingsDataFromExif } from "../helpers"
 import { ImageItem, type ImageItemConstructorOpts } from "./ImageItem"
-import { getCurrentWindow } from "@tauri-apps/api/window"
-import { readFile } from "@tauri-apps/plugin-fs"
-import * as exifr from "exifr"
-import { proxySet } from 'valtio/utils'
-const e = new exifr.Exifr()
+
 
 export function bind<T extends object>(instance: T): T {
 	const props = Object.getOwnPropertyNames(Object.getPrototypeOf(instance))
@@ -24,32 +22,23 @@ export function bind<T extends object>(instance: T): T {
 	return instance
 }
 
-type ImageUiData = {
-	scrollY: number
-	expanded: Set<string>
-}
-
 const metadataStore = store(
 	"metadata",
 	{
 		images: [] as ImageItem[],
-		imagesUi: {} as Record<string, ImageUiData>,
 		currentIndex: null as number | null,
 		zoomPreview: false,
+		showHistory: false,
 		maxHistory: 10,
-		clearHistoryOnExit: true,
+		clearHistoryOnExit: false,
 		clearPinsOnExit: false,
 		get currentImage(): ImageItem | undefined {
 			if (MetadataStore.currentIndex === null) return undefined
 			return MetadataStore.images[MetadataStore.currentIndex]
-		},
-		get currentImageUi(): ImageUiData | undefined {
-			if (MetadataStore.currentIndex === null) return undefined
-			return MetadataStore.imagesUi[MetadataStore.images[MetadataStore.currentIndex].id]
-		},
+		}
 	},
 	{
-		filterKeys: ["currentImage", "currentIndex", "currentImageUi", "zoomPreview", "imagesUi"],
+		filterKeys: ["currentImage", "currentIndex", "currentImageUi", "zoomPreview", "imagesUi", "showHistory"],
 		filterKeysStrategy: "omit",
 		hooks: {
 			beforeFrontendSync(state) {
@@ -151,11 +140,6 @@ export async function clearImages(keepTabs = false) {
 	if (keepTabs) MetadataStore.images = MetadataStore.images.filter((im) => im.pin != null)
 	else MetadataStore.images = []
 
-	for (const id in MetadataStore.imagesUi) {
-		if (!MetadataStore.images.find((im) => im.id === id))
-		delete MetadataStore.imagesUi[id]
-	}
-
 	MetadataStore.currentIndex = MetadataStore.images.length - 1
 	await syncImageStore()
 }
@@ -165,7 +149,8 @@ export async function createImageItem(
 	type: string,
 	source: ImageSource,
 ) {
-	console.log("create image item")
+	console.trace("create image item")
+	
 	if (!imageData || !type || !source) return null
 	if (imageData.length === 0) return null
 
@@ -190,8 +175,6 @@ export async function createImageItem(
 
 	const imageItem = bind(proxy(new ImageItem(item)))
 	const itemIndex = MetadataStore.images.push(imageItem) - 1
-
-	MetadataStore.imagesUi[entry.id] = { scrollY: 0, expanded: proxySet<string>() }
 
 	selectImage(itemIndex)
 	return MetadataStore.images[itemIndex]
@@ -228,8 +211,6 @@ export async function replaceWithBetter(
 			dtData,
 		}
 		MetadataStore.images[index] = bind(proxy(new ImageItem(item)))
-		delete MetadataStore.imagesUi[imageItem.id]
-		MetadataStore.imagesUi[entry.id] = { scrollY: 0, expanded: proxySet<string>() }
 	}
 	await syncImageStore()
 	if (dtData) return dtData

@@ -23,16 +23,14 @@ type UseMeasureGridOpts = {
 	onCollapseChange?: (value: "collapsed" | "expanded") => void
 	initialCollapse?: "collapsed" | "expanded"
 }
-const defaultUseMeasureGridOpts = {
-	forceSpan: false,
-	onCollapseChange: undefined,
-	initialCollapse: "collapsed",
-} as UseMeasureGridOpts
+
 export function useMeasureGrid(content?: string, opts: UseMeasureGridOpts = {}) {
-	const { forceSpan, onCollapseChange, initialCollapse } = {
-		...defaultUseMeasureGridOpts,
-		...opts,
-	}
+	const {
+		forceSpan = false,
+		onCollapseChange,
+		initialCollapse = "collapsed",
+	} = opts
+
 	const cv = useContext(MeasureGroupContext)
 	const stateRef = useRef<UseMeasureGridState>(null)
 	if (!stateRef.current) {

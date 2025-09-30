@@ -27,6 +27,7 @@ type TextGetter = GetterOrNot<PromiseOrNot<Text | null>>
  * @param getText an object of text items that may contain paths/urls (or a function that returns or promises one)
  */
 export async function loadImage(imageOrGetter: ImageGetter, textOrGetter: TextGetter) : Promise<boolean> {
+	console.log('load image')
 	const fileImage = await resolveGetter(imageOrGetter)
 	let imageItem: ImageItem | null = null
 
@@ -63,7 +64,8 @@ export async function loadImage(imageOrGetter: ImageGetter, textOrGetter: TextGe
 						clipboard: textType,
 					},
 				]
-				createImageItem(...textItem)
+				// createImageItem(...textItem)
+				break
 			}
 		}
 
@@ -82,7 +84,8 @@ export async function loadImage(imageOrGetter: ImageGetter, textOrGetter: TextGe
 						clipboard: textType,
 					},
 				]
-				createImageItem(...textItem)
+				// createImageItem(...textItem)
+				break
 			}
 		}
 	}

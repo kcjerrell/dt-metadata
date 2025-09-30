@@ -22,6 +22,7 @@ function App() {
 
 	const [showSidebar, setShowSidebar] = useState(true)
 
+
 	return (
 		<HStack
 			position={"relative"}
@@ -31,6 +32,7 @@ function App() {
 			alignItems={"stretch"}
 			gap={0}
 			bgColor={"bg.2"}
+			transformOrigin={"left top"}
 		>
 			<Button
 				variant={"ghost"}
@@ -46,42 +48,58 @@ function App() {
 				<VStack
 					// bgColor={"bg.1"}
 					// background={"linear-gradient(90deg, var(--chakra-colors-bg-1) 50%, var(--chakra-colors-bg-3) 100%)"}
-					flex={"0 0 68px"}
+					position={"absolute"}
+					// left={"0px"}
+					top={"0px"}
+					bottom={"0px"}
+					// flex={"0 0 68px"}
+					// width={"68px"}
+					zIndex={5}
 					overflow="clip"
 					justifyContent={"flex-start"}
 					paddingTop={"30px"}
 					// border={"2px solid gray"}
-					transformOrigin={"left center"}
+					transformOrigin={"right center"}
+					// transformStyle={"flat"}
+					// _after={{
+					// 	content: '""',
+					// 	position: "absolute",
+					// 	width: "calc(100% + 30px)",
+					// 	top: "0px",
+					// 	height: "100%",
+					// 	pointerEvents: "none",
+					// 	bgColor: "black",
+					// 	opacity: "var(--app-sidebar-overlay)",
+					// }}
 					asChild
 				>
 					<motion.div
 						layout={"position"}
-						initial={{ width: "auto" }}
+						initial={{ width: 75, skewY: 0, rotateY: 0, left: 0 }}
 						animate={
 							showSidebar
 								? {
-										// width: "auto",
-										// scaleX: 1,
-										flex: "0 0 68px",
-										rotateY: 0,
-										skewX: 0,
-										skewY: 0,
-										scaleX: 1,
-										x: "0%",
-										marginLeft: '0px'
+										rotateY: [45, 0, 0],
+										skewY: [10, 0, 0],
+										left: [-68, 0, 0],
+										scale: [0.95, 0.95, 1],
+										backdropFilter: [1, 1, 8].map((v) => `blur(${v}px)`),
+										
 									}
 								: {
-										// x: "-100%",
-										marginLeft: '-68px'
-										// width: "0px",
-										// scaleX: 0,
-										// flex: "0 0 0px",
-										// rotateY: 90,
-										// skewY: -40,
-										// scaleX: 0,
+										rotateY: [0, 0, 45],
+										skewY: [0, 0, 10],
+										left: [0, 0, -68],
+										scale: [1, 0.95, 0.95],
+										backdropFilter: [8, 1, 1].map((v) => `blur(${v}px)`),
 									}
 						}
-						transition={{ duration: 0.2, ease: "easeOut" }}
+						transition={{
+							duration: 2,
+							times: [0, 0.5, 1],
+							// repeat: Infinity,
+							// repeatType: "loop",
+						}}
 					>
 						{sidebarItems.map((item) => (
 							<SidebarItem
@@ -216,3 +234,4 @@ function getView(view: string) {
 }
 
 export default App
+

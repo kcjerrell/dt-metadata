@@ -3,6 +3,7 @@ import type { DrawThingsMetaData, ImageSource } from "@/types"
 import ImageStore, { type ImageStoreEntry } from "@/utils/imageStore"
 import { getDrawThingsDataFromExif } from "../helpers"
 import { ExifType, getExif } from './store'
+import { ref } from 'valtio'
 
 export type ImageItemConstructorOpts = {
 	id: string
@@ -15,12 +16,19 @@ export type ImageItemConstructorOpts = {
 	entry?: ImageStoreEntry
 }
 
+type ImageItemUiData = {
+	scrollY: number,
+	expanded: Set<string>
+}
+
 export class ImageItem {
 	id: string
 	pin?: number | null
 	loadedAt: number
 	source: ImageSource
 	type: string
+
+	ui = ref({scrollY: 0, expanded: new Set<string>()} as ImageItemUiData)
 
 	private _exif?: ExifType
 	private _dtData?: DrawThingsMetaData | null

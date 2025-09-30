@@ -143,6 +143,12 @@ function Toolbar(props: ToolbarProps) {
 									})
 								}}
 							/>
+							<ToolbarButton
+								icon={FiInfo}
+								onClick={() => {
+									MetadataStore.showHistory = !MetadataStore.showHistory
+								}}
+							/>
 							<UpgradeButton />
 						</HStack>
 					</ButtonGroup>

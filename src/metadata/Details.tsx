@@ -15,13 +15,13 @@ interface DetailsProps extends ChakraProps {
 function Details(props: DetailsProps) {
 	const { image, ...rest } = props
 	const { exif = {} } = image ?? []
+	const ui = image?.ui as ImageItem['ui']
 
 	const groups = groupItems(exif)
 
 	// const posSnap = useSnapshot(posStore)
 	// const pos = posStore[image?.id]
 	// if (image) console.log("pos", JSON.parse(JSON.stringify(posStore[image?.id])))
-
 
 	// useEffect(() => {
 	// 	if (scrollRef.current) {
@@ -78,16 +78,16 @@ function Details(props: DetailsProps) {
 											key={key}
 											label={key}
 											data={value}
-											// initialCollapse={
-											// 	posStore[image?.id].expanded.has(`${name}_${key}`)
-											// 		? "expanded"
-											// 		: "collapsed"
-											// }
+											initialCollapse={
+												ui.expanded.has(`${name}_${key}`)
+													? "expanded"
+													: "collapsed"
+											}
 											onCollapseChange={(value) => {
 												// console.log("called")
-												// const expKey = `${name}_${key}`
-												// if (value === "expanded") posStore[image.id].expanded.add(expKey)
-												// else if (value === "collapsed") posStore[image.id].expanded.delete(expKey)
+												const expKey = `${name}_${key}`
+												if (value === "expanded") ui.expanded.add(expKey)
+												else if (value === "collapsed") ui.expanded.delete(expKey)
 											}}
 										/>
 									)

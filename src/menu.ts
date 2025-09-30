@@ -1,19 +1,19 @@
-import { Menu, MenuItem, PredefinedMenuItem, Submenu } from "@tauri-apps/api/menu"
-import { message } from "@tauri-apps/plugin-dialog"
-import { exit } from "@tauri-apps/plugin-process"
-import { open } from "@tauri-apps/plugin-dialog"
-import { getLocalImage } from "./utils/clipboard"
-import { createImageItem } from "./metadata/state/store"
+import { CheckMenuItem, Menu, MenuItem, PredefinedMenuItem, Submenu } from "@tauri-apps/api/menu"
 import * as pathLib from "@tauri-apps/api/path"
-import { loadFromPasteboard } from "./metadata/state/imageLoaders"
+import { message, open } from "@tauri-apps/plugin-dialog"
+import { exit } from "@tauri-apps/plugin-process"
 import AppState from "./hooks/useAppState"
+import { loadFromPasteboard } from "./metadata/state/imageLoaders"
+import { createImageItem, MetadataStore } from "./metadata/state/store"
+import { getLocalImage } from "./utils/clipboard"
+import { subscribe } from "valtio"
 
 // Will become the application submenu on MacOS
 const aboutSubmenu = await Submenu.new({
 	text: "About",
 	items: [
 		await MenuItem.new({
-			id: "dtm-about",
+			id: "dtm_about",
 			text: "About DTM",
 			action: async () => {
 				await message("DTM\nDraw Things Metadata Viewer\nVersion 0.1.0", {
@@ -23,7 +23,7 @@ const aboutSubmenu = await Submenu.new({
 			},
 		}),
 		await MenuItem.new({
-			id: "quit",
+			id: "dtm_quit",
 			text: "Quit",
 			action: async () => {
 				await exit(0)
@@ -37,7 +37,7 @@ const fileSubmenu = await Submenu.new({
 	items: [
 		await MenuItem.new({
 			text: "Open...",
-			id: "file-open",
+			id: "file_open",
 			action: async () => {
 				const imagePath = await open({
 					multiple: false,
@@ -54,7 +54,7 @@ const fileSubmenu = await Submenu.new({
 		}),
 		await MenuItem.new({
 			text: "Open from pasteboard...",
-			id: "file-openpasteboard",
+			id: "file_openPasteboard",
 			action: async () => {
 				await loadFromPasteboard("general")
 			},
@@ -111,13 +111,65 @@ const viewSubmenu = await Submenu.new({
 			id: "view-library",
 			action: async () => {
 				AppState.setView("library")
-			}
-		})
+			},
+		}),
 	],
 })
 
-const menu = await Menu.new({
-	items: [aboutSubmenu, fileSubmenu, editSubmenu, viewSubmenu],
-})
+type CreateOptionMenuOpts = {
+	clearPinsOnExit?: boolean
+	clearHistoryOnExit?: boolean
+}
+async function createOptionsMenu(opts?: CreateOptionMenuOpts) {
+	return await Submenu.new({
+		text: "Options",
+		items: [
+			await CheckMenuItem.new({
+				text: "Clear pinned images on exit",
+				id: "options_clearPinsOnExit",
+				checked: opts?.clearPinsOnExit,
+				action: () => {
+					MetadataStore.clearPinsOnExit = !opts?.clearPinsOnExit
+				}
+			}),
+			await CheckMenuItem.new({
+				text: "Clear history on exit",
+				id: "options_clearHistoryOnExit",
+				checked: opts?.clearHistoryOnExit,
+				action: () => {
+					MetadataStore.clearHistoryOnExit = !opts?.clearHistoryOnExit
+				}
+			}),
+		],
+	})
+}
 
-menu.setAsAppMenu()
+let lastOpts = null as CreateOptionMenuOpts
+
+async function updateMenu(opts?: CreateOptionMenuOpts) {
+	lastOpts = opts ?? createOpts()
+
+	const menu = await Menu.new({
+		items: [aboutSubmenu, fileSubmenu, editSubmenu, await createOptionsMenu(lastOpts), viewSubmenu],
+	})
+
+	menu.setAsAppMenu()
+}
+
+function createOpts(): CreateOptionMenuOpts {
+	return {
+		clearHistoryOnExit: MetadataStore.clearHistoryOnExit,
+		clearPinsOnExit: MetadataStore.clearPinsOnExit,
+	}
+}
+
+await updateMenu()
+
+subscribe(MetadataStore, async () => {
+	if (
+		lastOpts?.clearHistoryOnExit !== MetadataStore.clearHistoryOnExit ||
+		lastOpts?.clearPinsOnExit !== MetadataStore.clearPinsOnExit
+	) {
+		await updateMenu()
+	}
+})

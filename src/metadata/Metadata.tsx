@@ -10,7 +10,7 @@ import { MetadataStore } from "./state/store"
 import Toolbar from "./Toolbar"
 import { useMetadataDrop } from "./useMetadataDrop"
 import { CheckRoot, ContentPane, CurrentImage, LayoutRoot } from "./Containers"
-import { showPreview } from '@/components/preview/preview'
+import { showPreview } from "@/components/preview/preview"
 
 interface MetadataComponentProps extends ChakraProps {}
 
@@ -27,11 +27,12 @@ function Metadata(props: MetadataComponentProps) {
 
 	return (
 		<CheckRoot id={"metadata"} {...handlers} {...restProps}>
-			<BgLayer isDragging={isDragging} >
+			<BgLayer isDragging={isDragging}>
 				<LayoutRoot>
 					<ContentPane>
 						<Toolbar />
 						<Box
+							position={"relative"}
 							ref={dropRef}
 							flex={"1 1 auto"}
 							display="flex"
@@ -62,6 +63,17 @@ function Metadata(props: MetadataComponentProps) {
 									Drop image here
 								</Flex>
 							)}
+							{
+								snap.showHistory && (
+									<HStack
+									position={"absolute"}
+									inset={4}
+									bgColor={"bg.2/50"}
+									>
+										
+									</HStack>
+								)
+							}
 						</Box>
 						<History />
 					</ContentPane>
