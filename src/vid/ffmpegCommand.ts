@@ -59,4 +59,4 @@ export class FFMpegCommand {
 	}
 }
 
-const cmd = new FFMpegCommand().
+const cmd = new FFMpegCommand()

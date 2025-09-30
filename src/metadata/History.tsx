@@ -3,6 +3,7 @@ import { motion } from "motion/react"
 
 import { useSnapshot } from "valtio"
 import { MetadataStore, selectImage } from "./state/store"
+import { ImageItem } from './state/ImageItem'
 
 interface HistoryProps extends Omit<StackProps, "onSelect"> {
 	// images?: ImageItem[]
@@ -16,8 +17,8 @@ function History(props: HistoryProps) {
 	const snap = useSnapshot(MetadataStore)
 	const { images, currentImage } = snap
 
-	const pinned = images.filter((i) => i.pin != null)
-	const unpinned = images.filter((i) => i.pin == null)
+	const pinned = images.filter((i) => i.pin != null) as ImageItem[]
+	const unpinned = images.filter((i) => i.pin == null) as ImageItem[]
 
 	return (
 		<Box

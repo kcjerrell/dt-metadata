@@ -13,6 +13,7 @@ import ScrollTabs from "./ScrollTabs"
 import { cleanUp, MetadataStore } from "./state/store"
 import { InfoPaneContainer } from "./Containers"
 import Details, { DataItem } from "./Details"
+import { ImageItem } from './state/ImageItem'
 
 interface InfoPanelProps extends BoxProps {}
 
@@ -48,7 +49,7 @@ function InfoPane(props: InfoPanelProps) {
 							return <DataItem key={k} label={k} data={data} />
 						})}
 					</MeasureGrid> */}
-				<Details image={image} />
+				<Details image={image as ImageItem} />
 				<TabPage key={`${image?.id}_config`} label={"config"}>
 					<MeasureGrid columns={2} fontSize={"sm"} maxItemLines={5}>
 						<DataItem

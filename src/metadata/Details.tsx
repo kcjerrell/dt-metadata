@@ -1,21 +1,19 @@
-import { Box, chakra, Grid, GridItem, HStack, SimpleGrid, VStack } from "@chakra-ui/react"
-import { ImageItem } from "./state/ImageItem"
 import MeasureGrid from "@/components/measureGrid/MeasureGrid"
 import { useMeasureGrid } from "@/components/measureGrid/useMeasureGrid"
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react"
-import { useTimedState } from "@/hooks/useTimedState"
-import { proxy, useSnapshot } from "valtio"
-import { proxySet } from "valtio/utils"
 import TabPage from "@/components/scrollTabs/TabPage"
+import { useTimedState } from "@/hooks/useTimedState"
+import { Box, chakra, GridItem, HStack, VStack } from "@chakra-ui/react"
+import { useCallback } from "react"
+import type { ImageItem } from "./state/ImageItem"
 
 interface DetailsProps extends ChakraProps {
-	image: ImageItem | ReadonlyState<ImageItem>
+	image?: ImageItem | ReadonlyState<ImageItem>
 }
 
 function Details(props: DetailsProps) {
 	const { image, ...rest } = props
-	const { exif = {} } = image ?? []
-	const ui = image?.ui as ImageItem['ui']
+	const { exif = {} } = image ?? {}
+	const ui = image?.ui as ImageItem["ui"]
 
 	const groups = groupItems(exif)
 
@@ -38,10 +36,6 @@ function Details(props: DetailsProps) {
 
 	return (
 		<TabPage
-			ref={(e) => {
-				if (e === null) return
-				e
-			}}
 			key={`${image?.id}_image`}
 			label={"image"}
 			padding={0}
@@ -78,11 +72,7 @@ function Details(props: DetailsProps) {
 											key={key}
 											label={key}
 											data={value}
-											initialCollapse={
-												ui.expanded.has(`${name}_${key}`)
-													? "expanded"
-													: "collapsed"
-											}
+											initialCollapse={ui.expanded.has(`${name}_${key}`) ? "expanded" : "collapsed"}
 											onCollapseChange={(value) => {
 												// console.log("called")
 												const expKey = `${name}_${key}`
@@ -148,7 +138,8 @@ function isInt(value: number, epsilon = 0.000001) {
 type PrepDataOpts = {
 	decimalPlaces?: number
 }
-function prepData(data: unknown, opts?: PrepDataOpts): [string | null, boolean, string] {
+type PrepDataTypes = "string" | "number" | "boolean" | "array" | "object" | "null" | "undefined"
+function prepData(data: unknown, opts?: PrepDataOpts): [string | null, boolean, PrepDataTypes] {
 	if (Array.isArray(data)) return [null, true, "array"]
 	if (typeof data === "number") {
 		if (opts?.decimalPlaces === undefined && isInt(data))
@@ -176,7 +167,8 @@ function prepData(data: unknown, opts?: PrepDataOpts): [string | null, boolean, 
 		}
 		return [data, false, "string"]
 	}
-	if (data === undefined || data === null) return ["undefined", false, String(data)]
+	if (data === null) return ["undefined", false, "null"]
+	if (data === undefined) return ["undefined", false, "undefined"]
 	if (typeof data === "object") {
 		if ("lang" in data && data.lang === "x-default" && "value" in data)
 			return prepData(data.value, opts)
@@ -281,6 +273,12 @@ const DataItemContent = chakra("div", {
 			object: {
 				textIndent: "1rem hanging each-line",
 			},
+			string: {},
+			number: {},
+			boolean: {},
+			array: {},
+			null: {},
+			undefined: {},
 		},
 	},
 })

@@ -1,5 +1,6 @@
 {
   "name": "dtm",
+  "author": "kcjerrell",
   "private": true,
   "version": "0.1.1",
   "type": "module",
@@ -7,7 +8,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "tauri": "tauri",
+    "tauri": "dotenv -- tauri",
     "release": "tsx scripts/release.ts"
   },
   "dependencies": {
@@ -53,11 +54,13 @@
     "@vitejs/plugin-react": "^4.6.0",
     "babel-plugin-react-compiler": "^19.1.0-rc.3",
     "dotenv": "^17.2.2",
+    "dotenv-cli": "^10.0.0",
     "fs-extra": "^11.3.2",
     "globals": "^16.4.0",
     "jiti": "^2.5.1",
     "typescript": "^5.9.2",
     "vite": "^7.0.4",
+    "vite-plugin-html-injection": "^1.5.2",
     "vite-tsconfig-paths": "^5.1.4"
   }
 }

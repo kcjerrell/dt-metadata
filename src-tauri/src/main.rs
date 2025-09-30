@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    dt_metadata_lib::run()
+    dtm_lib::run()
 }

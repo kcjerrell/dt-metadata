@@ -1,12 +1,25 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tsconfigPaths from "vite-tsconfig-paths"
+import { htmlInjectionPlugin } from "vite-plugin-html-injection";
 
 const host = process.env.TAURI_DEV_HOST;
 
 // https://vite.dev/config/
 export default defineConfig(async () => ({
   plugins: [
+    htmlInjectionPlugin({
+      order: "pre",
+      injections: [
+        {
+          name: "React Devtools",
+          path: "./src/utils/reactDevtools.html",
+          type: "raw",
+          injectTo: "head",
+          buildModes: "dev",
+        },
+      ],
+    }),
     react({
       babel: {
         plugins: ['babel-plugin-react-compiler'],

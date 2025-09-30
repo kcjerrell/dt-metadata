@@ -87,7 +87,7 @@ function DPoint(props) {
 	// single param
 	// const y = useTransform(mvA, (a) => x ** a / (x ** a + (1 - x) ** a))
 	// two params
-	const y = useTransform<number[], number>([mvA, mvB], ([a, b]) => x ** a / (x ** a + (1 - x) ** b))
+	const y = useTransform<number, number>([mvA, mvB], ([a, b]) => x ** a / (x ** a + (1 - x) ** b))
 	const px = x * width
 	const py = useTransform(y, [0, 1], [height, 0])
 	const psy = useSpring(py)

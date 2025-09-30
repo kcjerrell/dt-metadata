@@ -38,15 +38,16 @@
     "updater:default",
     "process:default",
     "dialog:default",
+    "window-state:default",
     {
-      "identifier": "shell:allow-spawn",
       "allow": [
         {
-          "name": "ffmpeg",
+          "args": true,
           "cmd": "ffmpeg",
-          "args": true
+          "name": "ffmpeg"
         }
-      ]
+      ],
+      "identifier": "shell:allow-spawn"
     }
   ],
   "windows": [

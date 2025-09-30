@@ -16,7 +16,6 @@ import { proxy, useSnapshot } from "valtio"
 import { Command } from "@tauri-apps/plugin-shell"
 import { writeTextFile } from "@tauri-apps/plugin-fs"
 import { appCacheDir, appDataDir } from "@tauri-apps/api/path"
-import FramerateForm from "./FramerateForm"
 import { convertFileSrc } from "@tauri-apps/api/core"
 
 const interpolationCollection = createListCollection({

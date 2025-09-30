@@ -16,7 +16,7 @@ const octokit = new Octokit({
 })
 const repo = {
   owner: "kcjerrell",
-  repo: "dt-metadata",
+  repo: "dtm",
   headers: {
     'X-GitHub-Api-Version': '2022-11-28'
   }
