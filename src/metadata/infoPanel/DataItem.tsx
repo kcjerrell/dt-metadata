@@ -40,7 +40,8 @@ function DataItem(props: DataItemProps<unknown>) {
 
 	const handleClick = useCallback(() => {
 		setJustCopied(true)
-	}, [setJustCopied])
+		navigator.clipboard.writeText(content ?? "")
+	}, [setJustCopied, content])
 
 	return (
 		<GridItem
@@ -52,16 +53,19 @@ function DataItem(props: DataItemProps<unknown>) {
 		>
 			{/* <VStack gap={0}> */}
 			<HStack justifyContent={"space-between"}>
-				<Box paddingLeft={0.5} fontWeight={600} fontSize={"xs"} color={"fg.2"}>
+				<Box
+					paddingLeft={0.5}
+					fontWeight={500}
+					fontSize={"sm"}
+					color={"fg.2"}
+					overflow={"clip"}
+					textOverflow={"ellipsis"}
+				>
 					{justCopied ? "Copied!" : label}
 				</Box>
-				{collapse !== "normal" && (
-					<Box fontSize={"xs"} color={"fg.2"} onClick={() => toggleCollapsed()}>
-						{collapse === "collapsed" ? "Expand" : "Collapse"}
-					</Box>
-				)}
 			</HStack>
 			<DataItemContent
+				className={"peer"}
 				collapse={collapse}
 				type={type}
 				onClick={handleClick}
@@ -70,6 +74,29 @@ function DataItem(props: DataItemProps<unknown>) {
 			>
 				{content}
 			</DataItemContent>
+			{collapse !== "normal" && (
+				<Box
+					fontSize={"xs"}
+					color={"fg.3"}
+					onClick={() => toggleCollapsed()}
+					position={"absolute"}
+					bottom={0}
+					right={0}
+					paddingLeft={"2.5rem"}
+					paddingTop={"1rem"}
+					fontWeight={600}
+					_hover={{ color: "fg.1" }}
+					bgImage={
+						"radial-gradient(farthest-side at bottom right,  var(--chakra-colors-bg-1) 50%, #00000000 100%); "
+					}
+					_peerHover={{
+						bgImage:
+							"radial-gradient(farthest-side at bottom right,  var(--chakra-colors-bg-2) 50%, #00000000 100%);",
+					}}
+				>
+					{collapse === "collapsed" ? "(more)" : "(less)"}
+				</Box>
+			)}
 		</GridItem>
 	)
 }
@@ -79,14 +106,32 @@ export default DataItem
 const DataItemContent = chakra("div", {
 	base: {
 		outline: "1px solid transparent",
-		padding: 0.5,
+		padding: "2px",
 		border: "1px solid transparent",
+		color: "fg.2",
 		overflowX: "clip",
 		overflowY: "clip",
 		minWidth: 0,
 		whiteSpace: "pre-wrap",
+		borderRadius: "sm",
+		_dark: {
+			_hover: {
+				bgColor: "bg.3",
+			},
+		},
+		fontSize: "sm",
 		_hover: {
-			outlineColor: "fg.2",
+			// boxShadow: "0px 1px 2px -1px #00000055, 0px 2px 6px -2px #00000022",
+			boxShadow: "2px 2px 4px -2px #00000055, -2px 2px 4px -2px #00000055",
+			transform: "translateY(-1px)",
+			bgColor: "bg.2",
+			transition:
+				"box-shadow 0.1s ease-in-out, transform 0.1s ease-in-out, background-color 0.1s ease-in-out",
+		},
+		transition:
+			"box-shadow 0.3s ease-in-out, transform 0.3s ease-in-out, background-color 0.3s ease-in-out",
+		_selection: {
+			bgColor: "info/50",
 		},
 	},
 	variants: {
@@ -98,13 +143,14 @@ const DataItemContent = chakra("div", {
 					position: "absolute",
 					height: "2rem",
 					backgroundImage: "linear-gradient(0deg, var(--chakra-colors-bg-2) 0%, #00000000 100%)",
-					bottom: '2px',
+					bottom: "2px",
 					right: 0,
 					left: 0,
 				},
 			},
 			expanded: {
 				maxHeight: "min-content !important",
+				paddingBattom: "1rem",
 			},
 			normal: {},
 		},

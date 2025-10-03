@@ -1,10 +1,11 @@
 import { createSystem, defaultConfig, defineConfig } from "@chakra-ui/react"
-import { tabsSlotRecipe } from './tabs'
 
 const themeConfig = defineConfig({
 	globalCss: {
 		html: {
 			overscrollBehavior: "none",
+			fontSize: "14px",
+			// zoom: 1.5
 		},
 		body: {
 			fontFamily: "-apple-system, BlinkMacSystemFont, sans-serif;",
@@ -25,6 +26,10 @@ const themeConfig = defineConfig({
 		},
 		"#root": {
 			bgColor: "#73747540",
+			overflow: "clip",
+			height: "100vh",
+			width: "100vw",
+			position: "relative"
 		},
 	},
 	theme: {
@@ -149,6 +154,12 @@ const themeConfig = defineConfig({
 						},
 					},
 				},
+			},
+		},
+		tokens: {
+			fontSizes: {
+				// xs: { value: "0.75rem" },
+				// sm: { value: "1rem" },
 			},
 		},
 		keyframes: {

@@ -2,7 +2,6 @@ import { IconButton, Spacer } from "@chakra-ui/react"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { FiMoon } from "react-icons/fi"
 import { proxy, useSnapshot } from "valtio"
-import Tabs from "@/components/tabs"
 import { useColorMode } from "@/components/ui/color-mode"
 import { capitalize } from "@/utils/helpers"
 import { InfoPaneContainer } from "../Containers"
@@ -11,6 +10,7 @@ import { MetadataStore } from "../state/store"
 import Config from "./Config"
 import Details from "./Details"
 import TabContent from "./TabContent"
+import Tabs from './tabs'
 
 interface InfoPanelProps extends ChakraProps {
 	image: ImageItem

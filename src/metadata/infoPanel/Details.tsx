@@ -36,7 +36,9 @@ function Details(props: DetailsProps) {
 						width={"100%"}
 						padding={1}
 					>
-						<Box gridColumn={"1 / span 2"} textAlign={"center"}>{name}</Box>
+						<Box gridColumn={"1 / span 2"} textAlign={"center"}>
+							{name}
+						</Box>
 						{items.map(({ key, value }) => {
 							return (
 								<DataItem

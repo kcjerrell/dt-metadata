@@ -16,7 +16,7 @@ function Config(props: ConfigProps) {
 	if (!dtData) return null
 
 	return (
-		<MeasureGrid columns={2} gap={0.5} fontSize={"xs"} maxItemLines={6} padding={1} {...rest}>
+		<MeasureGrid columns={2} gap={1} fontSize={"xs"} maxItemLines={6} padding={1} {...rest}>
 			<DataItem
 				label={"Size"}
 				data={`${dtData?.config.width} x ${dtData?.config.height}`}
@@ -26,14 +26,15 @@ function Config(props: ConfigProps) {
 			{null}
 			<DataItem label={"Model"} data={dtData?.config.model} cols={2} />
 			<DataItem label={"Sampler"} data={samplerLabels[dtData?.config.sampler]} cols={2} />
-			<HStack gridColumn={"span 2"} justifyContent={"space-between"}>
-				<DataItem label={"Steps"} data={dtData?.config.steps} decimalPlaces={0} />
+			<HStack gridColumn={"span 2"} width={"100%"} justifyContent={"space-between"}>
+				<DataItem label={"Steps"} data={dtData?.config.steps} decimalPlaces={0} flex={"1 1 min-content"} />
 				<DataItem
 					label={"ImageGuidance"}
 					data={dtData?.config.imageGuidanceScale}
 					decimalPlaces={1}
+					flex={"1 1 min-content"}
 				/>
-				<DataItem label={"Shift"} data={dtData?.config.shift} decimalPlaces={2} />
+				<DataItem label={"Shift"} data={dtData?.config.shift} decimalPlaces={2} flex={"3 0 min-content"} />
 			</HStack>
 			<DataItem
 				label={"Prompt"}

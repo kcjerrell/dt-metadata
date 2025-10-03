@@ -14,28 +14,23 @@ const Root = chakra(TabsRoot, {
 		display: "flex !important",
 		flexDirection: "column",
 	},
-	defaultVariants: {
-		// size: "sm",
-		// variant: "plain",
-	},
 })
 const List = chakra(TabsList, {
-	base: { height: "min", minHeight: "min" },
+	base: { height: "min", minHeight: "min", marginBottom: 0 },
 })
 const Trigger = chakra(TabsTrigger, {
 	base: {
-		py: 1,
+		py: 1.5,
 		px: 2,
 		color: "fg.3",
-    fontSize: "sm",
+		fontSize: "sm",
 		overflowY: "clip",
 		_selected: {
 			color: "highlight",
-      bgColor: "bg.1",
+			bgColor: "bg.1",
 		},
-    _before: {display: 'none'},
-
-		// border: "0px solid transparent",
+		_before: { display: "none" },
+		height: "min",
 	},
 })
 const Indicator = chakra(TabsIndicator, {
@@ -45,15 +40,15 @@ const Indicator = chakra(TabsIndicator, {
 		borderBottom: "0px",
 		height: "3px",
 		bottom: "0px",
-    zIndex: 2,
+		zIndex: 2,
 	},
 })
 const Content = chakra(TabsContent, {
-  base: {
-    bgColor: "bg.1",
+	base: {
+		bgColor: "bg.1",
 		// height: "100%",
 		padding: 0,
-		flex: "1 1 auto"
+		flex: "1 1 auto",
 	},
 })
 

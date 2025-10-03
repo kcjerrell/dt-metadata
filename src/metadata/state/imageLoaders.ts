@@ -1,5 +1,6 @@
 import * as pathlib from "@tauri-apps/api/path"
 import plist from "plist"
+import { postMessage } from "@/context/Messages"
 import {
 	fetchImage,
 	getClipboardBinary,
@@ -9,7 +10,6 @@ import {
 } from "@/utils/clipboard"
 import type { ImageItem } from "./ImageItem"
 import { createImageItem, replaceWithBetter } from "./store"
-import { postMessage } from "@/context/Messages"
 
 type PromiseOrNot<T> = Promise<T> | T
 type GetterOrNot<T> = T | (() => T)
@@ -26,13 +26,18 @@ type TextGetter = GetterOrNot<PromiseOrNot<Text | null>>
  * @param getBuffer either an image buffer (or a function that returns or promises one)
  * @param getText an object of text items that may contain paths/urls (or a function that returns or promises one)
  */
-export async function loadImage(imageOrGetter: ImageGetter, textOrGetter: TextGetter) : Promise<boolean> {
+export async function loadImage(
+	imageOrGetter: ImageGetter,
+	textOrGetter: TextGetter,
+	source?: "clipboard" | "drop" | "open"
+): Promise<boolean> {
 	const fileImage = await resolveGetter(imageOrGetter)
 	let imageItem: ImageItem | null = null
 
 	if (fileImage?.data && fileImage.type) {
 		imageItem = await createImageItem(fileImage.data, getImageType(fileImage.type), {
-			clipboard: fileImage.type,
+			source, 
+			image: fileImage.type,
 		})
 		if (imageItem?.dtData) return true
 	}
@@ -40,61 +45,65 @@ export async function loadImage(imageOrGetter: ImageGetter, textOrGetter: TextGe
 	// try loading text
 	const text = (await resolveGetter(textOrGetter)) ?? {}
 
-	let textItem = null as Parameters<typeof createImageItem> | null
+	const textItems = [] as (Parameters<typeof createImageItem> | null)[]
 	const checked = [] as string[]
 
 	for (const textType of clipboardTextTypes) {
-		if (textItem) break
+		if (textItems.length) break
 		if (!text[textType]) continue
 
 		const { files, urls } = parseText(text[textType], textType)
+		console.log({files, urls})
 
 		for (const file of files) {
-			if (textItem) break
+			// if (textItem) break
 			if (checked.includes(file)) continue
 			checked.push(file)
+			console.debug("Creating image item from file", file)
 			const image = await getLocalImage(file)
 			if (image) {
-				textItem = [
+				const textItem: Parameters<typeof createImageItem> = [
 					image,
-					(await pathlib.extname(file)) ?? "png",
+					(await pathlib.extname(file)),
 					{
-						clipboard: textType,
+						source,
+						file
 					},
 				]
-				// createImageItem(...textItem)
-				break
+				textItems.push(textItem)
 			}
 		}
 
 		for (const url of urls) {
-			if (textItem) break
+			if (textItems.length) break
 			if (checked.includes(url)) continue
 			checked.push(url)
 			const image = await fetchImage(url)
 			if (image) {
-				textItem = [
+				const textItem: Parameters<typeof createImageItem> = [
 					image,
 					(await pathlib.extname(new URL(url).pathname)) ?? "png",
 					{
-						clipboard: textType,
+						source,
+						url
 					},
 				]
+				textItems.push(textItem)
 				// createImageItem(...textItem)
-				break
 			}
 		}
 	}
 
 	// we didn't find an image url/path, return true if an image item was found
-	if (!textItem) return imageItem != null
+	if (!textItems.length) return imageItem != null
 
-	if (imageItem) return !!(await replaceWithBetter(imageItem, ...textItem))
-	else return !!(await createImageItem(...textItem))
+	if (imageItem && textItems.length === 1) return !!(await replaceWithBetter(imageItem, ...textItems[0]))
+	else return !!(Promise.all(textItems.map(textItem => createImageItem(...textItem))))
 }
 
 export function parseText(value: string, type: string) {
 	let paths: string[] = []
+	let text: string
 
 	if (typeof value !== "string") return { files: [], urls: [] }
 
@@ -102,37 +111,39 @@ export function parseText(value: string, type: string) {
 		case "NSFilenamesPboardType":
 			// when copying from mac finder
 			paths = plist.parse(value) as string[]
+			text = paths.map((f) => `'${f}'`).join(" ")
 			break
 		case "public.html": {
-			const imgSrc = extractImgSrc(value)
-			paths = imgSrc ? [imgSrc] : []
+			const text = extractImgSrc(value)
+			// paths = imgSrc ? [imgSrc] : []
 			break
 		}
 		case "public.file-url":
 		case "public.url":
 		case "org.chromium.source-url":
 		case "public.utf8-plain-text":
-			paths = value
-				.split("\n")
-				.map((f) => f.trim())
-				.filter((f) => f.length > 0)
+			text = value
+			// paths = value
+			// 	.split("\n")
+			// 	.map((f) => f.trim())
+			// 	.filter((f) => f.length > 0)
 			break
 	}
 
-	const files = [] as string[]
-	const urls = [] as string[]
+	// const files = [] as string[]
+	// const urls = [] as string[]
 
-	for (const p of paths) {
-		const url = getUrl(p)
-		if (url) {
-			urls.push(url)
-			continue
-		}
-		const localPath = getLocalPath(p)
-		if (localPath) files.push(localPath)
-	}
+	// for (const p of paths) {
+	// 	const url = getUrl(p)
+	// 	if (url) {
+	// 		urls.push(url)
+	// 		continue
+	// 	}
+	// 	const localPath = getLocalPath(p)
+	// 	if (localPath) files.push(localPath)
+	// }
 
-	return { files, urls }
+	return extractPaths(text)
 }
 
 export const clipboardTextTypes = [
@@ -171,7 +182,7 @@ export async function loadFromPasteboard(pasteboard = "general" as "general" | "
 	try {
 		const success = await loadImage(getBuffer, getText)
 		if (success) msg.remove()
-			else msg.update("No image found", 2000)
+		else msg.update("No image found", 2000)
 	} catch (e) {
 		console.error(e)
 		msg.update("No image found", 2000)
@@ -255,4 +266,38 @@ export function getLocalPath(path: string) {
 	if (p.startsWith("/")) return p
 
 	return null
+}
+
+function extractPaths(text: string): { files: string[]; urls: string[] } {
+	const files: string[] = []
+	const urls: string[] = []
+
+	// Regex for detecting quoted or unquoted chunks (handles spaces inside quotes)
+	const chunkRegex = /'([^']+)'|"([^"]+)"|(\S+)/g
+
+	// Regex for URLs
+	const urlRegex = /^https?:\/\/[^\s'"]+$/i
+
+	// Regex for absolute Unix-style file paths (/Users/... or ~/...)
+	const fileRegex = /^(\/|~\/)[\w\d@%_\-.+!#$^&*()[\]{}:;'",?=\/ ]+$/
+
+	let match: RegExpExecArray | null = chunkRegex.exec(text)
+	while (match !== null) {
+		const candidate = (match[1] || match[2] || match[3] || "").trim()
+
+		if (!candidate) {
+			match = chunkRegex.exec(text)
+			continue
+		}
+
+		if (urlRegex.test(candidate)) {
+			urls.push(candidate)
+		} else if (fileRegex.test(candidate)) {
+			files.push(candidate)
+		}
+		// ❌ anything else gets ignored (random words, etc.)
+		match = chunkRegex.exec(text)
+	}
+
+	return { files, urls }
 }

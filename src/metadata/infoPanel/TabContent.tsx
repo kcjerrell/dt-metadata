@@ -1,7 +1,6 @@
 import { Box, useTabsContext } from "@chakra-ui/react"
 import { useEffect, useRef } from "react"
-import Tabs from "@/components/tabs"
-import { motion } from "motion/react"
+import Tabs from './tabs'
 
 const TabContent = (props) => {
 	const { updateScroll, scrollPos, children, value, ...rest } = props
