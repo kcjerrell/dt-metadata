@@ -1,8 +1,8 @@
 import { Box, SimpleGrid, type SimpleGridProps } from "@chakra-ui/react"
-import { type PropsWithChildren, useRef } from "react"
+import { type PropsWithChildren, useCallback, useRef } from "react"
 import { MeasureGroupContext } from "@/components/measureGrid/useMeasureGrid"
 
-interface MeasureGridProps extends SimpleGridProps {
+export interface MeasureGridProps extends SimpleGridProps {
 	columns?: number
 	maxItemLines?: number
 }
@@ -31,7 +31,7 @@ export function MeasureGrid(props: PropsWithChildren<MeasureGridProps>) {
 					position={"relative"}
 					visibility={"hidden"}
 				>
-					<Box position={"absolute"} width={"min-content"} whiteSpace={"pre-wrap"} ref={sizerRef} />
+					<Box position={"absolute"} whiteSpace={"pre-wrap"} ref={sizerRef} padding={0.5} />
 				</Box>
 				{children}
 			</SimpleGrid>

@@ -1,4 +1,12 @@
-import { createContext, RefObject, useContext, useLayoutEffect, useRef, useState } from "react"
+import {
+	createContext,
+	RefObject,
+	useContext,
+	useEffect,
+	useLayoutEffect,
+	useRef,
+	useState,
+} from "react"
 import { proxy, useSnapshot } from "valtio"
 
 type MeasureGroupContextObject = React.Context<{
@@ -22,14 +30,11 @@ type UseMeasureGridOpts = {
 	forceSpan?: boolean
 	onCollapseChange?: (value: "collapsed" | "expanded") => void
 	initialCollapse?: "collapsed" | "expanded"
+	expanded?: boolean
 }
 
 export function useMeasureGrid(content?: string, opts: UseMeasureGridOpts = {}) {
-	const {
-		forceSpan = false,
-		onCollapseChange,
-		initialCollapse = "collapsed",
-	} = opts
+	const { forceSpan = false, onCollapseChange, expanded, initialCollapse } = opts
 
 	const cv = useContext(MeasureGroupContext)
 	const stateRef = useRef<UseMeasureGridState>(null)
@@ -40,6 +45,12 @@ export function useMeasureGrid(content?: string, opts: UseMeasureGridOpts = {}) 
 			maxHeight: "500px",
 			toggleCollapsed: () => {
 				if (stateRef.current.collapse === "normal") return
+
+				if (expanded !== undefined && onCollapseChange) {
+					onCollapseChange(expanded ? "expanded" : "collapsed")
+					return
+				}
+
 				const newValue = stateRef.current.collapse === "expanded" ? "collapsed" : "expanded"
 				stateRef.current.collapse = newValue
 				if (onCollapseChange) onCollapseChange(newValue)
@@ -67,10 +78,16 @@ export function useMeasureGrid(content?: string, opts: UseMeasureGridOpts = {}) 
 
 		state.span = width > maxWidth / columns - gap || forceSpan ? columns : 1
 		if (height > collapseHeight && state.collapse === "normal") {
-			state.collapse = initialCollapse
+			state.collapse = initialCollapse ?? "collapsed"
 		}
 		state.maxHeight = `${collapseHeight}px`
 	}, [content, cv, forceSpan, state, initialCollapse])
+
+	useEffect(() => {
+		if (expanded !== undefined && onCollapseChange && stateRef.current.collapse !== "normal") {
+			stateRef.current.collapse = expanded ? "expanded" : "collapsed"
+		}
+	}, [expanded, onCollapseChange])
 
 	return snap
 }

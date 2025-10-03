@@ -63,3 +63,7 @@ export function shuffle<T>(array: T[]): T[] {
 
 	return array
 }
+
+export function capitalize(text: string) {
+	return text.charAt(0).toUpperCase() + text.slice(1)
+}

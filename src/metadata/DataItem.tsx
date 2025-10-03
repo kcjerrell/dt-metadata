@@ -2,7 +2,6 @@ import { Box, type BoxProps, GridItem, type GridItemProps, HStack, Text } from "
 import { useState } from "react"
 import { useMeasureGrid } from "@/components/measureGrid/useMeasureGrid"
 
-import JsonView from "@microlink/react-json-view"
 import { useColorMode } from "@/components/ui/color-mode"
 
 interface DataItemProps extends GridItemProps {
@@ -58,7 +57,6 @@ function DataItem(props: DataItemProps) {
 	const extraProps = isJson ? jsonProps : {}
 
 	if (!data || ignore) return null
-	console.log(typeof data, data)
 
 	return (
 		<GridItem

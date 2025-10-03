@@ -10,12 +10,10 @@ const nanoid = customAlphabet("0123456789abcdefghijklmnopqrstuvwxyz", 12)
 
 const appDataDir = await path.appDataDir()
 if (!(await fs.exists(appDataDir))) {
-	console.log("creating app data dir")
 	await fs.mkdir(appDataDir)
 }
 const imageFolder = await path.join(appDataDir, "images")
 if (!(await fs.exists(imageFolder))) {
-	console.log("creating image folder")
 	await fs.mkdir(imageFolder)
 }
 
@@ -102,7 +100,6 @@ async function getNewId() {
 }
 
 async function removeImage(id: string) {
-	console.log("remove image", id)
 	const item = store.images[id]
 	if (!item) return
 	await removeFile(await getFullPath(id, item.type))
@@ -152,7 +149,6 @@ const ImageStore = {
 export default ImageStore
 
 async function removeFile(filePath: string) {
-	console.log("remove file", filePath)
 	try {
 		if (await fs.exists(filePath)) {
 			await fs.remove(filePath)

@@ -1,18 +1,23 @@
 import { Box, type BoxProps, Flex, HStack, Image, VStack } from "@chakra-ui/react"
-import { motion, useAnimate, useMotionValue, type ValueAnimationTransition } from "motion/react"
+import {
+	motion,
+	MotionProps,
+	useAnimate,
+	useMotionValue,
+	type ValueAnimationTransition,
+} from "motion/react"
 import { type PropsWithChildren, useEffect, useRef } from "react"
 import { useSnapshot } from "valtio"
 import { isInsideImage } from "@/utils/helpers"
-import "../menu"
 import History from "./History"
-import InfoPane from "./InfoPane"
 import { MetadataStore } from "./state/store"
 import Toolbar from "./Toolbar"
 import { useMetadataDrop } from "./useMetadataDrop"
 import { CheckRoot, ContentPane, CurrentImage, LayoutRoot } from "./Containers"
 import { showPreview } from "@/components/preview/preview"
+import InfoPanel from './infoPanel/InfoPanel'
 
-interface MetadataComponentProps extends ChakraProps {}
+type MetadataComponentProps = Parameters<typeof CheckRoot>[0]
 
 function Metadata(props: MetadataComponentProps) {
 	const { ...restProps } = props
@@ -26,7 +31,25 @@ function Metadata(props: MetadataComponentProps) {
 	const { isDragging, handlers } = useMetadataDrop()
 
 	return (
-		<CheckRoot id={"metadata"} {...handlers} {...restProps}>
+		<CheckRoot
+			id={"metadata"}
+			// initial={{
+			// 	opacity: 1,
+			// 	maskImage: "radial-gradient(circle at 50px 50px, #ffffff00 0%, #ffffff00 0%, #ffffff00 100%)",
+			// }}
+			// animate={{
+			// 	opacity: 1,
+			// 	maskImage: "radial-gradient(circle at 50px 50px, #ffffffff 0%, #ffffffff 100%, #fffffff 150%)",
+			// }}
+			// transition={
+			// 	{
+			// 		duration: 0.2,
+			// 		ease: "easeInOut",
+			// 	} as MotionProps["transition"]
+			// }
+			{...handlers}
+			{...restProps}
+		>
 			<LayoutRoot>
 				<ContentPane>
 					<Toolbar />
@@ -63,7 +86,7 @@ function Metadata(props: MetadataComponentProps) {
 					</Box>
 					<History />
 				</ContentPane>
-				<InfoPane width={"20rem"} />
+				<InfoPanel width={"20rem"} />
 			</LayoutRoot>
 
 			{/* <Preview

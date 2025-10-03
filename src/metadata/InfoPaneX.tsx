@@ -12,8 +12,9 @@ import { getClipboardTypes } from "@/utils/clipboard"
 import ScrollTabs from "./ScrollTabs"
 import { cleanUp, MetadataStore } from "./state/store"
 import { InfoPaneContainer } from "./Containers"
-import Details, { DataItem } from "./Details"
-import { ImageItem } from './state/ImageItem'
+import Details from "./infoPanel/Details"
+import DataItem from './infoPanel/DataItem'
+import type { ImageItem } from "./state/ImageItem"
 
 interface InfoPanelProps extends BoxProps {}
 
@@ -39,47 +40,15 @@ function InfoPane(props: InfoPanelProps) {
 						onClick: () => toggleColorMode(),
 					},
 				]}
+				scrollPositions={image?.ui?.scrollY}
+				onScrollChanged={(tab, pos) => {
+					image.ui.scrollY[tab] = pos
+				}}
 				{...restProps}
 			>
-				{/* <MeasureGrid columns={2} fontSize={"sm"} maxItemLines={5}>
-						{Object.entries(
-							(exif ?? {}) as Record<string, unknown>,
-						).map(([k, v]) => {
-							const data = v
-							return <DataItem key={k} label={k} data={data} />
-						})}
-					</MeasureGrid> */}
-				<Details image={image as ImageItem} />
+				<Details imageSnap={image as ImageItem} />
 				<TabPage key={`${image?.id}_config`} label={"config"}>
-					<MeasureGrid columns={2} fontSize={"sm"} maxItemLines={5}>
-						<DataItem
-							label={"Size"}
-							data={`${dtData?.config.width} x ${dtData?.config.height}`}
-							ignore={dtData?.config.width === undefined || dtData?.config.height === undefined}
-						/>
-						<DataItem label={"Seed"} data={dtData?.config.seed} decimalPlaces={0} />
-						{null}
-						<DataItem label={"Model"} data={dtData?.config.model} cols={2} />
-						<HStack gridColumn={"span 2"} justifyContent={"space-evenly"}>
-							<DataItem label={"Steps"} data={dtData?.config.steps} decimalPlaces={0} />
-							<DataItem
-								label={"ImageGuidance"}
-								data={dtData?.config.imageGuidanceScale}
-								decimalPlaces={1}
-							/>
-							<DataItem label={"Shift"} data={dtData?.config.shift} decimalPlaces={2} />
-						</HStack>
-						<DataItem label={"Prompt"} data={dtData?.prompt} cols={2} />
-						<DataItem
-							label={"Negative Prompt"}
-							data={
-								dtData?.negativePrompt
-								// Array(6).fill("ABC").join("\n")
-							}
-							cols={2}
-						/>
-						<DataItem label={"Config"} data={dtData?.config} cols={2} expandByDefault />
-					</MeasureGrid>
+					<Config dtData={dtData} />
 				</TabPage>
 				<TabPage key={`${image?.id}_gen`} label={"gen"}>
 					{dtData?.profile?.timings?.map((t) => (

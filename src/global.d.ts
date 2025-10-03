@@ -6,4 +6,6 @@ declare global {
 	}
 
 	type ChakraProps = Omit<BoxProps, "direction">
+
+	function toJSON<T>(object: T): T
 }

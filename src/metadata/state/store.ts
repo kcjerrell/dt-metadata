@@ -8,7 +8,6 @@ import ImageStore from "@/utils/imageStore"
 import { getDrawThingsDataFromExif } from "../helpers"
 import { ImageItem, type ImageItemConstructorOpts } from "./ImageItem"
 
-
 export function bind<T extends object>(instance: T): T {
 	const props = Object.getOwnPropertyNames(Object.getPrototypeOf(instance))
 
@@ -35,10 +34,15 @@ const metadataStore = store(
 		get currentImage(): ImageItem | undefined {
 			if (MetadataStore.currentIndex === null) return undefined
 			return MetadataStore.images[MetadataStore.currentIndex]
-		}
+		},
 	},
 	{
-		filterKeys: ["currentImage", "currentIndex", "currentImageUi", "zoomPreview", "imagesUi", "showHistory"],
+		filterKeys: [
+			"currentImage",
+			"currentIndex",
+			"zoomPreview",
+			"showHistory",
+		],
 		filterKeysStrategy: "omit",
 		hooks: {
 			beforeFrontendSync(state) {
@@ -57,8 +61,8 @@ const metadataStore = store(
 		},
 	},
 )
-await metadataStore.start()
 export const MetadataStore = metadataStore.state
+await metadataStore.start()
 
 type ImageItemParam = ReadonlyState<ImageItem> | ImageItem | number | null
 
@@ -136,12 +140,18 @@ function reconcilePins() {
 	})
 }
 
-export async function clearImages(keepTabs = false) {
+export async function clearAll(keepTabs = false) {
 	if (keepTabs) MetadataStore.images = MetadataStore.images.filter((im) => im.pin != null)
 	else MetadataStore.images = []
 
 	MetadataStore.currentIndex = MetadataStore.images.length - 1
 	await syncImageStore()
+}
+
+export async function clearImage(images: Pick<ImageItem, 'id'>[]) {
+	const ids = images.map(image => image.id);
+	MetadataStore.images = MetadataStore.images.filter(image => !ids.includes(image.id));
+	await syncImageStore();
 }
 
 export async function createImageItem(
@@ -150,7 +160,7 @@ export async function createImageItem(
 	source: ImageSource,
 ) {
 	console.trace("create image item")
-	
+
 	if (!imageData || !type || !source) return null
 	if (imageData.length === 0) return null
 
@@ -159,7 +169,6 @@ export async function createImageItem(
 	if (!entry) return null
 
 	const exif = await getExif(imageData.buffer)
-	console.log(exif)
 	const dtData = getDrawThingsDataFromExif(exif)
 
 	const item: ImageItemConstructorOpts = {
@@ -234,7 +243,6 @@ export async function getExif(arg: ArrayBuffer | string): Promise<ExifType> {
 			iptc: true,
 			mergeOutput: false,
 		})
-		console.log("exifr", exif)
 		return exif
 	} catch (e) {
 		console.warn(e)

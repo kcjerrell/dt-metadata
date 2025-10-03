@@ -27,7 +27,6 @@ type TextGetter = GetterOrNot<PromiseOrNot<Text | null>>
  * @param getText an object of text items that may contain paths/urls (or a function that returns or promises one)
  */
 export async function loadImage(imageOrGetter: ImageGetter, textOrGetter: TextGetter) : Promise<boolean> {
-	console.log('load image')
 	const fileImage = await resolveGetter(imageOrGetter)
 	let imageItem: ImageItem | null = null
 
@@ -49,7 +48,6 @@ export async function loadImage(imageOrGetter: ImageGetter, textOrGetter: TextGe
 		if (!text[textType]) continue
 
 		const { files, urls } = parseText(text[textType], textType)
-		console.log(`${textType} has ${files.length} files and ${urls.length} urls`)
 
 		for (const file of files) {
 			if (textItem) break
@@ -73,10 +71,8 @@ export async function loadImage(imageOrGetter: ImageGetter, textOrGetter: TextGe
 			if (textItem) break
 			if (checked.includes(url)) continue
 			checked.push(url)
-			console.log(`gonna try downloading ${url}`)
 			const image = await fetchImage(url)
 			if (image) {
-				console.log("got an image")
 				textItem = [
 					image,
 					(await pathlib.extname(new URL(url).pathname)) ?? "png",

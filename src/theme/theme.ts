@@ -1,9 +1,5 @@
 import { createSystem, defaultConfig, defineConfig } from "@chakra-ui/react"
-// import CheckDark from "@/assets/check_dark.png?url"
-// import CheckLight from "@/assets/check_light.png?url"
-
-// const CheckLight = './check_light.png'
-// const CheckDark = './check_dark.png'
+import { tabsSlotRecipe } from './tabs'
 
 const themeConfig = defineConfig({
 	globalCss: {

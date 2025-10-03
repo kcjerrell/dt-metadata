@@ -19,7 +19,7 @@ import { postMessage, useMessages } from "@/context/Messages"
 import AppState from "@/hooks/useAppState"
 import ImageStore from "@/utils/imageStore"
 import { loadFromPasteboard } from "./state/imageLoaders"
-import { clearImages, MetadataStore, pinImage } from "./state/store"
+import { clearAll, MetadataStore, pinImage } from "./state/store"
 
 interface ToolbarProps extends StackProps {}
 
@@ -120,7 +120,7 @@ function Toolbar(props: ToolbarProps) {
 							>
 								<Pinned pin={currentImage?.pin} />
 							</ToolbarButton>
-							<ToolbarButton icon={FiXCircle} onClick={clearImages} />
+							<ToolbarButton icon={FiXCircle} onClick={() => clearAll(true)} />
 							<ToolbarButton
 								icon={FiCopy}
 								onClick={async () => {

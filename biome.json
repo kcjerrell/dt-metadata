@@ -7,7 +7,9 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
-		"includes": ["./src/**/*.{js,jsx,ts,tsx}"]
+		"includes": [
+			"./src/**/*.{js,jsx,ts,tsx}"
+		]
 	},
 	"formatter": {
 		"enabled": true,
@@ -17,7 +19,10 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
-			"recommended": true
+			"recommended": true,
+			"a11y": {
+				"noSvgWithoutTitle": "off"
+			}
 		}
 	},
 	"javascript": {

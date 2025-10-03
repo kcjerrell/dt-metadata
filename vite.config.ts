@@ -25,7 +25,8 @@ export default defineConfig(async () => ({
         plugins: ['babel-plugin-react-compiler'],
       }
     }),
-    tsconfigPaths()],
+    tsconfigPaths(),
+  ],
   resolve: {
     alias: {
       "@": new URL("./src", import.meta.url).pathname,
