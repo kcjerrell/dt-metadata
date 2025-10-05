@@ -9,7 +9,7 @@ import {
 } from "@chakra-ui/react"
 import { relaunch } from "@tauri-apps/plugin-process"
 import { AnimatePresence, motion } from "motion/react"
-import { useEffect, type PropsWithChildren } from "react"
+import { ComponentProps, useEffect, type PropsWithChildren } from "react"
 import { FiClipboard, FiCopy, FiInfo, FiXCircle } from "react-icons/fi"
 import { GrPin } from "react-icons/gr"
 import type { IconType } from "react-icons/lib"
@@ -18,45 +18,23 @@ import { type ColorMode, useColorMode } from "@/components/ui/color-mode"
 import { postMessage, useMessages } from "@/context/Messages"
 import AppState from "@/hooks/useAppState"
 import ImageStore from "@/utils/imageStore"
-import { loadFromPasteboard } from "./state/imageLoaders"
+import { loadFromPasteboard, loadImage2 } from "./state/imageLoaders"
 import { clearAll, MetadataStore, pinImage } from "./state/store"
 
-interface ToolbarProps extends StackProps {}
 
 const MotionVStack = motion.create(VStack)
+type ToolbarProps = ComponentProps<typeof MotionVStack>
 
 function Toolbar(props: ToolbarProps) {
 	const { ...restProps } = props
 
 	const { currentImage } = useSnapshot(MetadataStore)
 
-	// const [message, setMessage] = useState("")
-	// const msgTimeout = useRef<ReturnType<typeof setTimeout>>(null)
-
-	// const showMessage = useCallback((msg: string, duration = 3000) => {
-	// 	if (msgTimeout.current) clearTimeout(msgTimeout.current)
-	// 	setMessage(msg)
-	// 	msgTimeout.current = setTimeout(() => {
-	// 		setMessage("")
-	// 		msgTimeout.current = null
-	// 	}, duration)
-	// }, [])
-
 	const messageChannel = useMessages("toolbar")
-	// console.log("channel", messageChannel)
-	// useEffect(() => {
-	// 	const message = messageChannel.messages[0]
-	// 	if (!message) return
-	// 	showMessage(message.message, message.duration ?? 3000)
-	// 	setTimeout(() => {
-	// 		messageChannel.removeMessage(message)
-	// 	}, 3000)
-	// }, [messageChannel?.messages[0], messageChannel?.removeMessage, showMessage])
 
 	return (
 		<HStack padding={2} data-tauri-drag-region height={"3rem"}>
-			{/* <Box bgColor={"red/2"} width={"45px"} height={"100%"} /> */}
-			<Spacer data-tauri-drag-region bgColor={"blue/2"} />
+			<Spacer data-tauri-drag-region />
 			<Box
 				position={"relative"}
 				alignItems={"flex-start"}
@@ -66,41 +44,28 @@ function Toolbar(props: ToolbarProps) {
 				maxHeight={"100%"}
 			>
 				<MotionVStack
-					// top={0}
-					// alignSelf={"center"}
-					// right={"-100%"}
-					// left={"-100%"}
-					// width={"min-content"}
-					// position={"absolute"}
 					gap={0}
 					bgColor={"bg.1"}
 					flex={"0 0 auto"}
 					borderRadius={"xl"}
-					border={"1px solid {gray/20}"}
+					border={"pane1"}
 					borderBottom={messageChannel.messages.length ? "0px" : "1px"}
 					overflow={"hidden"}
-					boxShadow={"lg"}
+					boxShadow={"pane1"}
 					height={"auto"}
 					width="min-content" // 👈 shrink-wrap to content
 					align="stretch" // 👈 don’t stretch children
 					initial={false}
 					layout
-					// filter={"drop-shadow(0px 2px 4px #000000)"}
+					{...restProps}
 				>
-					<ButtonGroup
-						// size={'md'}
-						variant={"ghost"}
-						// colorPalette={'blue'}
-						gap={0}
-						{...restProps}
-						asChild
-					>
+					<ButtonGroup variant={"ghost"} gap={0} asChild>
 						<HStack>
 							<ToolbarButton
 								icon={FiClipboard}
 								onClick={async () => {
 									try {
-										await loadFromPasteboard()
+										await loadImage2("general")
 									} catch (e) {
 										console.error(e)
 									}

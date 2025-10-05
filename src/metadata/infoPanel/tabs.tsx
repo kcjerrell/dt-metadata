@@ -16,7 +16,7 @@ const Root = chakra(TabsRoot, {
 	},
 })
 const List = chakra(TabsList, {
-	base: { height: "min", minHeight: "min", marginBottom: 0 },
+	base: { height: "min", minHeight: "min", marginBottom: 0, borderBottom: "1px solid #77777722" },
 })
 const Trigger = chakra(TabsTrigger, {
 	base: {
@@ -28,6 +28,7 @@ const Trigger = chakra(TabsTrigger, {
 		_selected: {
 			color: "highlight",
 			bgColor: "bg.1",
+			borderRadius: "5px 5px 0px 0px"
 		},
 		_before: { display: "none" },
 		height: "min",
@@ -39,7 +40,7 @@ const Indicator = chakra(TabsIndicator, {
 		border: "0px !important",
 		borderBottom: "0px",
 		height: "3px",
-		bottom: "0px",
+		bottom: "-1px",
 		zIndex: 2,
 	},
 })

@@ -62,12 +62,12 @@ export const CurrentImage = chakra(
 	"img",
 	defineRecipe({
 		base: {
-			objectFit: "contain",
-			width: "100%",
+			maxWidth: "100%",
+			maxHeight: "100%",
 			minWidth: 0,
 			minHeight: 0,
-			height: "100%",
 			borderRadius: "sm",
+			boxShadow: "pane1"
 		},
 	}),
 )
@@ -81,11 +81,11 @@ export const InfoPaneContainer = chakra(
 			padding: 0,
 			margin: 1,
 			borderRadius: "xl",
-			boxShadow: "lg",
-			border: "1px solid {gray/20}",
-			flex: "0 0 18rem",
+			boxShadow: "pane1",
+			border: "pane1",
+			flex: "0 0 20rem",
 			gap: 0,
-			alignItems: "stretch",																					
+			alignItems: "stretch",
 			overflow: "hidden",
 			bgColor: "bg.3",
 			right: 0,

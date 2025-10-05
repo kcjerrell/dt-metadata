@@ -10,11 +10,9 @@ import { MetadataStore } from "../state/store"
 import Config from "./Config"
 import Details from "./Details"
 import TabContent from "./TabContent"
-import Tabs from './tabs'
+import Tabs from "./tabs"
 
-interface InfoPanelProps extends ChakraProps {
-	image: ImageItem
-}
+interface InfoPanelProps extends ChakraProps {}
 
 function InfoPanel(props: InfoPanelProps) {
 	const { ...rest } = props
@@ -63,62 +61,56 @@ function InfoPanel(props: InfoPanelProps) {
 						</Tabs.Trigger>
 					))}
 					<Spacer />
-					<IconButton size="2xs" variant="ghost" onClick={toggleColorMode}>
+					<IconButton color={"fg.3"} _hover={{ color: "fg.1", bgColor: "unset", scale: 1.1 }} size="xs" variant="ghost" onClick={toggleColorMode}>
 						<FiMoon />
 					</IconButton>
 					<Tabs.Indicator />
 				</Tabs.List>
-					<TabContent
-						key={`${currentImage?.id}_details`}
-						value="details"
-						updateScroll={updateScroll}
-						scrollPos={scrollPos}
-					>
-						{currentImage && (
-							<Details
-								imageSnap={currentImage}
-								expandItems={Object.keys(expandedSnap[currentImage.id] ?? []).map((k) =>
-									k.replace("details_", ""),
-								)}
-								onItemCollapseChanged={(subkey, collapse) => {
-									const key = `details_${subkey}`
-									if (!expandedRef.current[currentImage.id])
-										expandedRef.current[currentImage.id] = {}
-									if (collapse === "collapsed") delete expandedRef.current[currentImage.id][key]
-									else expandedRef.current[currentImage.id][key] = true
-								}}
-							/>
-						)}
-					</TabContent>
-					<TabContent
-						key={`${currentImage?.id}_config`}
-						value="config"
-						updateScroll={updateScroll}
-						scrollPos={scrollPos}
-					>
-						{currentImage && (
-							<Config
-								image={currentImage}
-								expandItems={Object.keys(expandedSnap[currentImage.id] ?? []).map((k) =>
-									k.replace("config_", ""),
-								)}
-								onItemCollapseChanged={(subkey, collapse) => {
-									const key = `config_${subkey}`
-									if (!expandedRef.current[currentImage.id])
-										expandedRef.current[currentImage.id] = {}
-									if (collapse === "collapsed") delete expandedRef.current[currentImage.id][key]
-									else expandedRef.current[currentImage.id][key] = true
-								}}
-							/>
-						)}
-					</TabContent>
-					<TabContent
-						value="gen"
-						updateScroll={updateScroll}
-						scrollPos={scrollPos}
-					>
-						{Array.from({ length: 100 }, (_, i) => `${i} gen`).join("\n")}
-					</TabContent>
+				<TabContent
+					key={`${currentImage?.id}_details`}
+					value="details"
+					updateScroll={updateScroll}
+					scrollPos={scrollPos}
+				>
+					{currentImage && (
+						<Details
+							imageSnap={currentImage}
+							expandItems={Object.keys(expandedSnap[currentImage.id] ?? []).map((k) =>
+								k.replace("details_", ""),
+							)}
+							onItemCollapseChanged={(subkey, collapse) => {
+								const key = `details_${subkey}`
+								if (!expandedRef.current[currentImage.id]) expandedRef.current[currentImage.id] = {}
+								if (collapse === "collapsed") delete expandedRef.current[currentImage.id][key]
+								else expandedRef.current[currentImage.id][key] = true
+							}}
+						/>
+					)}
+				</TabContent>
+				<TabContent
+					key={`${currentImage?.id}_config`}
+					value="config"
+					updateScroll={updateScroll}
+					scrollPos={scrollPos}
+				>
+					{currentImage && (
+						<Config
+							imageSnap={currentImage}
+							expandItems={Object.keys(expandedSnap[currentImage.id] ?? []).map((k) =>
+								k.replace("config_", ""),
+							)}
+							onItemCollapseChanged={(subkey, collapse) => {
+								const key = `config_${subkey}`
+								if (!expandedRef.current[currentImage.id]) expandedRef.current[currentImage.id] = {}
+								if (collapse === "collapsed") delete expandedRef.current[currentImage.id][key]
+								else expandedRef.current[currentImage.id][key] = true
+							}}
+						/>
+					)}
+				</TabContent>
+				<TabContent value="gen" updateScroll={updateScroll} scrollPos={scrollPos}>
+					{Array.from({ length: 100 }, (_, i) => `${i} gen`).join("\n")}
+				</TabContent>
 			</Tabs.Root>
 		</InfoPaneContainer>
 	)

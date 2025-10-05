@@ -1,13 +1,11 @@
-use std::collections::HashMap;
-use std::path::PathBuf;
-
-use tauri::TitleBarStyle;
+use tauri::{Manager, TitleBarStyle};
 use tauri::{WebviewUrl, WebviewWindowBuilder};
 use tauri_plugin_http::reqwest;
 
 use objc2::rc::Retained;
 use objc2_app_kit::{NSPasteboard, NSPasteboardNameDrag};
 use objc2_foundation::{NSArray, NSData, NSString};
+use tauri_plugin_window_state::StateFlags;
 
 // mod metadata;
 
@@ -134,14 +132,18 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
-        .plugin(tauri_plugin_window_state::Builder::new().build())
+        .plugin(
+            tauri_plugin_window_state::Builder::new()
+                .with_state_flags(StateFlags::all() & !StateFlags::VISIBLE)
+                .build(),
+        )
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_clipboard::init())
-        .plugin(tauri_plugin_valtio::init())
+        .plugin(tauri_plugin_valtio::Builder::new().build())
         // .plugin(tauri_plugin_nspopover::init())
         .invoke_handler(tauri::generate_handler![
             read_clipboard_types,

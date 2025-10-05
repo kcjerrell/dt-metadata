@@ -67,3 +67,8 @@ export function shuffle<T>(array: T[]): T[] {
 export function capitalize(text: string) {
 	return text.charAt(0).toUpperCase() + text.slice(1)
 }
+
+export function getStoreName(name: string) {
+	if (import.meta.env.DEV) return `dev_${name}`
+	return name
+}

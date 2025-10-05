@@ -14,8 +14,9 @@ import { MetadataStore } from "./state/store"
 import Toolbar from "./Toolbar"
 import { useMetadataDrop } from "./useMetadataDrop"
 import { CheckRoot, ContentPane, CurrentImage, LayoutRoot } from "./Containers"
-import { showPreview } from "@/components/preview/preview"
-import InfoPanel from './infoPanel/InfoPanel'
+import { showPreview } from "@/components/preview/Preview"
+import InfoPanel from "./infoPanel/InfoPanel"
+import { loadFromPasteboard } from "./state/imageLoaders"
 
 type MetadataComponentProps = Parameters<typeof CheckRoot>[0]
 
@@ -29,6 +30,12 @@ function Metadata(props: MetadataComponentProps) {
 	const { currentImage, zoomPreview } = snap
 
 	const { isDragging, handlers } = useMetadataDrop()
+
+	useEffect(() => {
+		const handler = () => loadFromPasteboard("general")
+		window.addEventListener("paste", handler)
+		return () => window.removeEventListener("paste", handler)
+	}, [])
 
 	return (
 		<CheckRoot
@@ -47,12 +54,13 @@ function Metadata(props: MetadataComponentProps) {
 			// 		ease: "easeInOut",
 			// 	} as MotionProps["transition"]
 			// }
+
 			{...handlers}
 			{...restProps}
 		>
 			<LayoutRoot>
 				<ContentPane>
-					<Toolbar />
+					<Toolbar zIndex={3} />
 					<Box
 						position={"relative"}
 						ref={dropRef}
@@ -71,9 +79,7 @@ function Metadata(props: MetadataComponentProps) {
 								key={currentImage?.id}
 								ref={imgRef}
 								src={currentImage?.url}
-								onClick={(e) => {
-									if (isInsideImage(e, e.currentTarget)) showPreview(e.currentTarget)
-								}}
+								onClick={(e) => showPreview(e.currentTarget)}
 							/>
 						) : (
 							<Flex color={"fg/50"} fontSize={"xl"} justifyContent={"center"} alignItems={"center"}>
@@ -86,7 +92,7 @@ function Metadata(props: MetadataComponentProps) {
 					</Box>
 					<History />
 				</ContentPane>
-				<InfoPanel width={"20rem"} />
+				<InfoPanel />
 			</LayoutRoot>
 
 			{/* <Preview

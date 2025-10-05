@@ -39,6 +39,7 @@
     "process:default",
     "dialog:default",
     "window-state:default",
+    "core:window:allow-is-visible",
     {
       "allow": [
         {
@@ -51,7 +52,6 @@
     }
   ],
   "windows": [
-    "main",
-    "panel"
+    "main"
   ]
 }

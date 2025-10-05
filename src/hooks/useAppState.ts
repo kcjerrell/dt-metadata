@@ -23,7 +23,7 @@ const store: AppStateType = proxy({
 	updateSize: 0,
 	updateProgress: 0,
 	updateStatus: "unknown",
-	currentView: localStorage.getItem("currentView") || "metadata"
+	currentView: localStorage.getItem("currentView") || "metadata",
 })
 
 async function checkForUpdate() {

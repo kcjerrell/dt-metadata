@@ -1,12 +1,5 @@
-import type { ImageSource } from "@/types"
 import { convertFileSrc, invoke } from "@tauri-apps/api/core"
-import { getMetaDataFromBuffer } from "./metadata"
-import { hasDrawThingsData } from "@/metadata/helpers"
-import { createImageItem } from "@/metadata/state/store"
-import { readFile, exists } from "@tauri-apps/plugin-fs"
-import * as pathlib from "@tauri-apps/api/path"
-import * as plist from "plist"
-import { since } from "@/devStore"
+import type { ImageSource } from "@/types"
 
 type PasteboardNames = "general" | "drag"
 export async function getClipboardTypes(pasteboard?: PasteboardNames): Promise<string[]> {
@@ -58,29 +51,6 @@ export async function getLocalImage(path: string): Promise<Uint8Array<ArrayBuffe
 	}
 }
 
-export async function getBufferImage(buffer: Uint8Array): Promise<ImageAndData | undefined> {
-	try {
-		return {
-			data: buffer,
-			source: { clipboard: "png" },
-			exif: await getMetaDataFromBuffer(buffer),
-			hasDrawThingsData: false,
-			type: "png",
-		}
-	} catch (e) {
-		console.warn(e)
-		return undefined
-	}
-}
-
-const textTypes = [
-	"NSFilenamesPboardType",
-	"public.utf8-plain-text",
-	"org.chromium.source-url",
-	"public.file-url",
-	"public.url",
-]
-
 export async function fetchImage(url: string): Promise<Uint8Array<ArrayBuffer> | undefined> {
 	try {
 		const data = (await invoke("fetch_image_file", {
@@ -93,64 +63,4 @@ export async function fetchImage(url: string): Promise<Uint8Array<ArrayBuffer> |
 	} catch (e) {
 		console.error(e)
 	}
-}
-
-function groupPaths(paths: string[]) {
-	const urls: URL[] = []
-	const files: string[] = []
-
-	for (const path of paths) {
-		try {
-			const url = new URL(path)
-			if (url.protocol === "file:") files.push(url.pathname)
-			else urls.push(url)
-		} catch (e) {
-			if (path.startsWith("file://")) files.push(path)
-			if (path.startsWith("/")) files.push(path)
-		}
-	}
-
-	return { urls, files }
-}
-
-export function checkData(data?: Partial<ImageAndData>) {
-	if (!data) return "incomplete"
-	if (!data.data || data.data.length === 0) return "incomplete"
-	if (!data.exif) return "incomplete"
-	if (!data.source) return "incomplete"
-
-	if (data.hasDrawThingsData) return "ideal"
-
-	return "partial"
-}
-
-function parseText(value: string, type: string): string[] {
-	let paths: string[] = []
-
-	if (typeof value !== "string") return paths
-
-	switch (type) {
-		case "NSFilenamesPboardType":
-			// when copying from mac finder
-			paths = plist.parse(value) as string[]
-			break
-		case "public.file-url":
-		case "public.url":
-		case "org.chromium.source-url":
-		case "public.utf8-plain-text":
-		default:
-			// URLs, possibly file URLs
-			paths = value
-				.split("\n")
-				.map((f) => f.trim())
-				.filter((f) => f.length > 0)
-			break
-		// Try to detect file paths or URLs in plain text
-		// paths = value
-		//   .split('\n')
-		//   .map(f => f.trim())
-		//   .filter(f => f.length > 0)
-	}
-
-	return paths
 }

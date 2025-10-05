@@ -23,9 +23,9 @@ export class ImageItem {
 
 	private _exif?: ExifType
 	private _dtData?: DrawThingsMetaData | null
-	private _exifStatus?: "pending" | "done"
+	private _exifStatus?: "pending" | "done" 
 	private _entry?: ImageStoreEntry
-	private _entryStatus?: "pending" | "done"
+	private _entryStatus?: "pending" | "done" | "error"
 
 	constructor(opts: ImageItemConstructorOpts) {
 		if (!opts.id) throw new Error("ImageItem must have an id")
@@ -93,8 +93,18 @@ export class ImageItem {
 	async loadEntry() {
 		if (this._entryStatus) return
 		this._entryStatus = "pending"
-		this._entry = await ImageStore.get(this.id)
-		this._entryStatus = "done"
+
+		for (let i = 0; i < 3; i++) {
+			const entry = await ImageStore.get(this.id)
+			if (entry) {
+				this._entry = entry
+				this._entryStatus = "done"
+				return
+			}
+			await new Promise((resolve) => setTimeout(resolve, 500))
+		}
+
+		this._entryStatus = "error"
 	}
 
 	toJSON() {

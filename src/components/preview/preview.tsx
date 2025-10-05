@@ -57,11 +57,7 @@ export function Preview(props: PreviewProps) {
 		const sourceRect = store.showPreview ? originalRect : previewRect
 		const targetRect = store.showPreview ? previewRect : originalRect
 
-		// const targetRect = store.showPreview ? cont
-
 		const { left, top, width, height } = sourceRect
-
-		// if (store.showPreview) {
 
 		leftMv.set(left)
 		widthMv.set(width)
@@ -90,26 +86,6 @@ export function Preview(props: PreviewProps) {
 			{ visibility: ["hidden", "hidden", show ? "hidden" : "visible"] },
 			{ duration: posTransition.duration, times: [0, 1, 1] },
 		)
-
-		// } else {
-		// 	animate(leftMv, left, posTransition)
-		// 	animate(widthMv, width, posTransition)
-		// 	animate(topMv, top, posTransition)
-		// 	animate(heightMv, height, posTransition)
-
-		// 	const controls = animate(
-		// 		sourceElement,
-		// 		{ opacity: store.originalOpacity },
-		// 		{ duration: 0.1, delay: posTransition.duration - 0.1 },
-		// 	)
-
-		// 	controls.finished.then(() => {
-		// 		// sourceElement.style.opacity = store.originalOpacity
-		// 		store.originalOpacity = null
-		// 		store.sourceElement.current = null
-		// 		store.src = null
-		// 	})
-		// }
 	}, [animate, heightMv, leftMv, widthMv, topMv, show])
 
 	return (
@@ -132,26 +108,17 @@ export function Preview(props: PreviewProps) {
 					backgroundColor: "#00000000",
 				}}
 				animate={{
-					backgroundColor: show ? "#000000ff" : "#00000000",
+					backgroundColor: show ? "#000000dd" : "#00000000",
 					opacity: show ? 1 : 0,
 				}}
 				transition={{
 					...posTransition,
-					// ease: "circOut",
+					duration: show ? posTransition.duration * 1.5 : posTransition.duration,
 					opacity: {
 						duration: 0,
 						delay: show ? 0 : posTransition.duration,
 					},
-					// opacity: {
-					// 	duration: 0,
-					// 	delay: show ? 0 : posTransition.duration,
-					// },
 				}}
-				style={
-					{
-						// position: "relative",
-					}
-				}
 			>
 				<motion.img
 					ref={transRef}

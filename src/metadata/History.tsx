@@ -27,7 +27,7 @@ function History(props: HistoryProps) {
 			overflowY={"clip"}
 			flex={"0 0 auto"}
 			bottom={"0px"}
-			marginBottom={"-20px"}
+			marginBottom={"-1rem"}
 			_hover={{ transform: "translateY(-10%)" }}
 			transition={"transform 0.1s ease-in-out"}
 			height={"4rem"}

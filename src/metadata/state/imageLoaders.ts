@@ -19,6 +19,111 @@ type ImageGetter = GetterOrNot<PromiseOrNot<ImageFile | null>>
 type Text = Record<string, string>
 type TextGetter = GetterOrNot<PromiseOrNot<Text | null>>
 
+const prioritizedTypes = [
+	"NSFilenamesPboardType",
+	"public.utf8-plain-text",
+	"public.html",
+	"org.chromium.source-url",
+	"public.png",
+	"public.tiff",
+	"public.jpeg",
+	"public.file-url",
+	"public.url",
+]
+export async function loadImage2(pasteboard: "general" | "drag") {
+	const types = await getClipboardTypes(pasteboard)
+	const text = await getClipboardText(
+		clipboardTextTypes.filter((t) => types.includes(t)),
+		pasteboard,
+	)
+	const source = pasteboard === "general" ? "clipboard" : "drop"
+
+	const getType = async (type: string) => {
+		if (!types.includes(type)) return null
+
+		if (type in text) return text[type]
+		return await getClipboardBinary(type, pasteboard)
+	}
+
+	const checked: string[] = []
+
+	for (const type of prioritizedTypes) {
+		if (!types.includes(type)) continue
+
+		const data = await getType(type)
+		if (!data) continue
+
+		if (typeof data === "string") {
+			const images = await tryLoadText(data, type, source, checked)
+			if (images.length > 1) return true
+			if (images.length === 1 && images[0].dtData) return true
+			// if one image, but image doesn't have dtdata, keep looking
+		} else if (data instanceof Uint8Array) {
+			const image = await createImageItem(data, getImageType(type), {
+				source,
+				image: type,
+			})
+			if (image) return true
+		}
+	}
+	
+	return null
+}
+
+async function tryLoadText(
+	text: string,
+	type: string,
+	source: "clipboard" | "drop",
+	excludeMut: string[] = [],
+): Promise<ImageItem[]> {
+	const { files, urls } = parseText(text, type)
+	const items = [] as Parameters<typeof createImageItem>[]
+
+	for (const file of files) {
+		// if (textItem) break
+		if (excludeMut.includes(file)) continue
+		excludeMut.push(file)
+		console.debug("Creating image item from file", file)
+		const image = await getLocalImage(file)
+		if (image) {
+			const item: Parameters<typeof createImageItem> = [
+				image,
+				await pathlib.extname(file),
+				{
+					source,
+					file,
+				},
+			]
+			items.push(item)
+		}
+	}
+
+	for (const url of urls) {
+		if (items.length) break
+		if (excludeMut.includes(url)) continue
+		excludeMut.push(url)
+		const image = await fetchImage(url)
+		if (image) {
+			const item: Parameters<typeof createImageItem> = [
+				image,
+				(await pathlib.extname(new URL(url).pathname)) ?? "png",
+				{
+					source,
+					url,
+				},
+			]
+			items.push(item)
+			// createImageItem(...textItem)
+		}
+	}
+
+	if (!items.length) return []
+
+	return (await Promise.allSettled(items.map((item) => createImageItem(...item))))
+		.filter((p) => p.status === "fulfilled" && p.value !== null)
+		.map((p: PromiseFulfilledResult<ImageItem>) => p.value)
+}
+
 /**
  * Since clipboard and drops have different methods of obtaining thr data,
  * the params here are pretty flexible. The buffer will be checked first. In
@@ -29,14 +134,14 @@ type TextGetter = GetterOrNot<PromiseOrNot<Text | null>>
 export async function loadImage(
 	imageOrGetter: ImageGetter,
 	textOrGetter: TextGetter,
-	source?: "clipboard" | "drop" | "open"
+	source?: "clipboard" | "drop" | "open",
 ): Promise<boolean> {
 	const fileImage = await resolveGetter(imageOrGetter)
 	let imageItem: ImageItem | null = null
 
 	if (fileImage?.data && fileImage.type) {
 		imageItem = await createImageItem(fileImage.data, getImageType(fileImage.type), {
-			source, 
+			source,
 			image: fileImage.type,
 		})
 		if (imageItem?.dtData) return true
@@ -53,7 +158,7 @@ export async function loadImage(
 		if (!text[textType]) continue
 
 		const { files, urls } = parseText(text[textType], textType)
-		console.log({files, urls})
+		console.log({ files, urls })
 
 		for (const file of files) {
 			// if (textItem) break
@@ -64,10 +169,10 @@ export async function loadImage(
 			if (image) {
 				const textItem: Parameters<typeof createImageItem> = [
 					image,
-					(await pathlib.extname(file)),
+					await pathlib.extname(file),
 					{
 						source,
-						file
+						file,
 					},
 				]
 				textItems.push(textItem)
@@ -85,7 +190,7 @@ export async function loadImage(
 					(await pathlib.extname(new URL(url).pathname)) ?? "png",
 					{
 						source,
-						url
+						url,
 					},
 				]
 				textItems.push(textItem)
@@ -97,8 +202,9 @@ export async function loadImage(
 	// we didn't find an image url/path, return true if an image item was found
 	if (!textItems.length) return imageItem != null
 
-	if (imageItem && textItems.length === 1) return !!(await replaceWithBetter(imageItem, ...textItems[0]))
-	else return !!(Promise.all(textItems.map(textItem => createImageItem(...textItem))))
+	if (imageItem && textItems.length === 1)
+		return !!(await replaceWithBetter(imageItem, ...textItems[0]))
+	else return !!Promise.all(textItems.map((textItem) => createImageItem(...textItem)))
 }
 
 export function parseText(value: string, type: string) {

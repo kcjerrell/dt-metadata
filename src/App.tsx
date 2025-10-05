@@ -1,10 +1,10 @@
 import { Box, Button, type ButtonProps, chakra, HStack, Spacer, VStack } from "@chakra-ui/react"
 import { getCurrentWindow } from "@tauri-apps/api/window"
 import { AnimatePresence, LayoutGroup, motion } from "motion/react"
-import { lazy, type PropsWithChildren, Suspense, useRef, useState } from "react"
+import { lazy, type PropsWithChildren, Suspense, useEffect, useRef, useState } from "react"
 import { BiDetail } from "react-icons/bi"
 import { useSnapshot } from "valtio"
-import { Preview } from "./components/preview/preview"
+import { Preview } from "./components/preview/Preview"
 import AppState from "./hooks/useAppState"
 import { Loading } from "./main"
 import "./menu"
@@ -13,10 +13,6 @@ const sidebarEnabled = false
 
 function App() {
 	const firstRender = useRef(true)
-	if (firstRender.current) {
-		firstRender.current = false
-		getCurrentWindow().show()
-	}
 
 	const snap = useSnapshot(AppState.store)
 	const View = getView(snap.currentView)
@@ -101,7 +97,7 @@ function App() {
 				)}
 				<Suspense fallback={<Loading />}>
 					<AnimatePresence>
-						<ViewContainer>
+						<ViewContainer firstRender={firstRender}>
 							<View
 								flex={"1 1 auto"}
 								boxShadow={
@@ -118,7 +114,16 @@ function App() {
 	)
 }
 
-function ViewContainer(props: PropsWithChildren) {
+function ViewContainer(props: PropsWithChildren<{ firstRender: { current: boolean } }>) {
+	const { firstRender, children } = props
+
+	useEffect(() => {
+		if (firstRender.current) {
+			firstRender.current = false
+			getCurrentWindow().show().catch(console.error)
+		}
+	}, [firstRender])
+
 	return (
 		<motion.div
 			initial={{ opacity: 0, scale: 0.95 }}
@@ -205,7 +210,7 @@ const views = {
 	mini: lazy(() => import("./Mini")),
 	vid: lazy(() => import("./vid/Vid")),
 	library: lazy(() => import("./library/Library")),
-	scratch: lazy(() => import("./scratch/Scratch2")),
+	scratch: lazy(() => import("./scratch/Scratch4")),
 }
 
 function getView(view: string) {

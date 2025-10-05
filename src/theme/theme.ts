@@ -4,7 +4,7 @@ const themeConfig = defineConfig({
 	globalCss: {
 		html: {
 			overscrollBehavior: "none",
-			fontSize: "14px",
+			fontSize: "var(--app-base-size)",
 			// zoom: 1.5
 		},
 		body: {
@@ -29,7 +29,7 @@ const themeConfig = defineConfig({
 			overflow: "clip",
 			height: "100vh",
 			width: "100vw",
-			position: "relative"
+			position: "relative",
 		},
 	},
 	theme: {
@@ -157,6 +157,21 @@ const themeConfig = defineConfig({
 			},
 		},
 		tokens: {
+			borders: {
+				pane1: {
+					value: "1px solid #77777722",
+				},
+			},
+			shadows: {
+				pane1: {
+					value:
+						"0px 1px 4px -2px #00000033, 2px 4px 6px -2px #00000022, -1px 4px 6px -2px #00000022,  0px 3px 12px -3px #00000033",
+				},
+				pane2: {
+					value:
+						"0px 1px 4px -1px #00000044, 2px 6px 10px -4px #00000022, -1px 6px 10px -4px #00000022, 0px 4px 16px -4px #00000044",
+				},
+			},
 			fontSizes: {
 				// xs: { value: "0.75rem" },
 				// sm: { value: "1rem" },

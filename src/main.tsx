@@ -11,9 +11,11 @@ import { motion } from "motion/react"
 window.toJSON = (object: unknown) => JSON.parse(JSON.stringify(object))
 
 const hash = document.location?.hash?.slice(1)
-
 if (hash === "mini") AppState.setView("mini")
 else if (hash === "vid") AppState.setView("vid")
+
+const baseSize = parseInt(localStorage.getItem("baseSize"), 10) || 16
+document.documentElement.style.setProperty("--app-base-size", `${baseSize}px`)
 
 createRoot(document.getElementById("root")).render(
 	<StrictMode>
@@ -33,7 +35,7 @@ export function Loading() {
 			initial={{ opacity: 1 }}
 			exit={{ opacity: 0 }}
 			className={"loading-container"}
-			style={{ zIndex: 100}}
+			style={{ zIndex: 100 }}
 			transition={{ duration: 0.5 }}
 		>
 			<div className={"loading-text"}>Loading...</div>

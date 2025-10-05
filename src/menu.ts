@@ -1,5 +1,5 @@
 import {
-	AboutMetadata,
+	type AboutMetadata,
 	CheckMenuItem,
 	Menu,
 	MenuItem,
@@ -7,13 +7,14 @@ import {
 	Submenu,
 } from "@tauri-apps/api/menu"
 import * as pathLib from "@tauri-apps/api/path"
-import { message, open } from "@tauri-apps/plugin-dialog"
+import { open } from "@tauri-apps/plugin-dialog"
 import { exit } from "@tauri-apps/plugin-process"
+import { subscribe } from "valtio"
 import AppState from "./hooks/useAppState"
 import { loadFromPasteboard } from "./metadata/state/imageLoaders"
 import { createImageItem, MetadataStore } from "./metadata/state/store"
 import { getLocalImage } from "./utils/clipboard"
-import { subscribe } from "valtio"
+import { decreaseSize, increaseSize } from "./theme/helpers"
 
 const Separator = () => PredefinedMenuItem.new({ item: "Separator" })
 
@@ -154,6 +155,13 @@ const viewSubmenu = await Submenu.new({
 				AppState.setView("library")
 			},
 		}),
+		await MenuItem.new({
+			text: "Scratch",
+			id: "view-scratch",
+			action: async () => {
+				AppState.setView("scratch")
+			},
+		}),
 	],
 })
 
@@ -165,6 +173,19 @@ async function createOptionsMenu(opts?: CreateOptionMenuOpts) {
 	return await Submenu.new({
 		text: "Options",
 		items: [
+			await MenuItem.new({
+				text: "Decrease Size",
+				action: () => {
+					decreaseSize()
+				},
+			}),
+			await MenuItem.new({
+				text: "Increase Size",
+				action: () => {
+					increaseSize()
+				},
+			}),
+			await Separator(),
 			await CheckMenuItem.new({
 				text: "Clear pinned images on exit",
 				id: "options_clearPinsOnExit",
@@ -189,12 +210,7 @@ let lastOpts = null as CreateOptionMenuOpts
 
 async function updateMenu(opts?: CreateOptionMenuOpts) {
 	lastOpts = opts ?? createOpts()
-	const menus = [
-		aboutSubmenu,
-		fileSubmenu,
-		editSubmenu,
-		await createOptionsMenu(lastOpts),
-	]
+	const menus = [aboutSubmenu, fileSubmenu, editSubmenu, await createOptionsMenu(lastOpts)]
 	if (import.meta.env.DEV) menus.push(viewSubmenu)
 	const menu = await Menu.new({
 		items: menus,

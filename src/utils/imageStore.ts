@@ -3,8 +3,7 @@ import * as path from "@tauri-apps/api/path"
 import * as fs from "@tauri-apps/plugin-fs"
 import { store as createStore } from "@tauri-store/valtio"
 import { customAlphabet } from "nanoid"
-import { writeImage } from "@tauri-apps/plugin-clipboard-manager"
-import { Image } from "@tauri-apps/api/image"
+import { getStoreName } from "./helpers"
 
 const nanoid = customAlphabet("0123456789abcdefghijklmnopqrstuvwxyz", 12)
 
@@ -12,7 +11,7 @@ const appDataDir = await path.appDataDir()
 if (!(await fs.exists(appDataDir))) {
 	await fs.mkdir(appDataDir)
 }
-const imageFolder = await path.join(appDataDir, "images")
+const imageFolder = await path.join(appDataDir, getStoreName("images"))
 if (!(await fs.exists(imageFolder))) {
 	await fs.mkdir(imageFolder)
 }
@@ -30,7 +29,7 @@ export type ImageStoreEntry = {
 }
 
 const imagesStore = createStore(
-	"images",
+	getStoreName("images"),
 	{ images: {} as Record<string, ImageStoreEntryBase> },
 	{
 		autoStart: true,

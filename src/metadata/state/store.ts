@@ -7,6 +7,7 @@ import type { ImageSource } from "@/types"
 import ImageStore from "@/utils/imageStore"
 import { getDrawThingsDataFromExif } from "../helpers"
 import { ImageItem, type ImageItemConstructorOpts } from "./ImageItem"
+import { getStoreName } from "@/utils/helpers"
 
 export function bind<T extends object>(instance: T): T {
 	const props = Object.getOwnPropertyNames(Object.getPrototypeOf(instance))
@@ -22,7 +23,7 @@ export function bind<T extends object>(instance: T): T {
 }
 
 const metadataStore = store(
-	"metadata",
+	getStoreName("metadata"),
 	{
 		images: [] as ImageItem[],
 		currentIndex: null as number | null,
@@ -37,13 +38,9 @@ const metadataStore = store(
 		},
 	},
 	{
-		filterKeys: [
-			"currentImage",
-			"currentIndex",
-			"zoomPreview",
-			"showHistory",
-		],
+		filterKeys: ["currentImage", "currentIndex", "zoomPreview", "showHistory"],
 		filterKeysStrategy: "omit",
+
 		hooks: {
 			beforeFrontendSync(state) {
 				console.log("fe sync")
@@ -52,7 +49,10 @@ const metadataStore = store(
 				if ("images" in state && Array.isArray(state.images)) {
 					state.images = state.images.map((im) => {
 						if (im instanceof ImageItem) return im
-						return bind(proxy(new ImageItem(im as ImageItemConstructorOpts)))
+						const newIm = bind(proxy(new ImageItem(im as ImageItemConstructorOpts)))
+						newIm.loadEntry()
+						newIm.loadExif()
+						return newIm
 					})
 				}
 
@@ -148,10 +148,10 @@ export async function clearAll(keepTabs = false) {
 	await syncImageStore()
 }
 
-export async function clearImage(images: Pick<ImageItem, 'id'>[]) {
-	const ids = images.map(image => image.id);
-	MetadataStore.images = MetadataStore.images.filter(image => !ids.includes(image.id));
-	await syncImageStore();
+export async function clearImage(images: Pick<ImageItem, "id">[]) {
+	const ids = images.map((image) => image.id)
+	MetadataStore.images = MetadataStore.images.filter((image) => !ids.includes(image.id))
+	await syncImageStore()
 }
 
 export async function createImageItem(

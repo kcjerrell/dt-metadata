@@ -4,14 +4,14 @@ import type { ImageItem } from "../state/ImageItem"
 import DataItem from "./DataItem"
 
 interface ConfigProps extends MeasureGridProps {
-	image: ImageItem
+	imageSnap: ReadonlyState<ImageItem>
 	expandItems?: string[]
 	onItemCollapseChanged?: (key: string, collapse: "collapsed" | "expanded") => void
 }
 
 function Config(props: ConfigProps) {
-	const { image, expandItems, onItemCollapseChanged, ...rest } = props
-	const dtData = image?.dtData
+	const { imageSnap, expandItems, onItemCollapseChanged, ...rest } = props
+	const dtData = imageSnap?.dtData
 
 	if (!dtData) return null
 

@@ -1,7 +1,7 @@
 import { getCurrentWindow } from "@tauri-apps/api/window"
 import { useMemo, useRef } from "react"
 import { proxy, useSnapshot } from "valtio"
-import { loadFromPasteboard } from "./state/imageLoaders"
+import { loadFromPasteboard, loadImage2 } from "./state/imageLoaders"
 
 export function useMetadataDrop() {
 	const state = useRef(null)
@@ -22,7 +22,8 @@ export function useMetadataDrop() {
 				state.current.isDragging = false
 				state.current.dragCounter = 0
 				getCurrentWindow().setFocus()
-				loadFromPasteboard("drag")
+				// loadFromPasteboard("drag")
+				loadImage2("drag")
 			},
 			onDragEnter: (e: React.DragEvent<HTMLDivElement>) => {
 				e.preventDefault()
@@ -35,7 +36,7 @@ export function useMetadataDrop() {
 				state.current.dragCounter--
 				if (state.current.dragCounter === 0) state.current.isDragging = false
 				// console.log("drag leave", e.currentTarget)
-			},
+			}
 		}),
 		[],
 	)
