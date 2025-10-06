@@ -1,4 +1,4 @@
-import { HStack } from "@chakra-ui/react"
+import { Box, HStack } from "@chakra-ui/react"
 import MeasureGrid, { MeasureGridProps } from "@/components/measureGrid/MeasureGrid"
 import type { ImageItem } from "../state/ImageItem"
 import DataItem from "./DataItem"
@@ -13,7 +13,18 @@ function Config(props: ConfigProps) {
 	const { imageSnap, expandItems, onItemCollapseChanged, ...rest } = props
 	const dtData = imageSnap?.dtData
 
-	if (!dtData) return null
+	if (!dtData)
+		return (
+			<Box
+				width={"100%"}
+				justifySelf={"center"}
+				fontSize={"md"}
+				textAlign={"center"}
+				color={"fg.1"}
+			>
+				Image has no Draw Things data
+			</Box>
+		)
 
 	return (
 		<MeasureGrid columns={2} gap={1} fontSize={"xs"} maxItemLines={6} padding={1} {...rest}>
@@ -27,14 +38,24 @@ function Config(props: ConfigProps) {
 			<DataItem label={"Model"} data={dtData?.config.model} cols={2} />
 			<DataItem label={"Sampler"} data={samplerLabels[dtData?.config.sampler]} cols={2} />
 			<HStack gridColumn={"span 2"} width={"100%"} justifyContent={"space-between"}>
-				<DataItem label={"Steps"} data={dtData?.config.steps} decimalPlaces={0} flex={"1 1 min-content"} />
+				<DataItem
+					label={"Steps"}
+					data={dtData?.config.steps}
+					decimalPlaces={0}
+					flex={"1 1 min-content"}
+				/>
 				<DataItem
 					label={"ImageGuidance"}
 					data={dtData?.config.imageGuidanceScale}
 					decimalPlaces={1}
 					flex={"1 1 min-content"}
 				/>
-				<DataItem label={"Shift"} data={dtData?.config.shift} decimalPlaces={2} flex={"3 0 min-content"} />
+				<DataItem
+					label={"Shift"}
+					data={dtData?.config.shift}
+					decimalPlaces={2}
+					flex={"3 0 min-content"}
+				/>
 			</HStack>
 			<DataItem
 				label={"Prompt"}

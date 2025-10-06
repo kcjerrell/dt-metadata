@@ -1,7 +1,7 @@
-import { Box, chakra, GridItem, HStack } from "@chakra-ui/react"
-import { useCallback } from "react"
 import { useMeasureGrid } from "@/components/measureGrid/useMeasureGrid"
 import { useTimedState } from "@/hooks/useTimedState"
+import { Box, chakra, GridItem, HStack } from "@chakra-ui/react"
+import { useCallback } from "react"
 
 interface DataItemProps<T> extends ChakraProps {
 	label: string
@@ -184,7 +184,7 @@ export function prepData(
 	}
 	if (typeof data === "boolean") return [String(data), false, "boolean"]
 	if (typeof data === "string") {
-		const text = data.replace(/&#xA;/g, "\n")
+		const text = decodeHtmlEntities(data)
 		if (
 			(text.startsWith("{") && text.endsWith("}")) ||
 			(text.startsWith("[") && text.endsWith("]"))
@@ -217,4 +217,10 @@ export function prepData(
 
 function isInt(value: number, epsilon = 0.000001) {
 	return Math.abs(Math.round(value) - value) < epsilon
+}
+
+function decodeHtmlEntities(str: string) {
+	const parser = new DOMParser()
+	const doc = parser.parseFromString(str, "text/html")
+	return doc.documentElement.textContent
 }

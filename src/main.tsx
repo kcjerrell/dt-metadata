@@ -7,6 +7,7 @@ import AppState from "./hooks/useAppState"
 import "./index.css"
 import { system } from "./theme/theme"
 import { motion } from "motion/react"
+import { getCurrentWindow } from '@tauri-apps/api/window'
 
 window.toJSON = (object: unknown) => JSON.parse(JSON.stringify(object))
 
@@ -16,6 +17,12 @@ else if (hash === "vid") AppState.setView("vid")
 
 const baseSize = parseInt(localStorage.getItem("baseSize"), 10) || 16
 document.documentElement.style.setProperty("--app-base-size", `${baseSize}px`)
+
+// temp fix in case exception is thrown during first render.
+// use an error boundary instead
+setTimeout(() => {
+	getCurrentWindow().show()
+}, 3000)
 
 createRoot(document.getElementById("root")).render(
 	<StrictMode>

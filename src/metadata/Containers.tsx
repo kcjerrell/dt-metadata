@@ -58,20 +58,6 @@ export const ContentPane = chakra(
 	}),
 )
 
-export const CurrentImage = chakra(
-	"img",
-	defineRecipe({
-		base: {
-			maxWidth: "100%",
-			maxHeight: "100%",
-			minWidth: 0,
-			minHeight: 0,
-			borderRadius: "sm",
-			boxShadow: "pane1"
-		},
-	}),
-)
-
 export const InfoPaneContainer = chakra(
 	"div",
 	defineRecipe({

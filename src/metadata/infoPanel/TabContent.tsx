@@ -34,6 +34,7 @@ const TabContent = (props) => {
 			overflowY="auto"
 			overscrollBehavior={"contain"}
 			onScroll={(e) => updateScroll?.(value, e.currentTarget.scrollTop)}
+			width={"100%"}
 			{...rest}
 		>
 			<Box ref={scrollContentRef}>{children}</Box>

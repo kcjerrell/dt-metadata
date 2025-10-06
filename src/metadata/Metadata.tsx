@@ -1,33 +1,20 @@
-import { Box, type BoxProps, Flex, HStack, Image, VStack } from "@chakra-ui/react"
-import {
-	motion,
-	MotionProps,
-	useAnimate,
-	useMotionValue,
-	type ValueAnimationTransition,
-} from "motion/react"
-import { type PropsWithChildren, useEffect, useRef } from "react"
+import { useEffect } from "react"
 import { useSnapshot } from "valtio"
-import { isInsideImage } from "@/utils/helpers"
+import { CheckRoot, ContentPane, LayoutRoot } from "./Containers"
 import History from "./History"
+import InfoPanel from "./infoPanel/InfoPanel"
+import { loadFromPasteboard } from "./state/imageLoaders"
 import { MetadataStore } from "./state/store"
 import Toolbar from "./Toolbar"
 import { useMetadataDrop } from "./useMetadataDrop"
-import { CheckRoot, ContentPane, CurrentImage, LayoutRoot } from "./Containers"
-import { showPreview } from "@/components/preview/Preview"
-import InfoPanel from "./infoPanel/InfoPanel"
-import { loadFromPasteboard } from "./state/imageLoaders"
+import CurrentImage from './components/CurrentImage'
 
 type MetadataComponentProps = Parameters<typeof CheckRoot>[0]
 
 function Metadata(props: MetadataComponentProps) {
 	const { ...restProps } = props
 
-	const dropRef = useRef<HTMLDivElement>(null)
-	const imgRef = useRef<HTMLImageElement>(null)
-
 	const snap = useSnapshot(MetadataStore)
-	const { currentImage, zoomPreview } = snap
 
 	const { isDragging, handlers } = useMetadataDrop()
 
@@ -61,35 +48,7 @@ function Metadata(props: MetadataComponentProps) {
 			<LayoutRoot>
 				<ContentPane>
 					<Toolbar zIndex={3} />
-					<Box
-						position={"relative"}
-						ref={dropRef}
-						flex={"1 1 auto"}
-						display="flex"
-						justifyContent="center"
-						alignItems="center"
-						minWidth={0}
-						minHeight={0}
-						padding={currentImage ? 1 : 8}
-						width={"100%"}
-						maxHeight={["40%", "unset"]}
-					>
-						{currentImage?.url ? (
-							<CurrentImage
-								key={currentImage?.id}
-								ref={imgRef}
-								src={currentImage?.url}
-								onClick={(e) => showPreview(e.currentTarget)}
-							/>
-						) : (
-							<Flex color={"fg/50"} fontSize={"xl"} justifyContent={"center"} alignItems={"center"}>
-								Drop image here
-							</Flex>
-						)}
-						{snap.showHistory && (
-							<HStack position={"absolute"} inset={4} bgColor={"bg.2/50"}></HStack>
-						)}
-					</Box>
+					<CurrentImage />
 					<History />
 				</ContentPane>
 				<InfoPanel />

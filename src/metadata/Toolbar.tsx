@@ -1,26 +1,26 @@
-import {
-	Box,
-	ButtonGroup,
-	HStack,
-	IconButton,
-	Spacer,
-	type StackProps,
-	VStack,
-} from "@chakra-ui/react"
-import { relaunch } from "@tauri-apps/plugin-process"
-import { AnimatePresence, motion } from "motion/react"
-import { ComponentProps, useEffect, type PropsWithChildren } from "react"
-import { FiClipboard, FiCopy, FiInfo, FiXCircle } from "react-icons/fi"
-import { GrPin } from "react-icons/gr"
-import type { IconType } from "react-icons/lib"
-import { useSnapshot } from "valtio"
 import { type ColorMode, useColorMode } from "@/components/ui/color-mode"
+import { Tooltip } from "@/components/ui/tooltip"
 import { postMessage, useMessages } from "@/context/Messages"
 import AppState from "@/hooks/useAppState"
 import ImageStore from "@/utils/imageStore"
-import { loadFromPasteboard, loadImage2 } from "./state/imageLoaders"
+import {
+	Box,
+	ButtonGroup,
+	type ButtonProps,
+	HStack,
+	IconButton,
+	Spacer,
+	VStack
+} from "@chakra-ui/react"
+import { relaunch } from "@tauri-apps/plugin-process"
+import { AnimatePresence, motion } from "motion/react"
+import { type ComponentProps, type PropsWithChildren, useEffect } from "react"
+import { FiClipboard, FiCopy, FiXCircle } from "react-icons/fi"
+import { GrPin } from "react-icons/gr"
+import type { IconType } from "react-icons/lib"
+import { useSnapshot } from "valtio"
+import { loadImage2 } from "./state/imageLoaders"
 import { clearAll, MetadataStore, pinImage } from "./state/store"
-
 
 const MotionVStack = motion.create(VStack)
 type ToolbarProps = ComponentProps<typeof MotionVStack>
@@ -63,6 +63,7 @@ function Toolbar(props: ToolbarProps) {
 						<HStack>
 							<ToolbarButton
 								icon={FiClipboard}
+								tip={'Load image from clipboard'}
 								onClick={async () => {
 									try {
 										await loadImage2("general")
@@ -72,46 +73,32 @@ function Toolbar(props: ToolbarProps) {
 								}}
 							/>
 							<ToolbarButton
+								tip={currentImage?.pin ? "Unpin image" :"Pin image"}
 								onClick={() => {
 									const pin = currentImage?.pin !== null ? null : true
 									pinImage(true, pin)
 									postMessage({
 										message: pin ? "Image pinned" : "Pin removed",
 										uType: "pinimage",
-										duration: 3000,
+										duration: 2000,
 										channel: "toolbar",
 									})
 								}}
 							>
 								<Pinned pin={currentImage?.pin} />
 							</ToolbarButton>
-							<ToolbarButton icon={FiXCircle} onClick={() => clearAll(true)} />
+							<ToolbarButton tip={"Clear unpinned images"} icon={FiXCircle} onClick={() => clearAll(true)} />
 							<ToolbarButton
 								icon={FiCopy}
+								tip={"Copy image"}
 								onClick={async () => {
 									if (!currentImage) return
 									await ImageStore.copy(currentImage?.id)
 									postMessage({
-										message: "Show copy",
-										duration: 3000,
+										message: "Image copied to clipboard",
+										duration: 2000,
 										channel: "toolbar",
 									})
-								}}
-							/>
-							<ToolbarButton
-								icon={FiInfo}
-								onClick={() => {
-									postMessage({
-										message: "Message!",
-										duration: 3000,
-										channel: "toolbar",
-									})
-								}}
-							/>
-							<ToolbarButton
-								icon={FiInfo}
-								onClick={() => {
-									MetadataStore.showHistory = !MetadataStore.showHistory
 								}}
 							/>
 							<UpgradeButton />
@@ -192,33 +179,34 @@ const UpgradeButton = (props) => {
 	}
 }
 
-const ToolbarButton = (
-	props: PropsWithChildren<{ onClick?: () => void; icon?: IconType; tip?: string }>,
+export const ToolbarButton = (
+	props: PropsWithChildren<ButtonProps & { onClick?: () => void; icon?: IconType; tip?: string }>,
 ) => {
 	const { icon: Icon, children, onClick, tip, ...restProps } = props
 
 	const content = Icon ? <Icon /> : children
 
 	return (
-		<IconButton
-			color={"fg.3"}
-			_hover={{
-				bg: "unset",
-				scale: 1.35,
-				color: "fg.1",
-			}}
-			scale={1.2}
-			size={"sm"}
-			title={tip}
-			onClick={onClick}
-			{...restProps}
-		>
-			{content}
-		</IconButton>
+		<Tooltip content={tip} contentProps={{fontSize: "sm", bgColor: "bg.3", color: "fg.1"}} >
+			<IconButton
+				color={"fg.3"}
+				_hover={{
+					bg: "unset",
+					scale: 1.35,
+					color: "fg.1",
+				}}
+				scale={1.2}
+				size={"sm"}
+				onClick={onClick}
+				{...restProps}
+			>
+				{content}
+			</IconButton>
+		</Tooltip>
 	)
 }
 
-const Pinned = ({ pin }: { pin?: number | null }) => {
+export const Pinned = ({ pin }: { pin?: number | null }) => {
 	const isPinned = pin != null
 
 	const UnPinned = motion(GrPin)
@@ -232,7 +220,6 @@ const Pinned = ({ pin }: { pin?: number | null }) => {
 				fill="none"
 				xmlns="http://www.w3.org/2000/svg"
 			>
-				<title>Pin</title>
 				<g>
 					<g transform="translate(20.354 33.361)">
 						<path
@@ -276,7 +263,6 @@ const UpgradeIcon = () => {
 			whileHover={{ y: 0 }}
 			// style={{ scale: 2 }}
 		>
-			<title>upgrade</title>
 			<g>
 				<UpgradePath
 					i={2}
