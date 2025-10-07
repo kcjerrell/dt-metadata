@@ -1,10 +1,10 @@
 {
-  "version": "0.0.2",
-  "pub_date": "2025-10-07T02:32:48.877Z",
+  "version": "0.0.3",
+  "pub_date": "2025-10-07T05:37:48.384Z",
   "platforms": {
     "darwin-aarch64": {
-      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRcUZJYXZtZURBNjhWVXhOVlFET0hsTllJUEVldHdWR3A2MisxdHoyMDhoY0ZValFhNUdCbUc0OFdySWJaRk9wczlCUjk1ZjF1ZEcrQVFuUFhXRFRSbU1rV2tBT2pFcEFrPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzU5ODA0MzY4CWZpbGU6RFRNLmFwcC50YXIuZ3oKNTZ2WEZ2M1MweVJteTd4VlpDZlQvZ2dUczArYUcvdTZFMEx1c0hWWGpvRDFPQnh0Ky9KWXBIazllQU9Gd0k4SHJ5SXhqUEc5QjR6RXZIdmZ2SHpOQkE9PQo=",
-      "url": "https://github.com/kcjerrell/dt-metadata/releases/download/v0.0.2/DTM.app.tar.gz"
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVRcUZJYXZtZURBNi92WW5hd2FLSyt5YlRaNUg3WnVaYUJPMmkzanVFSnZWNm8yRnRuVG1Rc2k5c3VCaGVWZmdIek5LVWRtaWNSUStCeFJ1OGxWVlE5M3F0cFFwamxtM3djPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzU5ODE1NDY4CWZpbGU6RFRNLmFwcC50YXIuZ3oKZjRyM0Q0cElmRjhEYVRYbm5IUWlCdlB2Z3A0RW9aTXdTc3ZrZTE2V3llQVNWOGVUR3pnMEQ2RS8yZ3JpUDZVUWFBTTZaV2x1bFEvY3IzeUwyaktjRGc9PQo=",
+      "url": "https://github.com/kcjerrell/dt-metadata/releases/download/v0.0.3/DTM.app.tar.gz"
     }
   }
 }
