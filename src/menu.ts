@@ -16,6 +16,7 @@ import { loadFromPasteboard } from "./metadata/state/imageLoaders"
 import { createImageItem, MetadataStore } from "./metadata/state/store"
 import { decreaseSize, increaseSize } from "./theme/helpers"
 import { getLocalImage } from "./utils/clipboard"
+import { postMessage } from './context/Messages'
 
 const Separator = () => PredefinedMenuItem.new({ item: "Separator" })
 
@@ -43,7 +44,16 @@ const aboutSubmenu = await Submenu.new({
 		await MenuItem.new({
 			text: "Check for Updates...",
 			id: "about_checkForUpdates",
-			action: async () => {},
+			action: async () => {
+				postMessage({
+					channel: "toolbar",
+					message: "Checking for updates...",
+					uType: "update",
+					duration: 3000
+				})
+				await AppState.checkForUpdate()
+
+			},
 		}),
 		await Separator(),
 		await PredefinedMenuItem.new({
