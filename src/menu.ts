@@ -1,3 +1,4 @@
+import { getVersion } from "@tauri-apps/api/app"
 import {
 	type AboutMetadata,
 	CheckMenuItem,
@@ -13,14 +14,14 @@ import { subscribe } from "valtio"
 import AppState from "./hooks/useAppState"
 import { loadFromPasteboard } from "./metadata/state/imageLoaders"
 import { createImageItem, MetadataStore } from "./metadata/state/store"
-import { getLocalImage } from "./utils/clipboard"
 import { decreaseSize, increaseSize } from "./theme/helpers"
+import { getLocalImage } from "./utils/clipboard"
 
 const Separator = () => PredefinedMenuItem.new({ item: "Separator" })
 
 const aboutApp: AboutMetadata = {
 	name: "DTM",
-	version: "0.0.1",
+	version: await getVersion(),
 	website: "https://github.com/kcjerrell/dtm",
 	websiteLabel: "DTM GitHub",
 	authors: ["kcjerrell"],

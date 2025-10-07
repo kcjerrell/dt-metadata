@@ -10,7 +10,7 @@ import {
 	HStack,
 	IconButton,
 	Spacer,
-	VStack
+	VStack,
 } from "@chakra-ui/react"
 import { relaunch } from "@tauri-apps/plugin-process"
 import { AnimatePresence, motion } from "motion/react"
@@ -63,7 +63,7 @@ function Toolbar(props: ToolbarProps) {
 						<HStack>
 							<ToolbarButton
 								icon={FiClipboard}
-								tip={'Load image from clipboard'}
+								tip={"Load image from clipboard"}
 								onClick={async () => {
 									try {
 										await loadImage2("general")
@@ -73,7 +73,7 @@ function Toolbar(props: ToolbarProps) {
 								}}
 							/>
 							<ToolbarButton
-								tip={currentImage?.pin ? "Unpin image" :"Pin image"}
+								tip={currentImage?.pin ? "Unpin image" : "Pin image"}
 								onClick={() => {
 									const pin = currentImage?.pin !== null ? null : true
 									pinImage(true, pin)
@@ -87,7 +87,11 @@ function Toolbar(props: ToolbarProps) {
 							>
 								<Pinned pin={currentImage?.pin} />
 							</ToolbarButton>
-							<ToolbarButton tip={"Clear unpinned images"} icon={FiXCircle} onClick={() => clearAll(true)} />
+							<ToolbarButton
+								tip={"Clear unpinned images"}
+								icon={FiXCircle}
+								onClick={() => clearAll(true)}
+							/>
 							<ToolbarButton
 								icon={FiCopy}
 								tip={"Copy image"}
@@ -151,6 +155,14 @@ function Toolbar(props: ToolbarProps) {
 	)
 }
 
+const statusTips = {
+	found: "Download update",
+	installed: "Click to finish update",
+	error: "Click to retry update",
+	downloading: "Downloading update",
+	installing: "Installing update",
+}
+
 const UpgradeButton = (props) => {
 	const appState = useSnapshot(AppState.store)
 
@@ -158,24 +170,28 @@ const UpgradeButton = (props) => {
 		if (appState.updateStatus === "unknown") AppState.checkForUpdate()
 	}, [appState.updateStatus])
 
+	if (appState.updateAttempts >= 3) return null
+
 	if (["checking", "unknown", "none"].includes(appState.updateStatus)) return null
 
-	if (["found", "ready", "installed"].includes(appState.updateStatus)) {
+	if (["found", "installed", "error"].includes(appState.updateStatus)) {
 		return (
 			<ToolbarButton
 				icon={UpgradeIcon}
-				tip={appState.updateStatus}
+				tip={statusTips[appState.updateStatus]}
 				onClick={async () => {
-					if (appState.updateStatus === "found") await AppState.downloadUpdate()
-					else if (appState.updateStatus === "ready") await AppState.installUpdate()
+					if (AppState.store.updateStatus === "found") {
+						await AppState.downloadAndInstallUpdate()
+					}
 					else if (appState.updateStatus === "installed") await relaunch()
+					else if (appState.updateStatus === "error") await AppState.retryUpdate()
 				}}
 			/>
 		)
 	}
 
-	if (appState.updateStatus === "downloading") {
-		return <Box>{(appState.updateProgress / appState.updateSize) * 100}%</Box>
+	if (appState.updateStatus === "downloading" || appState.updateStatus === "installing") {
+		return <ToolbarButton icon={Spinner} tip={statusTips[appState.updateStatus]} />
 	}
 }
 
@@ -187,7 +203,7 @@ export const ToolbarButton = (
 	const content = Icon ? <Icon /> : children
 
 	return (
-		<Tooltip content={tip} contentProps={{fontSize: "sm", bgColor: "bg.3", color: "fg.1"}} >
+		<Tooltip content={tip} contentProps={{ fontSize: "sm", bgColor: "bg.3", color: "fg.1" }}>
 			<IconButton
 				color={"fg.3"}
 				_hover={{
@@ -287,18 +303,11 @@ const UpgradeIcon = () => {
 					ty={105.414}
 					colorMode={colorMode}
 				/>
-				{/* <UpgradePath
-					i={0}
-					d="M33.9844 0L0 22.6562L0 47.8L33.9844 25.1438L67.9688 47.8L67.9688 22.6563L33.9844 0Z"
-					tx={66.016}
-					ty={140.553}
-					colorMode={colorMode}
-				/> */}
 			</g>
 		</motion.svg>
 	)
 }
-// 11.647, 61.664, 105.414, 140.553
+
 const UpgradePath = ({
 	d,
 	tx,
@@ -334,6 +343,76 @@ const UpgradePath = ({
 			stroke="#000000"
 			style={{ x: tx, y: ty * 1.3 }}
 		/>
+	)
+}
+
+function Spinner(prop) {
+	return (
+		<motion.svg
+			width="200"
+			height="200"
+			viewBox="-100 -100 200 200"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			{/* <ellipse cx="100" cy="100" rx="100" ry="100" fill="white" /> */}
+			<defs>
+				<linearGradient
+					id={"gradient_1"}
+					gradientUnits="userSpaceOnUse"
+					x1="74.5"
+					y1="0"
+					x2="74.5"
+					y2="149"
+				>
+					<stop offset="0" stop-color="#FF0000" />
+					<stop offset="1" stop-color="#808080" />
+				</linearGradient>
+			</defs>
+			<g>
+				{/* <path d="M0 74.5C0 33.3548 36.75 0 74 0C111.25 0 149 33.3548 149 74.5C149 115.645 115.645 149 74.5 149" /> */}
+				{/* <path
+					d="M74.5 149L74.5 148Q104.945 148 126.472 126.472Q148 104.945 148 74.5Q148 44.7573 124.778 22.5432Q114.202 12.4271 101.039 6.77341Q87.5969 1 74 0.999992Q60.4157 1 47.1209 6.77185Q34.1226 12.4149 23.7289 22.537Q1 44.6719 1 74.5L0 74.5C0 33.3548 36.75 0 74 0C111.25 0 149 33.3548 149 74.5C149 115.645 115.645 149 74.5 149Z"
+					fill="none"
+					fill-rule="evenodd"
+					stroke="url(#gradient_1)"
+					stroke-width="5"
+				/> */}
+				{Array.from({ length: 8 }).map((_, i, arr) => {
+					const n = arr.length
+					const x1 = Math.cos((2 * Math.PI * i) / n) * 70
+					const y1 = Math.sin((2 * Math.PI * i) / n) * 70
+
+					return (
+						<motion.ellipse
+							key={i}
+							cx={x1}
+							cy={y1}
+							rx={0}
+							ry={0}
+							fill={"#51ac35"}
+							style={{
+								rotate: (i / n) * 360,
+							}}
+							animate={{
+								rx: [0, 30, 0],
+								ry: [0, 30, 0],
+								fill: ["#51ac3500", "#51ac35ff", "#51ac3500"],
+								
+							}}
+							transition={{
+								delay: i / n,
+								duration: 1,
+								times: [0, 0.1, 1],
+								// ease: ['circOut', 'circOut',],
+								repeat: Infinity,
+								repeatType: "loop",
+							}}
+						/>
+					)
+				})}
+			</g>
+		</motion.svg>
 	)
 }
 
