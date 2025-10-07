@@ -10,6 +10,8 @@ import {
 } from "@/utils/clipboard"
 import type { ImageItem } from "./ImageItem"
 import { createImageItem, replaceWithBetter } from "./store"
+import { drawPose } from "@/utils/pose"
+import { isOpenPose } from "@/utils/poseHelpers"
 
 type PromiseOrNot<T> = Promise<T> | T
 type GetterOrNot<T> = T | (() => T)
@@ -53,6 +55,10 @@ export async function loadImage2(pasteboard: "general" | "drag") {
 		const data = await getType(type)
 		if (!data) continue
 
+		if (isPose(type, data as string)) {
+			return createImageFromPose(data as string)
+		}
+
 		if (typeof data === "string") {
 			const images = await tryLoadText(data, type, source, checked)
 			if (images.length > 1) return true
@@ -66,7 +72,7 @@ export async function loadImage2(pasteboard: "general" | "drag") {
 			if (image) return true
 		}
 	}
-	
+
 	return null
 }
 
@@ -406,4 +412,20 @@ function extractPaths(text: string): { files: string[]; urls: string[] } {
 	}
 
 	return { files, urls }
+}
+
+function isPose(type: string, text: string) {
+	if (type !== "public.utf8-plain-text") return false
+
+	try {
+		const pose = JSON.parse(text)
+		return isOpenPose(pose)
+	} catch {}
+
+	return false
+}
+
+async function createImageFromPose(text: string) {
+	const image = await drawPose(JSON.parse(text))
+	await createImageItem(image, "png", { source: "clipboard" })
 }

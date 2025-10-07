@@ -57,7 +57,8 @@
     "active": true,
     "targets": [
       "app",
-      "dmg"
+      "dmg",
+      "deb"
     ],
     "icon": [
       "icons/32x32.png",
