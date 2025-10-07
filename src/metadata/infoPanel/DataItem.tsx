@@ -157,6 +157,8 @@ const DataItemContent = chakra("div", {
 		type: {
 			object: {
 				textIndent: "1rem hanging each-line",
+				fontFamily: "monospace",
+				fontSize: '0.8rem'
 			},
 			string: {},
 			number: {},

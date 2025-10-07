@@ -100,16 +100,16 @@ const fileSubmenu = await Submenu.new({
 				await loadFromPasteboard("general")
 			},
 		}),
-		await Separator(),
-		await MenuItem.new({
-			text: "Close",
-		}),
-		await MenuItem.new({
-			text: "Close unpinned",
-		}),
-		await MenuItem.new({
-			text: "Close all",
-		}),
+		// await Separator(),
+		// await MenuItem.new({
+		// 	text: "Close",
+		// }),
+		// await MenuItem.new({
+		// 	text: "Close unpinned",
+		// }),
+		// await MenuItem.new({
+		// 	text: "Close all",
+		// }),
 	],
 })
 
