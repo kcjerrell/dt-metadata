@@ -19,8 +19,8 @@ interface SliderWithInputProps extends ChakraProps {
 	sliderColor?: string
 }
 
-function calcHighlightArea(value: number, current: number, min: number, max: number) {
-	if (Number.isNaN(current) || current === value) return { display: 'none' }
+function calcHighlightArea(value: number, current: number | undefined, min: number, max: number) {
+	if (current === undefined ||Number.isNaN(current) || current === value) return { display: 'none' }
 
 	const range = max - min
 	const left = (Math.min(value, current) - min) / range

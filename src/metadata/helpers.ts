@@ -10,6 +10,7 @@ export function hasDrawThingsData(
 			exif &&
 			typeof exif === "object" &&
 			"exif" in exif &&
+			exif.exif &&
 			typeof exif.exif === "object" &&
 			"UserComment" in exif.exif &&
 			exif.exif.UserComment &&

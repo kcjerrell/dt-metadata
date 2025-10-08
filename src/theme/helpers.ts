@@ -1,5 +1,5 @@
 export function increaseSize() {
-	const size = parseInt(localStorage.getItem("baseSize"), 10) || 16
+	const size = parseInt(localStorage.getItem("baseSize") ?? "16", 10)
 	const newSize = Math.min(28, size + 2)
 
   localStorage.setItem("baseSize", newSize.toString())
@@ -7,7 +7,7 @@ export function increaseSize() {
 }
 
 export function decreaseSize() {
-  const size = parseInt(localStorage.getItem("baseSize"), 10) || 16
+  const size = parseInt(localStorage.getItem("baseSize") ?? "16", 10)
   const newSize = Math.max(12, size - 2)
 
   localStorage.setItem("baseSize", newSize.toString())

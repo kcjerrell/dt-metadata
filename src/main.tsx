@@ -1,13 +1,13 @@
 import { ChakraProvider } from "@chakra-ui/react"
-import { StrictMode, Suspense } from "react"
+import { getCurrentWindow } from "@tauri-apps/api/window"
+import { motion } from "motion/react"
+import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import App from "./App"
 import { ColorModeProvider } from "./components/ui/color-mode"
 import AppState from "./hooks/useAppState"
 import "./index.css"
 import { system } from "./theme/theme"
-import { motion } from "motion/react"
-import { getCurrentWindow } from '@tauri-apps/api/window'
 
 window.toJSON = (object: unknown) => JSON.parse(JSON.stringify(object))
 
@@ -15,7 +15,7 @@ const hash = document.location?.hash?.slice(1)
 if (hash === "mini") AppState.setView("mini")
 else if (hash === "vid") AppState.setView("vid")
 
-const baseSize = parseInt(localStorage.getItem("baseSize"), 10) || 16
+const baseSize = parseInt(localStorage.getItem("baseSize") ?? "16", 10)
 document.documentElement.style.setProperty("--app-base-size", `${baseSize}px`)
 
 // temp fix in case exception is thrown during first render.
@@ -24,17 +24,19 @@ setTimeout(() => {
 	getCurrentWindow().show()
 }, 3000)
 
-createRoot(document.getElementById("root")).render(
-	<StrictMode>
-		{/* <Suspense fallback={<Loading />}> */}
-		<ChakraProvider value={system}>
-			<ColorModeProvider>
-				<App />
-			</ColorModeProvider>
-		</ChakraProvider>
-		{/* </Suspense> */}
-	</StrictMode>,
-)
+const root = document.getElementById("root")
+if (root)
+	createRoot(root).render(
+		<StrictMode>
+			{/* <Suspense fallback={<Loading />}> */}
+			<ChakraProvider value={system}>
+				<ColorModeProvider>
+					<App />
+				</ColorModeProvider>
+			</ChakraProvider>
+			{/* </Suspense> */}
+		</StrictMode>,
+	)
 
 export function Loading() {
 	return (

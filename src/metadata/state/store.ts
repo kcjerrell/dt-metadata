@@ -226,9 +226,9 @@ export async function replaceWithBetter(
 }
 
 export type ExifType = Record<string, Record<string, unknown>>
-export async function getExif(imagePath: string): Promise<ExifType>
-export async function getExif(imageDataBuffer: ArrayBuffer): Promise<ExifType>
-export async function getExif(arg: ArrayBuffer | string): Promise<ExifType> {
+export async function getExif(imagePath: string): Promise<ExifType | null>
+export async function getExif(imageDataBuffer: ArrayBuffer): Promise<ExifType | null>
+export async function getExif(arg: ArrayBuffer | string): Promise<ExifType | null> {
 	let data = typeof arg !== "string" ? arg : null
 
 	if (data === null) data = (await readFile(arg as string)).buffer

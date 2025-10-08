@@ -1,30 +1,30 @@
 import {
 	createContext,
-	RefObject,
+	type RefObject,
 	useContext,
 	useEffect,
 	useLayoutEffect,
 	useRef,
-	useState,
 } from "react"
 import { proxy, useSnapshot } from "valtio"
 
-type MeasureGroupContextObject = React.Context<{
+type MeasureGroupContextType = {
 	columns: number
 	gap: number
 	collapseHeight?: number
 	sizerRef: RefObject<HTMLDivElement | null>
 	maxItemLines: number
-}>
+}
 
+type CollapseState = "normal" | "collapsed" | "expanded"
 type UseMeasureGridState = {
 	span: number
-	collapse: "normal" | "collapsed" | "expanded"
+	collapse: CollapseState
 	maxHeight: string
 	toggleCollapsed: () => void
 }
 
-export const MeasureGroupContext: MeasureGroupContextObject = createContext(null)
+export const MeasureGroupContext = createContext<MeasureGroupContextType | null>(null)
 
 type UseMeasureGridOpts = {
 	forceSpan?: boolean
@@ -33,7 +33,7 @@ type UseMeasureGridOpts = {
 	expanded?: boolean
 }
 
-export function useMeasureGrid(content?: string, opts: UseMeasureGridOpts = {}) {
+export function useMeasureGrid(content?: string | null, opts: UseMeasureGridOpts = {}) {
 	const { forceSpan = false, onCollapseChange, expanded, initialCollapse } = opts
 
 	const cv = useContext(MeasureGroupContext)
@@ -41,10 +41,10 @@ export function useMeasureGrid(content?: string, opts: UseMeasureGridOpts = {}) 
 	if (!stateRef.current) {
 		stateRef.current = proxy({
 			span: 1,
-			collapse: "normal",
+			collapse: "normal" as CollapseState,
 			maxHeight: "500px",
 			toggleCollapsed: () => {
-				if (stateRef.current.collapse === "normal") return
+				if (!stateRef.current || stateRef.current.collapse === "normal") return
 
 				if (expanded !== undefined && onCollapseChange) {
 					onCollapseChange(expanded ? "expanded" : "collapsed")
@@ -61,9 +61,10 @@ export function useMeasureGrid(content?: string, opts: UseMeasureGridOpts = {}) 
 	const snap = useSnapshot(state)
 
 	useLayoutEffect(() => {
-		if (!cv || !cv.sizerRef.current) return
+		if (!cv || !cv.sizerRef.current || !cv.sizerRef.current.parentElement) return
 		const sizer = cv.sizerRef.current
-		if (cv.collapseHeight === null) {
+		const sizerParent = cv.sizerRef.current.parentElement
+		if (cv.collapseHeight == null) {
 			sizer.textContent = Array(cv.maxItemLines).fill("ABC").join("\n")
 			cv.collapseHeight = sizer.clientHeight
 		}
@@ -74,7 +75,7 @@ export function useMeasureGrid(content?: string, opts: UseMeasureGridOpts = {}) 
 
 		const width = sizer.clientWidth
 		const height = sizer.clientHeight
-		const maxWidth = sizer.parentElement?.clientWidth
+		const maxWidth = sizerParent.clientWidth
 
 		state.span = width > maxWidth / columns - gap || forceSpan ? columns : 1
 		if (height > collapseHeight && state.collapse === "normal") {
@@ -84,7 +85,12 @@ export function useMeasureGrid(content?: string, opts: UseMeasureGridOpts = {}) 
 	}, [content, cv, forceSpan, state, initialCollapse])
 
 	useEffect(() => {
-		if (expanded !== undefined && onCollapseChange && stateRef.current.collapse !== "normal") {
+		if (
+			expanded !== undefined &&
+			onCollapseChange &&
+			stateRef.current &&
+			stateRef.current.collapse !== "normal"
+		) {
 			stateRef.current.collapse = expanded ? "expanded" : "collapsed"
 		}
 	}, [expanded, onCollapseChange])

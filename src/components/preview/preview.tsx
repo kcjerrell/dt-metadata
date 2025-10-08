@@ -44,7 +44,7 @@ export function Preview(props: PreviewProps) {
 
 	useEffect(() => {
 		const sourceElement = store.sourceElement.current
-		if (!sourceElement) return
+		if (!sourceElement || !transRef.current || !finalRef.current) return
 
 		const originalRect = sourceElement.getBoundingClientRect()
 		const previewRect = contain(
@@ -113,7 +113,7 @@ export function Preview(props: PreviewProps) {
 				}}
 				transition={{
 					...posTransition,
-					duration: show ? posTransition.duration * 1.5 : posTransition.duration,
+					duration: show ? (posTransition.duration ?? 0) * 1.5 : posTransition.duration,
 					opacity: {
 						duration: 0,
 						delay: show ? 0 : posTransition.duration,
@@ -130,7 +130,7 @@ export function Preview(props: PreviewProps) {
 						width: widthMv,
 						height: heightMv,
 					}}
-					src={src}
+					src={src ?? undefined}
 					transition={posTransition}
 				/>
 				<motion.img
@@ -143,7 +143,7 @@ export function Preview(props: PreviewProps) {
 						width: "100%",
 						height: "100%",
 					}}
-					src={src}
+					src={src ?? undefined}
 					transition={posTransition}
 				/>
 			</motion.div>

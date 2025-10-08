@@ -14,7 +14,7 @@ function History(props: HistoryProps) {
 
 	const pinned = images.filter((i) => i.pin != null) as ImageItem[]
 	const unpinned = images.filter((i) => i.pin == null) as ImageItem[]
-	const imageItems = [...pinned, ...unpinned]
+	const imageItems = [...pinned, ...unpinned] as ReadonlyState<ImageItem[]>
 
 	return (
 		<Box

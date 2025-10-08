@@ -6,7 +6,7 @@ export type OpenPose = {
 	height: number
 }
 
-export function isOpenPose(pose): pose is OpenPose {
+export function isOpenPose(pose: Record<string, unknown>): pose is OpenPose {
 	if (!pose || !Array.isArray(pose.people)) return false
 	if ((pose.people as OpenPose["people"]).some((p) => p.pose_keypoints_2d.length !== 54))
 		return false
@@ -147,7 +147,7 @@ export function getPose(pose: OpenPose | Pose2d, index = 0) {
 				return { x: point, y: ps[i + 1], confidence: ps[i + 2] }
 			} else return undefined
 		})
-		.filter((p) => p && p[2] !== 0)
+		.filter((p) => p && Array.isArray(p) && p[2] !== 0)
 
 	if (p.length !== 18) throw new Error("pose must have 18 points")
 

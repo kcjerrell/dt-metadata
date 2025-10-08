@@ -8,10 +8,11 @@ import {
 	getClipboardTypes,
 	getLocalImage,
 } from "@/utils/clipboard"
-import type { ImageItem } from "./ImageItem"
-import { createImageItem, replaceWithBetter } from "./store"
+import { settledValues } from "@/utils/helpers"
 import { drawPose } from "@/utils/pose"
 import { isOpenPose } from "@/utils/poseHelpers"
+import type { ImageItem } from "./ImageItem"
+import { createImageItem, replaceWithBetter } from "./store"
 
 type PromiseOrNot<T> = Promise<T> | T
 type GetterOrNot<T> = T | (() => T)
@@ -125,9 +126,7 @@ async function tryLoadText(
 
 	if (!items.length) return []
 
-	return (await Promise.allSettled(items.map((item) => createImageItem(...item))))
-		.filter((p) => p.status === "fulfilled" && p.value !== null)
-		.map((p: PromiseFulfilledResult<ImageItem>) => p.value)
+	return settledValues(items.map((item) => createImageItem(...item)))
 }
 
 /**
@@ -156,7 +155,7 @@ export async function loadImage(
 	// try loading text
 	const text = (await resolveGetter(textOrGetter)) ?? {}
 
-	const textItems = [] as (Parameters<typeof createImageItem> | null)[]
+	const textItems = [] as Parameters<typeof createImageItem>[]
 	const checked = [] as string[]
 
 	for (const textType of clipboardTextTypes) {
@@ -215,7 +214,7 @@ export async function loadImage(
 
 export function parseText(value: string, type: string) {
 	let paths: string[] = []
-	let text: string
+	let text: string = ""
 
 	if (typeof value !== "string") return { files: [], urls: [] }
 
@@ -226,7 +225,8 @@ export function parseText(value: string, type: string) {
 			text = paths.map((f) => `'${f}'`).join(" ")
 			break
 		case "public.html": {
-			const text = extractImgSrc(value)
+			const src = extractImgSrc(value)
+			if (src) text = src
 			// paths = imgSrc ? [imgSrc] : []
 			break
 		}
@@ -427,5 +427,5 @@ function isPose(type: string, text: string) {
 
 async function createImageFromPose(text: string) {
 	const image = await drawPose(JSON.parse(text))
-	await createImageItem(image, "png", { source: "clipboard" })
+	if (image) await createImageItem(image, "png", { source: "clipboard" })
 }

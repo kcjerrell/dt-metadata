@@ -161,9 +161,13 @@ const statusTips = {
 	error: "Click to retry update",
 	downloading: "Downloading update",
 	installing: "Installing update",
+} as const
+function getStatusTip(status: typeof AppState.store["updateStatus"]) {
+	if (status in statusTips) return statusTips[status as keyof typeof statusTips]
+	else return undefined
 }
 
-const UpgradeButton = (props) => {
+const UpgradeButton = () => {
 	const appState = useSnapshot(AppState.store)
 
 	useEffect(() => {
@@ -178,7 +182,7 @@ const UpgradeButton = (props) => {
 		return (
 			<ToolbarButton
 				icon={UpgradeIcon}
-				tip={statusTips[appState.updateStatus]}
+				tip={getStatusTip(appState.updateStatus)}
 				onClick={async () => {
 					if (AppState.store.updateStatus === "found") {
 						await AppState.downloadAndInstallUpdate()
@@ -346,7 +350,7 @@ const UpgradePath = ({
 	)
 }
 
-function Spinner(prop) {
+function Spinner() {
 	return (
 		<motion.svg
 			width="200"
@@ -385,6 +389,7 @@ function Spinner(prop) {
 
 					return (
 						<motion.ellipse
+							// biome-ignore lint/suspicious/noArrayIndexKey: range id
 							key={i}
 							cx={x1}
 							cy={y1}

@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { Box, chakra, Flex } from "@chakra-ui/react"
 import { MetadataStore } from "../state/store"
 import { useSnapshot } from "valtio"

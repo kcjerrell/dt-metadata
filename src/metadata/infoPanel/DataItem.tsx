@@ -1,7 +1,7 @@
-import { useMeasureGrid } from "@/components/measureGrid/useMeasureGrid"
-import { useTimedState } from "@/hooks/useTimedState"
 import { Box, chakra, GridItem, HStack } from "@chakra-ui/react"
 import { useCallback } from "react"
+import { useMeasureGrid } from "@/components/measureGrid/useMeasureGrid"
+import { useTimedState } from "@/hooks/useTimedState"
 
 interface DataItemProps<T> extends ChakraProps {
 	label: string
@@ -42,6 +42,8 @@ function DataItem(props: DataItemProps<unknown>) {
 		setJustCopied(true)
 		navigator.clipboard.writeText(content ?? "")
 	}, [setJustCopied, content])
+
+	if (ignore) return null
 
 	return (
 		<GridItem

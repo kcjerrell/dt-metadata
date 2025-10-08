@@ -30,7 +30,7 @@ const store: MessageStore = proxy({
 	channels: {},
 	postMessage: (message: Omit<Message, "id">) => {
 		const channel = message.channel
-		if (!store?.channels?.[channel]) return
+		if (!store?.channels?.[channel]) throw new Error("No such channel")
 		const id = messageIdCounter++
 		if (message.uType) {
 			const uTypeMsgs = store.channels[channel].messages.filter((m) => m.uType === message.uType)
@@ -40,7 +40,7 @@ const store: MessageStore = proxy({
 		}
 		store.channels[channel].messages.push({ ...message, id })
 
-		let timeout: ReturnType<typeof setTimeout> = null
+		let timeout: ReturnType<typeof setTimeout> | null = null
 
 		const remove = () => {
 			if (timeout) clearTimeout(timeout)
@@ -52,7 +52,7 @@ const store: MessageStore = proxy({
 			updMessage.message = text
 			if (newDuration && newDuration > 0) {
 				updMessage.duration = newDuration
-				clearTimeout(timeout)
+				if (timeout != null) clearTimeout(timeout)
 				timeout = removeAfter(channel, id, newDuration)
 			}
 		}

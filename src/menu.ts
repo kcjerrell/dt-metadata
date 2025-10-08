@@ -217,7 +217,7 @@ async function createOptionsMenu(opts?: CreateOptionMenuOpts) {
 	})
 }
 
-let lastOpts = null as CreateOptionMenuOpts
+let lastOpts:  CreateOptionMenuOpts | null = null
 
 async function updateMenu(opts?: CreateOptionMenuOpts) {
 	lastOpts = opts ?? createOpts()

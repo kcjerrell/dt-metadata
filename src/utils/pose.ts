@@ -70,21 +70,22 @@ const stickWidth = 4
 export async function drawPose(pose: OpenPose) {
 	let poses: Pose2d[]
 	if (Array.isArray(pose)) {
-    poses = pose
+		poses = pose
 	} else if (isOpenPose(pose)) {
-    poses = getPoses(pose)
+		poses = getPoses(pose)
 	} else {
-    poses = [pose]
+		poses = [pose]
 	}
 
-  const width = pose.width
-  const height = pose.height
+	const width = pose.width
+	const height = pose.height
 
 	const canvas = document.createElement("canvas")
-  canvas.width = width
-  canvas.height = height
+	canvas.width = width
+	canvas.height = height
 
 	const ctx = canvas.getContext("2d")
+	if (!ctx) return
 	ctx.rect(0, 0, width, height)
 	ctx.fillStyle = "black"
 	ctx.fill()
@@ -121,10 +122,14 @@ export async function drawPose(pose: OpenPose) {
 	return buffer
 }
 
-async function canvasToBuffer(canvas: HTMLCanvasElement, type: string) : Promise<Uint8Array<ArrayBuffer>> {
-  return new Promise((resolve) => {
-    canvas.toBlob(async (blob) => {
-      resolve(new Uint8Array(await blob.arrayBuffer()))
-    }, type)
-  })
+async function canvasToBuffer(
+	canvas: HTMLCanvasElement,
+	type: string,
+): Promise<Uint8Array<ArrayBuffer>> {
+	return new Promise((resolve) => {
+		canvas.toBlob(async (blob) => {
+			if (blob) resolve(new Uint8Array(await blob.arrayBuffer()))
+			else resolve(new Uint8Array())
+		}, type)
+	})
 }

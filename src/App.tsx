@@ -131,7 +131,7 @@ function ViewContainer(props: PropsWithChildren<{ firstRender: { current: boolea
 			exit={{ opacity: 0, scale: 0.95 }}
 			style={{ width: "100%", height: "100%", display: "flex" }}
 		>
-			{props.children}
+			{children}
 		</motion.div>
 	)
 }
@@ -183,7 +183,7 @@ interface SidebarButtonProps extends ButtonProps {
 
 function SidebarItem(props: SidebarButtonProps) {
 	const { item, isActive, onClick, ...rest } = props
-	const { label, icon: Icon, viewId } = item
+	const { label, icon: Icon } = item
 	return (
 		<Box
 			position={"relative"}
@@ -210,12 +210,16 @@ const views = {
 	mini: lazy(() => import("./Mini")),
 	vid: lazy(() => import("./vid/Vid")),
 	library: lazy(() => import("./library/Library")),
-	scratch: lazy(() => import("./scratch/Scratch4")),
+	// scratch: lazy(() => import("./scratch/Scratch5")),
 }
 
 function getView(view: string) {
-	if (view in views) return views[view]
+	if (isView(view)) return views[view]
 	return views.metadata
+}
+
+function isView(view: string): view is keyof typeof views {
+	return view in views
 }
 
 export default App

@@ -22,8 +22,19 @@ const interpolationCollection = createListCollection({
 	items: ["none", "simple", "blend", "motion", "interpolate"],
 })
 
+type StoreType = {
+	types: string[]
+	clips: string[]
+	stdout: string[]
+	stderr: string[]
+	output: string
+	mode: string
+	fps: number
+	status: string
+}
+
 function Vid(props: ChakraProps) {
-	const storeRef = useRef(null)
+	const storeRef = useRef<StoreType | null>(null)
 	if (!storeRef.current) {
 		storeRef.current = proxy({
 			types: [] as string[],
@@ -81,6 +92,7 @@ function Vid(props: ChakraProps) {
 			>
 				<HStack>
 					{snap.clips.map((t) => (
+						// biome-ignore lint/a11y/useMediaCaption: na
 						<video
 							key={t}
 							src={convertFileSrc(t)}
@@ -164,7 +176,7 @@ function Vid(props: ChakraProps) {
 						const opts: ConcatVideoOpts = {
 							videoPaths: snap.clips as string[],
 							outputPath: output,
-							mode: snap.mode || ("none" as "none" | "simple" | "blend" | "motion"),
+							mode: (snap.mode || "none") as "none" | "simple" | "blend" | "motion",
 							fps: fps,
 						}
 						try {
@@ -324,7 +336,7 @@ export async function concatVideo(
 async function concatVideosX(
 	videoPaths: string[],
 	outputPath: string,
-	callback?: (stdout: string, stderr: string) => void,
+	callback?: (stdout: string | null, stderr: string | null) => void,
 ): Promise<void> {
 	if (videoPaths.length === 0) {
 		throw new Error("No video paths provided ❗")

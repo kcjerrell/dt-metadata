@@ -16,7 +16,7 @@ export async function getClipboardText(
 export async function getClipboardBinary(
 	type: string,
 	pasteboard?: PasteboardNames,
-): Promise<Uint8Array<ArrayBuffer>> {
+): Promise<Uint8Array<ArrayBuffer> | undefined> {
 	const data = await invoke("read_clipboard_binary", { ty: type, pasteboard })
 
 	if (data && Array.isArray(data)) {

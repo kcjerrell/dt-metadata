@@ -21,7 +21,7 @@ export class ImageItem {
 	source: ImageSource
 	type: string
 
-	private _exif?: ExifType
+	private _exif?: ExifType | null
 	private _dtData?: DrawThingsMetaData | null
 	private _exifStatus?: "pending" | "done" 
 	private _entry?: ImageStoreEntry

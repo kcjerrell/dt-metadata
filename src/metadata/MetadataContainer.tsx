@@ -1,15 +1,10 @@
-import { Toaster } from "@/components/ui/toaster"
+import type { ComponentProps } from "react"
 import Metadata from "./Metadata"
 
-function MetadataContainer(props) {
+function MetadataContainer(props: ComponentProps<typeof Metadata>) {
 	const { ...restProps } = props
 
-	return (
-		<>
-			<Metadata {...restProps} />
-			<Toaster />
-		</>
-	)
+	return <Metadata {...restProps} />
 }
 
 export default MetadataContainer

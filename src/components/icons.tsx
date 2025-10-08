@@ -1,7 +1,6 @@
-import { chakra } from "@chakra-ui/react"
-import { JSX } from "react"
+import { type ChakraComponent, chakra } from "@chakra-ui/react"
 
-const iconSvg = {
+const iconSvg: Record<string, ChakraComponent<"svg", { color2?: string }>> = {
 	arrowDown: (props) => {
 		return (
 			<chakra.svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" {...props}>

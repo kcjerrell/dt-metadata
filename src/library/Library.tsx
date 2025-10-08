@@ -1,12 +1,11 @@
-import { Box, Button, Input, VStack } from "@chakra-ui/react"
-import { proxy, useSnapshot } from "valtio"
-import { open } from "@tauri-apps/plugin-dialog"
-import { DirEntry, readDir, writeTextFile } from "@tauri-apps/plugin-fs"
-import { getDrawThingsDataFromExif } from "@/metadata/helpers"
-import ExifReader from "exifreader"
+import { Box, Button, VStack } from "@chakra-ui/react"
 import { appDataDir, join } from "@tauri-apps/api/path"
-import { DrawThingsMetaData } from "@/types"
+import { open } from "@tauri-apps/plugin-dialog"
+import { readDir, writeTextFile } from "@tauri-apps/plugin-fs"
+import { proxy, useSnapshot } from "valtio"
+import { getDrawThingsDataFromExif } from "@/metadata/helpers"
 import { getExif } from "@/metadata/state/store"
+import type { DrawThingsMetaData } from "@/types"
 
 const store = proxy({
 	files: [] as string[],
@@ -14,7 +13,7 @@ const store = proxy({
 	progress: 0,
 })
 
-function Library(props) {
+function Library() {
 	const snap = useSnapshot(store)
 
 	return (
@@ -22,6 +21,7 @@ function Library(props) {
 			<Button
 				onClick={async () => {
 					const res = await open({ directory: true })
+					if (!res) return
 					const files = await readDir(res)
 					const paths = await Promise.all(files.map(async (f) => await join(res, f.name)))
 					store.files = paths.filter((f) => f.endsWith(".png"))

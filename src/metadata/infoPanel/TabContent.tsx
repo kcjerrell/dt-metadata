@@ -1,8 +1,14 @@
 import { Box, useTabsContext } from "@chakra-ui/react"
 import { useEffect, useRef } from "react"
-import Tabs from './tabs'
+import Tabs from "./tabs"
 
-const TabContent = (props) => {
+interface TabContentProps extends ChakraProps {
+	updateScroll?: (tab: string, scrollPos: number) => void
+	scrollPos?: number
+	value?: string
+}
+
+const TabContent = (props: TabContentProps) => {
 	const { updateScroll, scrollPos, children, value, ...rest } = props
 	const cv = useTabsContext()
 
@@ -10,12 +16,13 @@ const TabContent = (props) => {
 	const scrollContentRef = useRef<HTMLDivElement>(null)
 
 	useEffect(() => {
-		if (!scrollRef.current) return
+		if (!scrollRef.current || !scrollContentRef.current) return
 
 		const resizeObserver = new ResizeObserver((entries) => {
+			if (!scrollRef.current) return
 			const entry = entries.find((e) => e.target === scrollContentRef.current)
 			if (!entry) return
-			scrollRef.current.scrollTop = scrollPos
+			scrollRef.current.scrollTop = scrollPos ?? 0
 		})
 		resizeObserver.observe(scrollContentRef.current)
 

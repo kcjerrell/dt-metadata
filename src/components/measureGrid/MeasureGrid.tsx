@@ -1,5 +1,5 @@
 import { Box, SimpleGrid, type SimpleGridProps } from "@chakra-ui/react"
-import { type PropsWithChildren, useCallback, useRef } from "react"
+import { type PropsWithChildren, useRef } from "react"
 import { MeasureGroupContext } from "@/components/measureGrid/useMeasureGrid"
 
 export interface MeasureGridProps extends SimpleGridProps {
@@ -16,7 +16,6 @@ export function MeasureGrid(props: PropsWithChildren<MeasureGridProps>) {
 		columns,
 		gap: 8,
 		maxItemLines,
-		collapseHeight: null,
 		sizerRef,
 	})
 

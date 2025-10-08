@@ -11,7 +11,7 @@ interface DetailsProps extends ChakraProps {
 
 function Details(props: DetailsProps) {
 	const { imageSnap, onItemCollapseChanged, expandItems, ...rest } = props
-	const { exif = {} } = imageSnap ?? {}
+	const exif = imageSnap?.exif ?? {}
 
 	const groups = groupItems(exif)
 

@@ -1,16 +1,17 @@
 import { getCurrentWindow } from "@tauri-apps/api/window"
 import { useMemo, useRef } from "react"
 import { proxy, useSnapshot } from "valtio"
-import { loadFromPasteboard, loadImage2 } from "./state/imageLoaders"
+import { loadImage2 } from "./state/imageLoaders"
 
 export function useMetadataDrop() {
-	const state = useRef(null)
+	const stateRef = useRef<{ isDragging: boolean; dragCounter: number } | null>(null)
 
-	if (state.current === null) {
-		state.current = proxy({ isDragging: true, dragCounter: 0 })
+	if (stateRef.current === null) {
+		stateRef.current = proxy({ isDragging: true, dragCounter: 0 })
 	}
+	const state = stateRef.current
 
-	const snap = useSnapshot(state.current)
+	const snap = useSnapshot(stateRef.current)
 
 	const handlers = useMemo(
 		() => ({
@@ -19,26 +20,26 @@ export function useMetadataDrop() {
 			},
 			onDrop: (e: React.DragEvent<HTMLDivElement>) => {
 				e.preventDefault()
-				state.current.isDragging = false
-				state.current.dragCounter = 0
+				state.isDragging = false
+				state.dragCounter = 0
 				getCurrentWindow().setFocus()
 				// loadFromPasteboard("drag")
 				loadImage2("drag")
 			},
 			onDragEnter: (e: React.DragEvent<HTMLDivElement>) => {
 				e.preventDefault()
-				state.current.dragCounter++
-				if (state.current.dragCounter >= 1) state.current.isDragging = true
+				state.dragCounter++
+				if (state.dragCounter >= 1) state.isDragging = true
 				// console.log("drag enter", e.currentTarget)
 			},
 			onDragLeave: (e: React.DragEvent<HTMLDivElement>) => {
 				e.preventDefault()
-				state.current.dragCounter--
-				if (state.current.dragCounter === 0) state.current.isDragging = false
+				state.dragCounter--
+				if (state.dragCounter === 0) state.isDragging = false
 				// console.log("drag leave", e.currentTarget)
 			}
 		}),
-		[],
+		[state],
 	)
 
 	return {

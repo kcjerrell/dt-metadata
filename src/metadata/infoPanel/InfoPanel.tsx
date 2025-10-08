@@ -18,7 +18,7 @@ function InfoPanel(props: InfoPanelProps) {
 	const { toggleColorMode } = useColorMode()
 
 	const store = MetadataStore
-	const { currentImage } = useSnapshot(store)
+	const { currentImage } = useSnapshot(store) as ReadonlyState<typeof store>
 
 	const expandedRef =
 		useRef<Record<string, { tab: string; expanded: Record<string, boolean> }>>(null)
@@ -32,13 +32,20 @@ function InfoPanel(props: InfoPanelProps) {
 		}
 	}
 	const expandedSnap = useSnapshot(expandedRef.current)
+	const currentExpanded = currentImage?.id ? expandedSnap[currentImage.id] : null
 	const scrollPosRef = useRef({} as Record<string, Record<string, number>>)
 	const [scrollPos, setScrollPos] = useState(0)
 
-	const selectedTab = expandedSnap[currentImage?.id]?.tab
+	const selectedTab = currentExpanded?.tab
+
+	const selectTab = useCallback((tab: string) => {
+		if (currentImage?.id && expandedRef.current?.[currentImage.id]) {
+			expandedRef.current[currentImage.id].tab = tab
+		}
+	}, [currentImage?.id])
 
 	useEffect(() => {
-		if (currentImage?.id && expandedRef.current[currentImage.id].tab && selectedTab) {
+		if (currentImage?.id && expandedRef.current?.[currentImage.id].tab && selectedTab) {
 			setScrollPos(scrollPosRef.current[currentImage.id]?.[selectedTab] ?? 0)
 		}
 	}, [currentImage, selectedTab])
@@ -58,10 +65,8 @@ function InfoPanel(props: InfoPanelProps) {
 				lazyMount
 				unmountOnExit
 				height={"100%"}
-				value={expandedSnap[currentImage?.id]?.tab}
-				onValueChange={(e) => {
-					expandedRef.current[currentImage.id].tab = e.value
-				}}
+				value={currentExpanded?.tab}
+				onValueChange={(e) => selectTab(e.value)}
 			>
 				<Tabs.List>
 					{["details", "config"].map((tab) => (
@@ -94,7 +99,7 @@ function InfoPanel(props: InfoPanelProps) {
 								k.replace("details_", ""),
 							)}
 							onItemCollapseChanged={(subkey, collapse) => {
-								if (!expandedRef.current[currentImage.id]) return
+								if (!expandedRef.current?.[currentImage.id]) return
 								const key = `details_${subkey}`
 								if (collapse === "collapsed")
 									delete expandedRef.current[currentImage.id].expanded[key]
@@ -116,7 +121,7 @@ function InfoPanel(props: InfoPanelProps) {
 								k.replace("config_", ""),
 							)}
 							onItemCollapseChanged={(subkey, collapse) => {
-								if (!expandedRef.current[currentImage.id]) return
+								if (!expandedRef.current?.[currentImage.id]) return
 								const key = `config_${subkey}`
 								if (collapse === "collapsed")
 									delete expandedRef.current[currentImage.id].expanded[key]

@@ -72,3 +72,16 @@ export function getStoreName(name: string) {
 	if (import.meta.env.DEV) return `dev_${name}`
 	return name
 }
+
+export async function settledValues<T>(promises: Promise<T>[]): Promise<NonNullable<T>[]> {
+	const results = await Promise.allSettled(promises)
+
+	function isFulfilled<U>(r: PromiseSettledResult<U>): r is PromiseFulfilledResult<U> {
+		return r.status === "fulfilled"
+	}
+
+	return results
+		.filter(isFulfilled)
+		.map((r) => r.value)
+		.filter((v): v is Awaited<NonNullable<T>> => v !== null)
+}
