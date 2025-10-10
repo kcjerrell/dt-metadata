@@ -1,9 +1,9 @@
 import { type ComponentProps, useEffect } from "react"
 import { CheckRoot, ContentPane, LayoutRoot } from "./Containers"
 import CurrentImage from "./components/CurrentImage"
-import History from "./History"
+import History from "./history/History"
 import InfoPanel from "./infoPanel/InfoPanel"
-import { loadFromPasteboard } from "./state/imageLoaders"
+import { loadImage2 } from "./state/imageLoaders"
 import Toolbar from "./Toolbar"
 import { useMetadataDrop } from "./useMetadataDrop"
 
@@ -13,7 +13,7 @@ function Metadata(props: ComponentProps<typeof CheckRoot>) {
 	const { handlers } = useMetadataDrop()
 
 	useEffect(() => {
-		const handler = () => loadFromPasteboard("general")
+		const handler = () => loadImage2("general")
 		window.addEventListener("paste", handler)
 		return () => window.removeEventListener("paste", handler)
 	}, [])

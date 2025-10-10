@@ -14,7 +14,7 @@ import { subscribe } from "valtio"
 import { toggleColorMode } from "./components/ui/color-mode"
 import { postMessage } from "./context/Messages"
 import AppState from "./hooks/useAppState"
-import { loadFromPasteboard } from "./metadata/state/imageLoaders"
+import { loadImage2 } from "./metadata/state/imageLoaders"
 import { clearAll, clearCurrent, createImageItem, MetadataStore } from "./metadata/state/store"
 import { themeHelpers } from "./theme/helpers"
 import { getLocalImage } from "./utils/clipboard"
@@ -111,7 +111,7 @@ const fileSubmenu = await Submenu.new({
 			text: "Open from pasteboard...",
 			id: "file_openPasteboard",
 			action: async () => {
-				await loadFromPasteboard("general")
+				await loadImage2("general")
 			},
 		}),
 		await Separator(),

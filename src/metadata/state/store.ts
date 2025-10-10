@@ -106,6 +106,8 @@ export function selectImage(image?: ImageItemParam) {
 		if (index === -1) return
 		MetadataStore.currentIndex = index
 	}
+	if (MetadataStore.currentIndex === null) console.log("selected no image")
+	else console.debug("selected image", MetadataStore.images[MetadataStore.currentIndex].id)
 }
 
 export function pinImage(image: ImageItemParam, value: number | boolean | null): void

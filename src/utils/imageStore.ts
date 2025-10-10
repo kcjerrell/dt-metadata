@@ -128,7 +128,7 @@ async function syncImages(keepIds: string[] = []) {
 async function copyImage(id: string) {
 	const entry = await getImage(id)
 	if (!entry) return
-
+	console.debug("copying image", entry.id)
 	const path = await getFullPath(id, entry.type)
 	const data = await fs.readFile(path)
 	await invoke("write_clipboard_binary", { ty: "public." + entry.type, data })

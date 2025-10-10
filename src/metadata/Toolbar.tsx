@@ -32,6 +32,8 @@ function Toolbar(props: ToolbarProps) {
 
 	const messageChannel = useMessages("toolbar")
 
+	console.debug('toolbar render')
+
 	return (
 		<HStack padding={2} data-tauri-drag-region height={"3rem"}>
 			<Spacer data-tauri-drag-region />
@@ -75,7 +77,7 @@ function Toolbar(props: ToolbarProps) {
 							<ToolbarButton
 								tip={currentImage?.pin ? "Unpin image" : "Pin image"}
 								onClick={() => {
-									const pin = currentImage?.pin !== null ? null : true
+									const pin = MetadataStore.currentImage?.pin !== null ? null : true
 									pinImage(true, pin)
 									postMessage({
 										message: pin ? "Image pinned" : "Pin removed",
@@ -96,8 +98,8 @@ function Toolbar(props: ToolbarProps) {
 								icon={FiCopy}
 								tip={"Copy image"}
 								onClick={async () => {
-									if (!currentImage) return
-									await ImageStore.copy(currentImage?.id)
+									if (!MetadataStore.currentImage) return
+									await ImageStore.copy(MetadataStore.currentImage?.id)
 									postMessage({
 										message: "Image copied to clipboard",
 										duration: 2000,
