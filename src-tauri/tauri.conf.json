@@ -4,9 +4,9 @@
   "version": "0.0.4",
   "identifier": "com.kcjer.dtm",
   "build": {
-    "beforeDevCommand": "yarn dev",
+    "beforeDevCommand": "yarn build-dep && yarn dev",
     "devUrl": "http://localhost:1420",
-    "beforeBuildCommand": "yarn build",
+    "beforeBuildCommand": "yarn build-dep && yarn build",
     "frontendDist": "../dist"
   },
   "plugins": {

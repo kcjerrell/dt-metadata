@@ -45,7 +45,7 @@ const imagesStore = createStore(
 	},
 )
 const store = imagesStore.state
-const _validTypes = ["png", "tiff", "jpg"]
+const _validTypes = ["png", "tiff", "jpg", "webp"]
 
 async function saveImage(image: Uint8Array, type: string): Promise<ImageStoreEntry | undefined> {
 	if (!type || !_validTypes.includes(type)) return

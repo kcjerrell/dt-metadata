@@ -30,6 +30,7 @@ const prioritizedTypes = [
 	"public.png",
 	"public.tiff",
 	"public.jpeg",
+	"public.webp",
 	"public.file-url",
 	"public.url",
 ]
@@ -266,7 +267,7 @@ export const clipboardTextTypes = [
 	"public.file-url",
 	"public.url",
 ]
-const clipboardImageTypes = ["public.png", "public.tiff", "public.jpeg"]
+const clipboardImageTypes = ["public.png", "public.tiff", "public.jpeg", "public.webp"]
 export async function loadFromPasteboard(pasteboard = "general" as "general" | "drag") {
 	const types = await getClipboardTypes(pasteboard)
 
