@@ -58,8 +58,8 @@ function DataItem(props: DataItemProps<unknown>) {
 				<Box
 					paddingLeft={0.5}
 					fontWeight={500}
-					fontSize={"sm"}
-					color={"fg.2"}
+					fontSize={"xs"}
+					color={"fg.1"}
 					overflow={"clip"}
 					textOverflow={"ellipsis"}
 				>
@@ -79,7 +79,7 @@ function DataItem(props: DataItemProps<unknown>) {
 			{collapse !== "normal" && (
 				<Box
 					fontSize={"xs"}
-					color={"fg.3"}
+					color={"fg.2"}
 					onClick={() => toggleCollapsed()}
 					position={"absolute"}
 					bottom={0}
@@ -144,7 +144,7 @@ const DataItemContent = chakra("div", {
 					content: '""',
 					position: "absolute",
 					height: "2rem",
-					backgroundImage: "linear-gradient(0deg, var(--chakra-colors-bg-2) 0%, #00000000 100%)",
+					backgroundImage: "linear-gradient(0deg, var(--chakra-colors-bg-1) 0%, #00000000 100%)",
 					bottom: "2px",
 					right: 0,
 					left: 0,

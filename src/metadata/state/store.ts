@@ -4,10 +4,10 @@ import { store } from "@tauri-store/valtio"
 import * as exifr from "exifr"
 import { proxy } from "valtio"
 import type { ImageSource } from "@/types"
+import { getStoreName } from "@/utils/helpers"
 import ImageStore from "@/utils/imageStore"
 import { getDrawThingsDataFromExif } from "../helpers"
 import { ImageItem, type ImageItemConstructorOpts } from "./ImageItem"
-import { getStoreName } from "@/utils/helpers"
 
 export function bind<T extends object>(instance: T): T {
 	const props = Object.getOwnPropertyNames(Object.getPrototypeOf(instance))
@@ -143,8 +143,6 @@ function reconcilePins() {
 export async function clearAll(keepTabs = false) {
 	if (keepTabs) MetadataStore.images = MetadataStore.images.filter((im) => im.pin != null)
 	else MetadataStore.images = []
-
-	MetadataStore.currentIndex = MetadataStore.images.length - 1
 	await syncImageStore()
 }
 
@@ -152,6 +150,10 @@ export async function clearImage(images: Pick<ImageItem, "id">[]) {
 	const ids = images.map((image) => image.id)
 	MetadataStore.images = MetadataStore.images.filter((image) => !ids.includes(image.id))
 	await syncImageStore()
+}
+
+export async function clearCurrent() {
+	if (MetadataStore.currentImage) await clearImage([MetadataStore.currentImage])
 }
 
 export async function createImageItem(

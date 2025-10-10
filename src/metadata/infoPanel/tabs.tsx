@@ -16,7 +16,13 @@ const Root = chakra(TabsRoot, {
 	},
 })
 const List = chakra(TabsList, {
-	base: { height: "min", minHeight: "min", marginBottom: 0, borderBottom: "1px solid #77777722" },
+	base: {
+		height: "min",
+		minHeight: "min",
+		marginBottom: 0,
+		borderBottom: "1px solid #77777722",
+		alignItems: "center",
+	},
 })
 const Trigger = chakra(TabsTrigger, {
 	base: {
@@ -28,7 +34,7 @@ const Trigger = chakra(TabsTrigger, {
 		_selected: {
 			color: "highlight",
 			bgColor: "bg.1",
-			borderRadius: "5px 5px 0px 0px"
+			borderRadius: "5px 5px 0px 0px",
 		},
 		_before: { display: "none" },
 		height: "min",
@@ -48,7 +54,7 @@ const Content = chakra(TabsContent, {
 	base: {
 		bgColor: "bg.1",
 		// height: "100%",
-		padding: 0,
+		padding: 1,
 		flex: "1 1 auto",
 	},
 })

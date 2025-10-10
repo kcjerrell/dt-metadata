@@ -1,8 +1,3 @@
-import { type ColorMode, useColorMode } from "@/components/ui/color-mode"
-import { Tooltip } from "@/components/ui/tooltip"
-import { postMessage, useMessages } from "@/context/Messages"
-import AppState from "@/hooks/useAppState"
-import ImageStore from "@/utils/imageStore"
 import {
 	Box,
 	ButtonGroup,
@@ -19,6 +14,11 @@ import { FiClipboard, FiCopy, FiXCircle } from "react-icons/fi"
 import { GrPin } from "react-icons/gr"
 import type { IconType } from "react-icons/lib"
 import { useSnapshot } from "valtio"
+import Tooltip from '@/components/Tooltip'
+import { type ColorMode, useColorMode } from "@/components/ui/color-mode"
+import { postMessage, useMessages } from "@/context/Messages"
+import AppState from "@/hooks/useAppState"
+import ImageStore from "@/utils/imageStore"
 import { loadImage2 } from "./state/imageLoaders"
 import { clearAll, MetadataStore, pinImage } from "./state/store"
 
@@ -207,7 +207,7 @@ export const ToolbarButton = (
 	const content = Icon ? <Icon /> : children
 
 	return (
-		<Tooltip content={tip} contentProps={{ fontSize: "sm", bgColor: "bg.3", color: "fg.1" }}>
+		<Tooltip tip={tip}>
 			<IconButton
 				color={"fg.3"}
 				_hover={{

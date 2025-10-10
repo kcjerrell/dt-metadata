@@ -1,7 +1,9 @@
 import { Box, VStack } from "@chakra-ui/react"
 import MeasureGrid from "@/components/measureGrid/MeasureGrid"
+import type { ImageSource } from "@/types"
 import type { ImageItem } from "../state/ImageItem"
 import DataItem from "./DataItem"
+import SourceDetails from "./SourceDetails"
 
 interface DetailsProps extends ChakraProps {
 	imageSnap?: ReadonlyState<ImageItem>
@@ -11,9 +13,11 @@ interface DetailsProps extends ChakraProps {
 
 function Details(props: DetailsProps) {
 	const { imageSnap, onItemCollapseChanged, expandItems, ...rest } = props
-	const exif = imageSnap?.exif ?? {}
 
+	const exif = imageSnap?.exif ?? {}
 	const groups = groupItems(exif)
+
+	const imageSource = imageSnap?.source ?? ({} as ImageSource)
 
 	return (
 		<VStack
@@ -24,6 +28,7 @@ function Details(props: DetailsProps) {
 			width={"100%"}
 			minWidth={0}
 		>
+			<SourceDetails imageSource={imageSource} />
 			{groups.map(({ name, items }) => {
 				return (
 					<MeasureGrid

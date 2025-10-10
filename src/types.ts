@@ -128,4 +128,7 @@ export type ImageItem = {
 
 export type ImageSource = {
 	source: "drop" | "clipboard" | "open"
-} | ({ file: string } | { url: string } | { image: string })
+	file?: string,
+	url?: string
+	image?: string
+}
