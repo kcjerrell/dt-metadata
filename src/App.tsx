@@ -2,12 +2,14 @@ import { Box, Button, type ButtonProps, chakra, HStack, Spacer, VStack } from "@
 import { getCurrentWindow } from "@tauri-apps/api/window"
 import { AnimatePresence, LayoutGroup, motion } from "motion/react"
 import { lazy, type PropsWithChildren, Suspense, useEffect, useRef, useState } from "react"
+import { ErrorBoundary } from "react-error-boundary"
 import { BiDetail } from "react-icons/bi"
 import { useSnapshot } from "valtio"
 import { Preview } from "./components/preview/Preview"
 import AppState from "./hooks/useAppState"
 import { Loading } from "./main"
 import "./menu"
+import ErrorFallback from "./ErrorFallback"
 
 const sidebarEnabled = false
 
@@ -29,6 +31,7 @@ function App() {
 			gap={0}
 			bgColor={"434753"}
 			transformOrigin={"left top"}
+			zoom={1}
 		>
 			{sidebarEnabled && (
 				<Button
@@ -95,19 +98,21 @@ function App() {
 						</motion.div>
 					</VStack>
 				)}
-				<Suspense fallback={<Loading />}>
-					<AnimatePresence>
-						<ViewContainer firstRender={firstRender}>
-							<View
-								flex={"1 1 auto"}
-								boxShadow={
-									"0px 0px 16px -3px #00000033, 0px 0px 8px -2px #00000022, 0px 0px 4px -1px #00000011"
-								}
-								borderRadius={"xl"}
-							/>
-						</ViewContainer>
-					</AnimatePresence>
-				</Suspense>
+				<ErrorBoundary FallbackComponent={ErrorFallback}>
+					<Suspense fallback={<Loading />}>
+						<AnimatePresence>
+							<ViewContainer firstRender={firstRender}>
+								<View
+									flex={"1 1 auto"}
+									boxShadow={
+										"0px 0px 16px -3px #00000033, 0px 0px 8px -2px #00000022, 0px 0px 4px -1px #00000011"
+									}
+									borderRadius={"xl"}
+								/>
+							</ViewContainer>
+						</AnimatePresence>
+					</Suspense>
+				</ErrorBoundary>
 			</LayoutGroup>
 			<Preview />
 		</HStack>
