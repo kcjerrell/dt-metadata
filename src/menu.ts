@@ -11,12 +11,13 @@ import * as pathLib from "@tauri-apps/api/path"
 import { open } from "@tauri-apps/plugin-dialog"
 import { exit } from "@tauri-apps/plugin-process"
 import { subscribe } from "valtio"
+import { toggleColorMode } from "./components/ui/color-mode"
+import { postMessage } from "./context/Messages"
 import AppState from "./hooks/useAppState"
 import { loadFromPasteboard } from "./metadata/state/imageLoaders"
-import { createImageItem, MetadataStore } from "./metadata/state/store"
-import { decreaseSize, increaseSize } from "./theme/helpers"
+import { clearAll, clearCurrent, createImageItem, MetadataStore } from "./metadata/state/store"
+import { themeHelpers } from "./theme/helpers"
 import { getLocalImage } from "./utils/clipboard"
-import { postMessage } from './context/Messages'
 
 const Separator = () => PredefinedMenuItem.new({ item: "Separator" })
 
@@ -49,10 +50,9 @@ const aboutSubmenu = await Submenu.new({
 					channel: "toolbar",
 					message: "Checking for updates...",
 					uType: "update",
-					duration: 3000
+					duration: 3000,
 				})
 				await AppState.checkForUpdate()
-
 			},
 		}),
 		await Separator(),
@@ -101,7 +101,10 @@ const fileSubmenu = await Submenu.new({
 				if (imagePath == null) return
 				const image = await getLocalImage(imagePath)
 				if (image)
-					await createImageItem(image, await pathLib.extname(imagePath), { file: imagePath })
+					await createImageItem(image, await pathLib.extname(imagePath), {
+						source: "open",
+						file: imagePath,
+					})
 			},
 		}),
 		await MenuItem.new({
@@ -111,16 +114,28 @@ const fileSubmenu = await Submenu.new({
 				await loadFromPasteboard("general")
 			},
 		}),
-		// await Separator(),
-		// await MenuItem.new({
-		// 	text: "Close",
-		// }),
-		// await MenuItem.new({
-		// 	text: "Close unpinned",
-		// }),
-		// await MenuItem.new({
-		// 	text: "Close all",
-		// }),
+		await Separator(),
+		await MenuItem.new({
+			text: "Close",
+			id: "file_close",
+			action: async () => {
+				await clearCurrent()
+			},
+		}),
+		await MenuItem.new({
+			text: "Close unpinned",
+			id: "file_closeUnpinned",
+			action: async () => {
+				await clearAll(true)
+			},
+		}),
+		await MenuItem.new({
+			text: "Close all",
+			id: "file_closeAll",
+			action: async () => {
+				await clearAll(false)
+			},
+		}),
 	],
 })
 
@@ -187,13 +202,19 @@ async function createOptionsMenu(opts?: CreateOptionMenuOpts) {
 			await MenuItem.new({
 				text: "Decrease Size",
 				action: () => {
-					decreaseSize()
+					themeHelpers.decreaseSize()
 				},
 			}),
 			await MenuItem.new({
 				text: "Increase Size",
 				action: () => {
-					increaseSize()
+					themeHelpers.increaseSize()
+				},
+			}),
+			await MenuItem.new({
+				text: "Toggle color mode",
+				action: () => {
+					toggleColorMode()
 				},
 			}),
 			await Separator(),
@@ -217,7 +238,7 @@ async function createOptionsMenu(opts?: CreateOptionMenuOpts) {
 	})
 }
 
-let lastOpts:  CreateOptionMenuOpts | null = null
+let lastOpts: CreateOptionMenuOpts | null = null
 
 async function updateMenu(opts?: CreateOptionMenuOpts) {
 	lastOpts = opts ?? createOpts()

@@ -9,8 +9,32 @@ import { LuMoon, LuSun } from "react-icons/lu"
 
 export interface ColorModeProviderProps extends ThemeProviderProps {}
 
+let toggleColorModeCallback = () => {}
+export function toggleColorMode() {
+	toggleColorModeCallback()
+}
+
+export function CallbackConnector(props: React.PropsWithChildren) {
+	const { toggleColorMode: toggleColorModeHook } = useColorMode()
+
+	React.useEffect(() => {
+		toggleColorModeCallback = toggleColorModeHook
+		return () => {
+			toggleColorModeCallback = () => {}
+		}
+	}, [toggleColorModeHook])
+
+	return props.children
+}
+
 export function ColorModeProvider(props: ColorModeProviderProps) {
-	return <ThemeProvider attribute="class" disableTransitionOnChange {...props} />
+	const { children, ...rest } = props
+
+	return (
+		<ThemeProvider attribute="class" disableTransitionOnChange {...rest}>
+			<CallbackConnector>{children}</CallbackConnector>
+		</ThemeProvider>
+	)
 }
 
 export type ColorMode = "light" | "dark"

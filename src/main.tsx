@@ -7,6 +7,7 @@ import App from "./App"
 import { ColorModeProvider } from "./components/ui/color-mode"
 import AppState from "./hooks/useAppState"
 import "./index.css"
+import { themeHelpers } from "./theme/helpers"
 import { system } from "./theme/theme"
 
 window.toJSON = (object: unknown) => JSON.parse(JSON.stringify(object))
@@ -15,8 +16,7 @@ const hash = document.location?.hash?.slice(1)
 if (hash === "mini") AppState.setView("mini")
 else if (hash === "vid") AppState.setView("vid")
 
-const baseSize = parseInt(localStorage.getItem("baseSize") ?? "16", 10)
-document.documentElement.style.setProperty("--app-base-size", `${baseSize}px`)
+themeHelpers.applySize()
 
 // temp fix in case exception is thrown during first render.
 // use an error boundary instead
