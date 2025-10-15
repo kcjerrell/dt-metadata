@@ -37,7 +37,7 @@ function Toolbar(props: ChakraProps) {
 		<ContentHeaderContainer data-tauri-drag-region {...restProps}>
 			<ToolbarContainer>
 				<ToolbarRoot borderBottom={messageChannel.messages.length ? "0px" : "1px"}>
-					<ToolbarButtonGroup layout={"size"} transition={{ duration: 2, ease: "easeOut" }}>
+					<ToolbarButtonGroup layout={"size"} transition={{ duration: 0.2, ease: "easeOut" }}>
 						<LayoutGroup>
 							<AnimatePresence mode={"sync"} propagate={false}>
 								{buttons.map((render) => render())}

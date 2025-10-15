@@ -1,25 +1,23 @@
 import { motion } from "motion/react"
 import { useEffect, useState } from "react"
-import { GrPin } from "react-icons/gr"
 
 export const PinnedIcon = ({ pin }: { pin?: number | null }) => {
-	const isPinned = pin != null
-	// const UnPinned = motion(GrPin)
-	// const [isPinned, setIsPinned] = useState(false)
-	// useEffect(() => {
-	// 	const timeout = setInterval(() => setIsPinned(ip => !ip), 1000)
-	// 	return () => clearInterval(timeout)
-	// }, [])
-	// if (isPinned)
+	const [isPinnedDisplay, setIsPinnedDisplay] = useState(false)
+
+	useEffect(() => {
+		if (pin === undefined) return
+		setIsPinnedDisplay(pin !== null)
+	}, [pin])
+
 	return (
 		<motion.svg
-			width="200"
-			height="200"
+			width="1em"
+			height="1em"
 			viewBox="0 0 200 200"
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"
-			animate={isPinned ? "pinned" : "unpinned"}
-			initial={isPinned ? "pinned" : "unpinned"}
+			animate={isPinnedDisplay ? "pinned" : "unpinned"}
+			initial={isPinnedDisplay ? "pinned" : "unpinned"}
 		>
 			{/* <rect x="0" y="0" width="200" height="200" stroke={"red"} strokeWidth={10} /> */}
 			<g>

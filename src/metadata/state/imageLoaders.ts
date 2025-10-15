@@ -12,6 +12,7 @@ import { drawPose } from "@/utils/pose"
 import { isOpenPose } from "@/utils/poseHelpers"
 import type { ImageItem } from "./ImageItem"
 import { createImageItem } from "./store"
+import { postMessage } from "@/context/Messages"
 
 const prioritizedTypes = [
 	"NSFilenamesPboardType",
@@ -41,9 +42,11 @@ export async function loadImage2(pasteboard: "general" | "drag") {
 	}
 
 	const checked: string[] = []
+	const skipTypes: string[] = []
 
 	for (const type of prioritizedTypes) {
 		if (!types.includes(type)) continue
+		if (skipTypes.includes(type)) continue
 
 		const data = await getType(type)
 		if (!data) continue
@@ -56,11 +59,15 @@ export async function loadImage2(pasteboard: "general" | "drag") {
 			const images = await tryLoadText(data, type, source, checked)
 			if (images.length > 1) return true
 			if (images.length === 1 && images[0].dtData) return true
+			if (type === "NSFilenamesPboardType") {
+				skipTypes.push("public.tiff")
+			}
 			// if one image, but image doesn't have dtdata, keep looking
 		} else if (data instanceof Uint8Array) {
 			const image = await createImageItem(data, getImageType(type), {
 				source,
 				image: type,
+				pasteboardType: type,
 			})
 			if (image) return true
 		}
@@ -91,6 +98,7 @@ async function tryLoadText(
 				{
 					source,
 					file,
+					pasteboardType: type,
 				},
 			]
 			items.push(item)
@@ -101,7 +109,17 @@ async function tryLoadText(
 		if (items.length) break
 		if (excludeMut.includes(url)) continue
 		excludeMut.push(url)
-		const image = await fetchImage(url)
+		const msg = postMessage({
+			channel: "toolbar",
+			message: "Downloading image...",
+			uType: "image",
+			duration: 1000,
+		})
+		let image = null
+		try {
+			image = await fetchImage(url)
+		} catch {}
+		msg.remove()
 		if (image) {
 			const item: Parameters<typeof createImageItem> = [
 				image,
@@ -109,6 +127,7 @@ async function tryLoadText(
 				{
 					source,
 					url,
+					pasteboardType: type,
 				},
 			]
 			items.push(item)

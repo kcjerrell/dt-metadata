@@ -9,7 +9,7 @@ function SourceDetails(props: { imageSource: ImageSource }) {
 	const imageSource = props.imageSource
 	const source = getSourceDescription(props.imageSource)
 	return (
-		<VStack
+		<SimpleGrid
 			columns={2}
 			fontSize={"xs"}
 			bgColor={"bg.1"}
@@ -18,7 +18,14 @@ function SourceDetails(props: { imageSource: ImageSource }) {
 			padding={1}
 			alignItems={"flex-start"}
 		>
-			<DataItem label={"Source"} data={source} />
+			<DataItem gridColumn={1} gridRow={1} label={"Source"} data={source} />
+			<DataItem
+				gridColumn={2}
+				gridRow={1}
+				label={"Data type"}
+				data={imageSource.pasteboardType}
+				wordBreak={"break-word"}
+			/>
 			{/* <HStack gap={0}>
 				<Tooltip tip={"Save a copy"}>
 					<IconButton size={"sm"} color={"fg.3"} variant={"ghost"}>
@@ -42,13 +49,15 @@ function SourceDetails(props: { imageSource: ImageSource }) {
 			</HStack> */}
 			{(imageSource.file || imageSource.url) && (
 				<DataItem
+					gridColumn={'1 / span 2'}
+					gridRow={2}
 					label={"Location"}
 					data={imageSource.file || imageSource.url}
 					wordBreak={"break-all"}
 					overflow={"clip"}
 				/>
 			)}
-		</VStack>
+		</SimpleGrid>
 	)
 }
 

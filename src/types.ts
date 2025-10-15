@@ -131,4 +131,5 @@ export type ImageSource = {
 	file?: string,
 	url?: string
 	image?: string
+	pasteboardType?: string
 }

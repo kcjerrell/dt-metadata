@@ -52,6 +52,7 @@ function DataItem(props: DataItemProps<unknown>) {
 			flexDirection={"column"}
 			gridColumn={gridColumn}
 			position={"relative"}
+			{...rest}
 		>
 			{/* <VStack gap={0}> */}
 			<HStack justifyContent={"space-between"}>
@@ -72,7 +73,6 @@ function DataItem(props: DataItemProps<unknown>) {
 				type={type}
 				onClick={handleClick}
 				maxHeight={maxHeight}
-				{...rest}
 			>
 				{content}
 			</DataItemContent>
