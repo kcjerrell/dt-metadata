@@ -131,10 +131,14 @@ async function copyImage(id: string) {
 	console.debug("copying image", entry.id)
 	const path = await getFullPath(id, entry.type)
 	const data = await fs.readFile(path)
-	await invoke("write_clipboard_binary", { ty: "public." + entry.type, data })
-	// const blob = new Blob([data])
-	// console.log('this far')
-	// navigator.clipboard.write([new ClipboardItem({ "image/png": blob })])
+	await invoke("write_clipboard_binary", { ty: `public.${entry.type}`, data })
+}
+
+async function saveCopy(id: string, dest: string) {
+	const entry = await getImage(id)
+	if (!entry) return
+	const path = await getFullPath(id, entry.type)
+	await fs.copyFile(path, dest)
 }
 
 const ImageStore = {
@@ -143,6 +147,7 @@ const ImageStore = {
 	remove: removeImage,
 	sync: syncImages,
 	copy: copyImage,
+	saveCopy: saveCopy,
 }
 
 export default ImageStore

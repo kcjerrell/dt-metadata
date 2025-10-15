@@ -1,6 +1,6 @@
 import { Box, type BoxProps } from "@chakra-ui/react"
 import { motion, useAnimate, useMotionValue, type ValueAnimationTransition } from "motion/react"
-import { createRef, useEffect, useRef } from "react"
+import { createRef, useCallback, useEffect, useRef } from "react"
 import { proxy, ref, useSnapshot } from "valtio"
 
 const store = proxy({
@@ -17,6 +17,11 @@ export function showPreview(srcElem: HTMLImageElement, src?: string) {
 
 export function hidePreview() {
 	store.showPreview = false
+}
+
+export function useIsPreviewActive() {
+	const { showPreview } = useSnapshot(store)
+	return showPreview
 }
 
 interface PreviewProps extends BoxProps {}
@@ -42,9 +47,24 @@ export function Preview(props: PreviewProps) {
 	const transRef = useRef<HTMLImageElement>(null)
 	const finalRef = useRef<HTMLImageElement>(null)
 
+	const keyHandler = useCallback((e: KeyboardEvent) => {
+		if (e.key === "Escape" || e.key === " ") {
+			e.stopImmediatePropagation()
+			hidePreview()
+		}
+		if (e.key === "Tab") {
+			e.stopImmediatePropagation()
+			e.preventDefault()
+		}
+	}, [])
+
 	useEffect(() => {
 		const sourceElement = store.sourceElement.current
 		if (!sourceElement || !transRef.current || !finalRef.current) return
+
+		if (show) {
+			document.addEventListener("keydown", keyHandler, { capture: true })
+		}
 
 		const originalRect = sourceElement.getBoundingClientRect()
 		const previewRect = contain(
@@ -86,7 +106,11 @@ export function Preview(props: PreviewProps) {
 			{ visibility: ["hidden", "hidden", show ? "hidden" : "visible"] },
 			{ duration: posTransition.duration, times: [0, 1, 1] },
 		)
-	}, [animate, heightMv, leftMv, widthMv, topMv, show])
+
+		return () => {
+			document.removeEventListener("keydown", keyHandler, { capture: true })
+		}
+	}, [animate, heightMv, leftMv, widthMv, topMv, show, keyHandler])
 
 	return (
 		<Box

@@ -5,7 +5,7 @@ import { lazy, type PropsWithChildren, Suspense, useEffect, useRef, useState } f
 import { ErrorBoundary } from "react-error-boundary"
 import { BiDetail } from "react-icons/bi"
 import { useSnapshot } from "valtio"
-import { Preview } from "./components/preview/Preview"
+import { Preview, useIsPreviewActive } from "./components/preview/Preview"
 import AppState from "./hooks/useAppState"
 import { Loading } from "./main"
 import "./menu"
@@ -18,6 +18,8 @@ function App() {
 
 	const snap = useSnapshot(AppState.store)
 	const View = getView(snap.currentView)
+
+	const isPreviewActive = useIsPreviewActive()
 
 	const [showSidebar, setShowSidebar] = useState(true)
 
@@ -48,6 +50,7 @@ function App() {
 			<LayoutGroup>
 				{sidebarEnabled && (
 					<VStack
+						inert={isPreviewActive}
 						position={"absolute"}
 						top={"0px"}
 						bottom={"0px"}
@@ -101,7 +104,7 @@ function App() {
 				<ErrorBoundary FallbackComponent={ErrorFallback}>
 					<Suspense fallback={<Loading />}>
 						<AnimatePresence>
-							<ViewContainer firstRender={firstRender}>
+							<ViewContainer firstRender={firstRender} inert={isPreviewActive}>
 								<View
 									flex={"1 1 auto"}
 									boxShadow={
@@ -119,8 +122,10 @@ function App() {
 	)
 }
 
-function ViewContainer(props: PropsWithChildren<{ firstRender: { current: boolean } }>) {
-	const { firstRender, children } = props
+function ViewContainer(
+	props: PropsWithChildren<{ firstRender: { current: boolean }; inert?: boolean }>,
+) {
+	const { firstRender, children, inert } = props
 
 	useEffect(() => {
 		if (firstRender.current) {
@@ -131,6 +136,7 @@ function ViewContainer(props: PropsWithChildren<{ firstRender: { current: boolea
 
 	return (
 		<motion.div
+			inert={inert}
 			initial={{ opacity: 0, scale: 0.95 }}
 			animate={{ opacity: 1, scale: 1 }}
 			exit={{ opacity: 0, scale: 0.95 }}

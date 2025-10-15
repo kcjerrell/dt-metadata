@@ -28,13 +28,11 @@ const root = document.getElementById("root")
 if (root)
 	createRoot(root).render(
 		<StrictMode>
-			{/* <Suspense fallback={<Loading />}> */}
 			<ChakraProvider value={system}>
 				<ColorModeProvider>
 					<App />
 				</ColorModeProvider>
-			</ChakraProvider>
-			{/* </Suspense> */}
+			</ChakraProvider>,
 		</StrictMode>,
 	)
 

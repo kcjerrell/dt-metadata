@@ -11,6 +11,8 @@ function TooltipComponent(props: PropsWithChildren<TooltipProps>) {
 
 	return (
 		<Tooltip
+			openDelay={1000}
+			closeDelay={undefined}
 			content={tip}
 			contentProps={{ fontSize: "sm", bgColor: "bg.3", color: "fg.1", ...rest }}
 			positioning={{ placement: "top" }}

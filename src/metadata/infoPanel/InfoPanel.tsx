@@ -7,11 +7,17 @@ import { useColorMode } from "@/components/ui/color-mode"
 import { themeHelpers } from "@/theme/helpers"
 import { capitalize } from "@/utils/helpers"
 import { InfoPaneContainer } from "../Containers"
-import { MetadataStore } from "../state/store"
+import { useCurrentImage } from "../state/hooks"
 import Config from "./Config"
 import Details from "./Details"
 import TabContent from "./TabContent"
 import Tabs from "./tabs"
+
+type UIState = {
+	tab: string
+	expanded: Record<string, boolean>
+	scrollPos: Record<string, number>
+}
 
 interface InfoPanelProps extends ChakraProps {}
 
@@ -19,49 +25,48 @@ function InfoPanel(props: InfoPanelProps) {
 	const { ...rest } = props
 	const { toggleColorMode } = useColorMode()
 
-	const store = MetadataStore
-	const { currentImage } = useSnapshot(store) as ReadonlyState<typeof store>
+	const currentImage = useCurrentImage()
 
-	const expandedRef =
-		useRef<Record<string, { tab: string; expanded: Record<string, boolean> }>>(null)
-	if (expandedRef.current === null) {
-		expandedRef.current = proxy({})
+	// each image item has its own selected tab and expanded detail items
+	// as well as scroll position per tab
+	const uiState = useRef<Record<string, UIState>>(null)
+	if (uiState.current === null) {
+		uiState.current = proxy({})
 	}
-	if (currentImage?.id && !expandedRef.current[currentImage?.id]) {
-		expandedRef.current[currentImage.id] = {
+	if (currentImage?.id && !uiState.current[currentImage?.id]) {
+		uiState.current[currentImage.id] = {
 			tab: currentImage.dtData ? "config" : "details",
 			expanded: {},
+			scrollPos: {},
 		}
 	}
-	const expandedSnap = useSnapshot(expandedRef.current)
+	const expandedSnap = useSnapshot(uiState.current)
 	const currentExpanded = currentImage?.id ? expandedSnap[currentImage.id] : null
-	const scrollPosRef = useRef({} as Record<string, Record<string, number>>)
-	const [scrollPos, setScrollPos] = useState(0)
 
 	const selectedTab = currentExpanded?.tab
+	const [initialScrollPos, setInitialScrollPos] = useState(0)
 
 	const selectTab = useCallback(
 		(tab: string) => {
-			if (currentImage?.id && expandedRef.current?.[currentImage.id]) {
-				expandedRef.current[currentImage.id].tab = tab
+			if (currentImage?.id && uiState.current?.[currentImage.id]) {
+				uiState.current[currentImage.id].tab = tab
 			}
 		},
 		[currentImage?.id],
 	)
 
 	useEffect(() => {
-		if (currentImage?.id && expandedRef.current?.[currentImage.id].tab && selectedTab) {
-			setScrollPos(scrollPosRef.current[currentImage.id]?.[selectedTab] ?? 0)
+		if (currentImage?.id && uiState.current?.[currentImage.id].tab && selectedTab) {
+			setInitialScrollPos(uiState.current[currentImage.id].scrollPos[selectedTab] ?? 0)
 		}
-	}, [currentImage, selectedTab])
+	}, [currentImage?.id, selectedTab])
 
 	const updateScroll = useCallback(
 		(tab: string, pos: number) => {
-			if (!store.currentImage) return
-			if (!scrollPosRef.current[tab]) scrollPosRef.current[store.currentImage.id] = {}
-			scrollPosRef.current[store.currentImage.id][tab] = pos
+			if (!currentImage?.id || !uiState.current?.[currentImage.id]) return
+			uiState.current[currentImage.id].scrollPos[tab] = pos
 		},
-		[store],
+		[currentImage?.id],
 	)
 
 	return (
@@ -70,7 +75,7 @@ function InfoPanel(props: InfoPanelProps) {
 				lazyMount
 				unmountOnExit
 				height={"100%"}
-				value={currentExpanded?.tab}
+				value={selectedTab}
 				onValueChange={(e) => selectTab(e.value)}
 			>
 				<Tabs.List>
@@ -119,7 +124,7 @@ function InfoPanel(props: InfoPanelProps) {
 					key={`${currentImage?.id}_details`}
 					value="details"
 					updateScroll={updateScroll}
-					scrollPos={scrollPos}
+					scrollPos={initialScrollPos}
 				>
 					{currentImage && (
 						<Details
@@ -128,11 +133,10 @@ function InfoPanel(props: InfoPanelProps) {
 								k.replace("details_", ""),
 							)}
 							onItemCollapseChanged={(subkey, collapse) => {
-								if (!expandedRef.current?.[currentImage.id]) return
+								if (!uiState.current?.[currentImage.id]) return
 								const key = `details_${subkey}`
-								if (collapse === "collapsed")
-									delete expandedRef.current[currentImage.id].expanded[key]
-								else expandedRef.current[currentImage.id].expanded[key] = true
+								if (collapse === "collapsed") delete uiState.current[currentImage.id].expanded[key]
+								else uiState.current[currentImage.id].expanded[key] = true
 							}}
 						/>
 					)}
@@ -141,7 +145,7 @@ function InfoPanel(props: InfoPanelProps) {
 					key={`${currentImage?.id}_config`}
 					value="config"
 					updateScroll={updateScroll}
-					scrollPos={scrollPos}
+					scrollPos={initialScrollPos}
 				>
 					{currentImage && (
 						<Config
@@ -150,11 +154,10 @@ function InfoPanel(props: InfoPanelProps) {
 								k.replace("config_", ""),
 							)}
 							onItemCollapseChanged={(subkey, collapse) => {
-								if (!expandedRef.current?.[currentImage.id]) return
+								if (!uiState.current?.[currentImage.id]) return
 								const key = `config_${subkey}`
-								if (collapse === "collapsed")
-									delete expandedRef.current[currentImage.id].expanded[key]
-								else expandedRef.current[currentImage.id].expanded[key] = true
+								if (collapse === "collapsed") delete uiState.current[currentImage.id].expanded[key]
+								else uiState.current[currentImage.id].expanded[key] = true
 							}}
 						/>
 					)}

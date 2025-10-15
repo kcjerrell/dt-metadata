@@ -1,9 +1,9 @@
 import { Box, chakra, Flex } from "@chakra-ui/react"
-import { MetadataStore } from "../state/store"
+import { AnimatePresence, motion, } from "motion/react"
+import { useRef } from "react"
 import { useSnapshot } from "valtio"
-import { motion, useMotionValue, useSpring } from "motion/react"
 import { showPreview } from "@/components/preview/Preview"
-import { useEffect, useRef } from "react"
+import { MetadataStore } from "../state/store"
 
 interface CurrentImageProps extends ChakraProps {}
 
@@ -28,18 +28,24 @@ function CurrentImage(props: CurrentImageProps) {
 			width={"100%"}
 			{...restProps}
 		>
-			{currentImage?.url ? (
-				<Img
-					key={currentImage?.id}
-					ref={imgRef}
-					src={currentImage?.url}
-					onClick={(e) => showPreview(e.currentTarget)}
-				/>
-			) : (
-				<Flex color={"fg/50"} fontSize={"xl"} justifyContent={"center"} alignItems={"center"}>
-					Drop image here
-				</Flex>
-			)}
+			<AnimatePresence mode={'popLayout'}>
+				{currentImage?.url ? (
+					<Img
+						key={currentImage?.id}
+						ref={imgRef}
+						src={currentImage?.url}
+						onClick={(e) => showPreview(e.currentTarget)}
+						initial={{ opacity: 0, zIndex: 1 }}
+						animate={{ opacity: 1 }}
+						exit={{ opacity: 0, zIndex: 0, transition: {duration: 0} }}
+						transition={{duration: 0}}
+					/>
+				) : (
+					<Flex color={"fg/50"} fontSize={"xl"} justifyContent={"center"} alignItems={"center"}>
+						Drop image here
+					</Flex>
+				)}
+			</AnimatePresence>
 		</Box>
 	)
 }

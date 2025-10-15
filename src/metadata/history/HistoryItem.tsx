@@ -134,6 +134,15 @@ const HistoryItemIndicator = chakra("div", {
 			},
 		},
 	},
+	compoundVariants: [
+		{
+			isPinned: true,
+			isSelected: true,
+			css: {
+				backgroundColor: "var(--chakra-colors-highlight)",
+			},
+		},
+	],
 })
 
 export default HistoryItem

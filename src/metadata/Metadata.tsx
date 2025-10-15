@@ -1,30 +1,41 @@
-import { type ComponentProps, useEffect } from "react"
+import { type ComponentProps, useEffect, useRef } from "react"
 import { CheckRoot, ContentPane, LayoutRoot } from "./Containers"
 import CurrentImage from "./components/CurrentImage"
 import History from "./history/History"
 import InfoPanel from "./infoPanel/InfoPanel"
 import { loadImage2 } from "./state/imageLoaders"
-import Toolbar from "./Toolbar"
+import Toolbar from "./toolbar/Toolbar"
 import { useMetadataDrop } from "./useMetadataDrop"
+import { selectImage } from "./state/store"
 
 function Metadata(props: ComponentProps<typeof CheckRoot>) {
 	const { ...restProps } = props
-
+	const rootRef = useRef<HTMLDivElement>(null)
 	const { handlers } = useMetadataDrop()
 
 	useEffect(() => {
 		const handler = () => loadImage2("general")
+		const escHandler = (e: KeyboardEvent) => {
+			if (e.key === "Escape") {
+				selectImage(null)
+			}
+		}
 		window.addEventListener("paste", handler)
-		return () => window.removeEventListener("paste", handler)
+		window.addEventListener("keydown", escHandler, { capture: false })
+
+		return () => {
+			window.removeEventListener("paste", handler)
+			window.removeEventListener("keydown", escHandler)
+		}
 	}, [])
 
 	return (
-		<CheckRoot id={"metadata"} {...handlers} {...restProps}>
+		<CheckRoot ref={rootRef} id={"metadata"} {...handlers} {...restProps}>
 			<LayoutRoot>
 				<ContentPane>
 					<Toolbar zIndex={3} />
 					<CurrentImage />
-					<History />
+					<History zIndex={2}/>
 				</ContentPane>
 				<InfoPanel />
 			</LayoutRoot>

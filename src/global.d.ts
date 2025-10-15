@@ -1,9 +1,11 @@
 import type { BoxProps } from "@chakra-ui/react"
 
 declare global {
-	type ReadonlyState<T> = {
-		readonly [P in keyof T]: ReadonlyState<T[P]>
-	}
+	type ReadonlyState<T> =
+		| {
+				readonly [P in keyof T]: ReadonlyState<T[P]>
+		  }
+		| Readonly<T>
 
 	type ChakraProps = Omit<BoxProps, "direction">
 

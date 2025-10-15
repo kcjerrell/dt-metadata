@@ -104,6 +104,7 @@ const HistoryContainer = chakra(
 			// marginBottom: "-4px",
 			flex: "0 0 auto",
 			transition: "transform 0.1s ease-in-out",
+			marginTop: "-1.5rem",
 			height: "4rem",
 			"&:hover > div.history-scrollbar": {
 				height: "3px",

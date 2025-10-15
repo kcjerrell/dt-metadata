@@ -95,7 +95,7 @@ async function syncImageStore() {
 	await ImageStore.sync(ids)
 }
 
-export function selectImage(image?: ImageItemParam) {
+export function selectImage(image?: ImageItemParam | null) {
 	if (image == null) {
 		MetadataStore.currentIndex = null
 	} else if (typeof image === "number") {
