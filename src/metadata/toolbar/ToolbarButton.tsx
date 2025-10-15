@@ -1,12 +1,14 @@
-
+import { type ButtonProps, chakra, IconButton } from "@chakra-ui/react"
+import type { ComponentType, JSX, PropsWithChildren, SVGProps } from "react"
+import type { IconType } from "react-icons/lib"
 import Tooltip from "@/components/Tooltip"
-import { ButtonProps, chakra, IconButton } from "@chakra-ui/react"
-import { PropsWithChildren } from "react"
-import { IconType } from "react-icons/lib"
 
-interface ToolbarButtonProps extends ChakraProps {}
+type ToolbarButtonProps = ButtonProps & {
+	icon?: IconType | ComponentType<SVGProps<SVGSVGElement>>
+	tip?: string
+}
 
-function ToolbarButton(props: PropsWithChildren<ButtonProps & { icon?: IconType; tip?: string }>) {
+function ToolbarButton(props: PropsWithChildren<ToolbarButtonProps>) {
 	const { icon: Icon, children, onClick, tip, ...restProps } = props
 
 	const content = Icon ? <Icon /> : children

@@ -1,10 +1,10 @@
-import { Spinner } from "@chakra-ui/react"
 import { relaunch } from "@tauri-apps/plugin-process"
 import { motion } from "motion/react"
 import { useEffect } from "react"
 import { useSnapshot } from "valtio"
 import { type ColorMode, useColorMode } from "@/components/ui/color-mode"
 import AppState from "@/hooks/useAppState"
+import Spinner from './Spinner'
 import ToolbarButton from "./ToolbarButton"
 
 const statusTips = {
